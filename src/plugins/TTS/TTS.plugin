@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<Plugin>
+  <Information>
+    <Name>TTS</Name>
+    <Author>Bahaco</Author>
+    <Version>1.0</Version>
+    <Description>Writes language and NPC name in Script.log for LOTRO-TTS</Description>
+  </Information>
+  <Package>TTS.Main</Package>
+</Plugin>
