@@ -7,6 +7,7 @@ from the game's extracted XML data files.
 """
 
 import argparse
+import json
 import logging
 import os
 import sqlite3
@@ -191,6 +192,17 @@ def generate_database(src_dir: Path, output_db: Path):
         logger.error(f"NPC.xml not found at: {npc_file}")
         sys.exit(1)
 
+    # Load scraped races cache if available
+    races_cache_file = npc_dir / "npc_races.json"
+    cached_races: dict[str, dict] = {}
+    if races_cache_file.exists():
+        try:
+            with open(races_cache_file, "r", encoding="utf-8") as f:
+                cached_races = json.load(f)
+            logger.info(f"Loaded {len(cached_races)} cached races from {races_cache_file.name}")
+        except Exception as e:
+            logger.warning(f"Could not load races cache from {races_cache_file}: {e}")
+
     npcs_dict: dict[int, tuple] = {}
     for _, elem in ET.iterparse(npc_file, events=("end",)):
         if elem.tag == "NPC":
@@ -201,8 +213,9 @@ def generate_database(src_dir: Path, output_db: Path):
                 name_de = npc_localized_names["de"].get(nid)
                 name_fr = npc_localized_names["fr"].get(nid)
                 gender = elem.attrib.get("gender")
-                race = elem.attrib.get("race")
-                url = elem.attrib.get("url")
+                race_info = cached_races.get(name_en) or {} if name_en else {}
+                race = elem.attrib.get("race") or race_info.get("race")
+                url = elem.attrib.get("url") or race_info.get("url")
                 npcs_dict[nid] = (nid, name_en, name_de, name_fr, gender, race, url)
         elem.clear()
 
@@ -408,14 +421,15 @@ def generate_database(src_dir: Path, output_db: Path):
     # Add any referenced quest-giving entities/objects to NPCs to preserve foreign key integrity
     for nid, name_en in extra_referenced_npcs.items():
         if nid not in npcs_dict:
+            race_info = cached_races.get(name_en) or {} if name_en else {}
             npcs_dict[nid] = (
                 nid,
                 name_en,
                 npc_localized_names["de"].get(nid),
                 npc_localized_names["fr"].get(nid),
                 None,
-                None,
-                None
+                race_info.get("race"),
+                race_info.get("url")
             )
     logger.info(f"Total NPCs (including quest interactables): {len(npcs_dict)}")
 

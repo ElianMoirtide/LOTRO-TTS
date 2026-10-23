@@ -1,0 +1,5842 @@
+{
+  "'Evil Dwarf'": {
+    "race": null,
+    "url": null
+  },
+  "'Frodo Baggins'": {
+    "race": null,
+    "url": null
+  },
+  "'Partygoer'": {
+    "race": null,
+    "url": null
+  },
+  "0-10": {
+    "race": null,
+    "url": null
+  },
+  "101-110": {
+    "race": null,
+    "url": null
+  },
+  "11-20": {
+    "race": null,
+    "url": null
+  },
+  "111-120": {
+    "race": null,
+    "url": null
+  },
+  "121-130": {
+    "race": null,
+    "url": null
+  },
+  "131 - 140": {
+    "race": null,
+    "url": null
+  },
+  "141 - 150 Adúrhid": {
+    "race": null,
+    "url": null
+  },
+  "141 - 150 Ikorbâni": {
+    "race": null,
+    "url": null
+  },
+  "141 - 150 Phetekâri": {
+    "race": null,
+    "url": null
+  },
+  "141 - 150 Umbari": {
+    "race": null,
+    "url": null
+  },
+  "151 - 160 Hamât Renewed": {
+    "race": null,
+    "url": null
+  },
+  "151 - 160 Kintai of Sul Madásh": {
+    "race": null,
+    "url": null
+  },
+  "151 - 160 Temámir": {
+    "race": null,
+    "url": null
+  },
+  "151 - 160 Zajâna": {
+    "race": null,
+    "url": null
+  },
+  "21-30": {
+    "race": null,
+    "url": null
+  },
+  "31-40": {
+    "race": null,
+    "url": null
+  },
+  "41-50": {
+    "race": null,
+    "url": null
+  },
+  "51-60": {
+    "race": null,
+    "url": null
+  },
+  "61-70": {
+    "race": null,
+    "url": null
+  },
+  "71-80": {
+    "race": null,
+    "url": null
+  },
+  "81-90": {
+    "race": null,
+    "url": null
+  },
+  "91-100": {
+    "race": null,
+    "url": null
+  },
+  "A Drubbing In the Deep": {
+    "race": null,
+    "url": null
+  },
+  "A Letter for You": {
+    "race": null,
+    "url": null
+  },
+  "A Letter from Combe": {
+    "race": null,
+    "url": null
+  },
+  "A Master's Guidance": {
+    "race": null,
+    "url": null
+  },
+  "A Matter on the Mirrormere": {
+    "race": null,
+    "url": null
+  },
+  "A Plea from the Trév Gállorg": {
+    "race": null,
+    "url": null
+  },
+  "A Young Brandybuck": {
+    "race": null,
+    "url": null
+  },
+  "A Young Took": {
+    "race": null,
+    "url": null
+  },
+  "Aarnikka": {
+    "race": null,
+    "url": null
+  },
+  "Abandoned Den": {
+    "race": null,
+    "url": null
+  },
+  "Abandoned Waggon": {
+    "race": null,
+    "url": null
+  },
+  "Abartârik": {
+    "race": null,
+    "url": null
+  },
+  "Abashêm": {
+    "race": null,
+    "url": null
+  },
+  "Abb": {
+    "race": null,
+    "url": null
+  },
+  "Aberthol": {
+    "race": null,
+    "url": null
+  },
+  "Abido": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Abido"
+  },
+  "Aboki": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Aboki"
+  },
+  "Abraiz": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Abraiz"
+  },
+  "Abûru": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ab%C3%BBru"
+  },
+  "Acca": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Acca"
+  },
+  "Accessory": {
+    "race": null,
+    "url": null
+  },
+  "Accessory Vendor": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Accessory_Vendor"
+  },
+  "Account-wide Ukhrash Frame": {
+    "race": null,
+    "url": null
+  },
+  "Accursed Warrior": {
+    "race": null,
+    "url": null
+  },
+  "Acdreda": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Acdreda"
+  },
+  "Achardis": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Achardis"
+  },
+  "Achardor": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Achardor"
+  },
+  "Aculf": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Aculf"
+  },
+  "Ada Musgrove": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ada_Musgrove"
+  },
+  "Adadhrond": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Adadhrond"
+  },
+  "Adagím Reflecting Pool": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Adag%C3%ADm_Reflecting_Pool"
+  },
+  "Adalfon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Adalfon"
+  },
+  "Adalgifu": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Adalgifu"
+  },
+  "Adalgrim Goodbody": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adalgrim_Goodbody"
+  },
+  "Adalmód": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Adalm%C3%B3d"
+  },
+  "Adamanda North-took": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adamanda_North-took"
+  },
+  "Adan Rhuvyg": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adan_Rhuvyg"
+  },
+  "Adaric Burrows": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adaric_Burrows"
+  },
+  "Adbert": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Adbert"
+  },
+  "Addie Wheatley": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Addie_Wheatley"
+  },
+  "Addo Benchuth": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Addo_Benchuth"
+  },
+  "Addy Rushtuft": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Addy_Rushtuft"
+  },
+  "Adela Topper": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Adela_Topper"
+  },
+  "Adelaide Bussey": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Adelaide_Bussey"
+  },
+  "Adelard Took": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adelard_Took"
+  },
+  "Adelgar Brandybuck": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adelgar_Brandybuck"
+  },
+  "Adept Flutist": {
+    "race": null,
+    "url": null
+  },
+  "Adept Harper": {
+    "race": null,
+    "url": null
+  },
+  "Adgyth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Adgyth"
+  },
+  "Adleithian": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Adleithian"
+  },
+  "Adnoth": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Adnoth"
+  },
+  "Adolinda": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Adolinda"
+  },
+  "Adon": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Adon"
+  },
+  "Adraminta Woodrose": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adraminta_Woodrose"
+  },
+  "Adro Underdelf": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adro_Underdelf"
+  },
+  "Adsiltia Madcorf": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adsiltia_Madcorf"
+  },
+  "Adso Haybank": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Adso_Haybank"
+  },
+  "Adult Bear": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Adult_Bear"
+  },
+  "Advance Guard Quartermaster": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Advance_Guard_Quartermaster"
+  },
+  "Adventurer's Quartermaster": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Adventurer%27s_Quartermaster"
+  },
+  "Adwold": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Adwold"
+  },
+  "Adwyn Flame-eye": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Adwyn_Flame-eye"
+  },
+  "Adâga": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ad%C3%A2ga"
+  },
+  "Adúrhid Quartermaster": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ad%C3%BArhid_Quartermaster"
+  },
+  "Adúrhid Task Board": {
+    "race": null,
+    "url": null
+  },
+  "Adúri": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ad%C3%BAri"
+  },
+  "Aecthor": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aecthor"
+  },
+  "Aedh": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aedh"
+  },
+  "Aefaron": {
+    "race": null,
+    "url": null
+  },
+  "Aeglas": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aeglas"
+  },
+  "Aegoniel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aegoniel"
+  },
+  "Aegúrel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aeg%C3%BArel"
+  },
+  "Aeldir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aeldir"
+  },
+  "Aeleth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aeleth"
+  },
+  "Aelindil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aelindil"
+  },
+  "Aelnir": {
+    "race": "Gondorian",
+    "url": "https://lotro-wiki.com/wiki/Aelnir"
+  },
+  "Aemeldir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aemeldir"
+  },
+  "Aerhant": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aerhant"
+  },
+  "Aerin": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Aerin"
+  },
+  "Aerlinn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aerlinn"
+  },
+  "Aerona": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aerona"
+  },
+  "Aeronwy": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aeronwy"
+  },
+  "Aesbrennil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aesbrennil"
+  },
+  "Aesgyl": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aesgyl"
+  },
+  "Aesseledh": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aesseledh"
+  },
+  "Aesseryn": {
+    "race": null,
+    "url": null
+  },
+  "Aessoneth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aessoneth"
+  },
+  "Afanen": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Afanen"
+  },
+  "Afflicted Khûtra Villager": {
+    "race": null,
+    "url": null
+  },
+  "Afic": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Afic"
+  },
+  "Aflur Smokebeard": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Aflur_Smokebeard"
+  },
+  "Afwald": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Afwald"
+  },
+  "Afárr": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Af%C3%A1rr"
+  },
+  "Against the Enemy": {
+    "race": null,
+    "url": null
+  },
+  "Agalûnu": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Agal%C3%BBnu"
+  },
+  "Agarnaith": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Agarnaith"
+  },
+  "Agatha Greendale": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Agatha_Greendale"
+  },
+  "Agazi": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Agazi"
+  },
+  "Aged Deed": {
+    "race": null,
+    "url": null
+  },
+  "Aged Scroll": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Aged_Scroll"
+  },
+  "Agela": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Agela"
+  },
+  "Agelbrit": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Agelbrit"
+  },
+  "Agelman": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Agelman"
+  },
+  "Agelric": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Agelric"
+  },
+  "Agelwyn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Agelwyn"
+  },
+  "Agerbráth's Mandible": {
+    "race": null,
+    "url": null
+  },
+  "Aggie Honeysuckle": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aggie_Honeysuckle"
+  },
+  "Aggy Digweed": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aggy_Digweed"
+  },
+  "Agiti": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Agiti"
+  },
+  "Agladal": {
+    "race": "Horse",
+    "url": "https://lotro-wiki.com/wiki/Agladal"
+  },
+  "Aglallen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aglallen"
+  },
+  "Aglarang": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aglarang"
+  },
+  "Aglardir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aglardir"
+  },
+  "Aglinn": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Aglinn"
+  },
+  "Agmund": {
+    "race": null,
+    "url": null
+  },
+  "Agnar": {
+    "race": null,
+    "url": null
+  },
+  "Agnar Brokentooth": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Agnar_Brokentooth"
+  },
+  "Agnes Martlet": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Agnes_Martlet"
+  },
+  "Agorin": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Agorin"
+  },
+  "Agátur the Boastful": {
+    "race": null,
+    "url": null
+  },
+  "Ahuz": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Ahuz"
+  },
+  "Ahâto": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ah%C3%A2to"
+  },
+  "Ahûd": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ah%C3%BBd"
+  },
+  "Ahûzath": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ah%C3%BBzath"
+  },
+  "Ai-thúda": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ai-th%C3%BAda"
+  },
+  "Aighrig": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aighrig"
+  },
+  "Aiglos": {
+    "race": null,
+    "url": null
+  },
+  "Ailing Reveller": {
+    "race": null,
+    "url": null
+  },
+  "Ailing Stout-axe": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Ailing_Stout-axe"
+  },
+  "Ailward Chubb": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Ailward_Chubb"
+  },
+  "Ailín": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ail%C3%ADn"
+  },
+  "Ainhard": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Ainhard"
+  },
+  "Aithil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aithil"
+  },
+  "Aitárshun": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ait%C3%A1rshun"
+  },
+  "Akhamâl": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Akham%C3%A2l"
+  },
+  "Akhmâra": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Akhm%C3%A2ra"
+  },
+  "Akhrûn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Akhr%C3%BBn"
+  },
+  "Akráho Bóro": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Akr%C3%A1ho_B%C3%B3ro"
+  },
+  "Akshir": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Akshir"
+  },
+  "Akálam": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ak%C3%A1lam"
+  },
+  "Akûshu": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ak%C3%BBshu"
+  },
+  "Alagiel": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alagiel"
+  },
+  "Alagwen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Alagwen"
+  },
+  "Alahamâr": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alaham%C3%A2r"
+  },
+  "Albert Yule": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Albert_Yule"
+  },
+  "Albin Northcotton": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Albin_Northcotton"
+  },
+  "Albra Lowbanks": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Albra_Lowbanks"
+  },
+  "Albryc Long-foot": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Albryc_Long-foot"
+  },
+  "Albryt": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Albryt"
+  },
+  "Aldbéort": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Aldb%C3%A9ort"
+  },
+  "Alder Appleblossom": {
+    "race": null,
+    "url": null
+  },
+  "Aldin": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Aldin"
+  },
+  "Aldith": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aldith"
+  },
+  "Aldith Bauman": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aldith_Bauman"
+  },
+  "Aldo Topleaf": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Aldo_Topleaf"
+  },
+  "Aldor Harding": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Aldor_Harding"
+  },
+  "Aldred Cartwright": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aldred_Cartwright"
+  },
+  "Aldstan": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Aldstan"
+  },
+  "Aldwulf": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Aldwulf"
+  },
+  "Aldyth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aldyth"
+  },
+  "Aldúlf": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ald%C3%BAlf_(Broadacres)"
+  },
+  "Aled": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aled"
+  },
+  "Aled Madcorf": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Aled_Madcorf"
+  },
+  "Alem": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Alem"
+  },
+  "Alex Grey": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alex_Grey"
+  },
+  "Alf Earthenway": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Alf_Earthenway"
+  },
+  "Alf Goodcliff": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Alf_Goodcliff"
+  },
+  "Alf Mossman": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alf_Mossman"
+  },
+  "Alfbert": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alfbert"
+  },
+  "Alfirimbes": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Alfirimbes"
+  },
+  "Alfrohir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Alfrohir"
+  },
+  "Algar Anvil-song": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Algar_Anvil-song"
+  },
+  "Algarâsh": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Algar%C3%A2sh"
+  },
+  "Alger Hazelhurst": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alger_Hazelhurst"
+  },
+  "Alhard": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Alhard"
+  },
+  "Alhild": {
+    "race": "Rohirrim",
+    "url": "https://lotro-wiki.com/wiki/Alhild"
+  },
+  "Alidal": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Alidal"
+  },
+  "Alikêsh": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alik%C3%AAsh"
+  },
+  "Alis": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Alis"
+  },
+  "Alizâr": {
+    "race": null,
+    "url": null
+  },
+  "Alken Chubb": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Alken_Chubb"
+  },
+  "Alla": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alla"
+  },
+  "Allan Coal": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Allan_Coal"
+  },
+  "Allan Threespot": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Allan_Threespot"
+  },
+  "Ally of Upokhir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ally_of_Upokhir"
+  },
+  "Almaric": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Almaric"
+  },
+  "Almedha": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Almedha"
+  },
+  "Almetha Ditchel": {
+    "race": "River hobbit",
+    "url": "https://lotro-wiki.com/wiki/Almetha_Ditchel"
+  },
+  "Alo": {
+    "race": "Cow",
+    "url": "https://lotro-wiki.com/wiki/Alo"
+  },
+  "Alo's Rump": {
+    "race": null,
+    "url": null
+  },
+  "Alora Oakbottom": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Alora_Oakbottom"
+  },
+  "Alphlanc": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Alphlanc"
+  },
+  "Alred": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alred"
+  },
+  "Alrek": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Alrek"
+  },
+  "Alrekur": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Alrekur"
+  },
+  "Alric Banks": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Alric_Banks"
+  },
+  "Alric Hornblower": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Alric_Hornblower"
+  },
+  "Althrendir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Althrendir"
+  },
+  "Altti": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Altti"
+  },
+  "Alun": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alun_(Dunbog)"
+  },
+  "Alvari son of Breki": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Alvari_son_of_Breki"
+  },
+  "Alvin Browning": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alvin_Browning"
+  },
+  "Alwar": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Alwar"
+  },
+  "Alwena": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alwena"
+  },
+  "Alwin Walker": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Alwin_Walker"
+  },
+  "Alwold": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Alwold"
+  },
+  "Alwuld": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Alwuld"
+  },
+  "Alwyn": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Alwyn"
+  },
+  "Alêtifa": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Al%C3%AAtifa"
+  },
+  "Amabel Redfern": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amabel_Redfern"
+  },
+  "Amal": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Amal"
+  },
+  "Amalíbi": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amal%C3%ADbi"
+  },
+  "Amaranth Goldworthy": {
+    "race": null,
+    "url": null
+  },
+  "Amarien": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amarien"
+  },
+  "Amarion": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amarion"
+  },
+  "Amarthiel": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Amarthiel"
+  },
+  "Amathon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amathon"
+  },
+  "Amban": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Amban"
+  },
+  "Ambarûl Reflecting Pool": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ambar%C3%BBl_Reflecting_Pool"
+  },
+  "Ambassador Spakorth": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Ambassador_Spakorth"
+  },
+  "Ambendel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Ambendel"
+  },
+  "Ambi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Ambi"
+  },
+  "Ambience Furnisher": {
+    "race": null,
+    "url": null
+  },
+  "Ambushed Ranger": {
+    "race": null,
+    "url": null
+  },
+  "Ambushing Orc": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ambushing_Orc"
+  },
+  "Amdir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amdir_(Ranger)"
+  },
+  "Amdân Dammul Quartermaster": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Amd%C3%A2n_Dammul_Quartermaster"
+  },
+  "Amegil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amegil"
+  },
+  "Amelia": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Amelia"
+  },
+  "Amethyst": {
+    "race": null,
+    "url": null
+  },
+  "Amethyst Firefly": {
+    "race": null,
+    "url": null
+  },
+  "Amlan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amlan"
+  },
+  "Amlug": {
+    "race": null,
+    "url": null
+  },
+  "Amondir": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Amondir"
+  },
+  "Amonel": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amonel"
+  },
+  "Ampélla": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amp%C3%A9lla"
+  },
+  "Amroth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Amroth"
+  },
+  "Amrúngal": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amr%C3%BAngal"
+  },
+  "Amrúnir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Amr%C3%BAnir"
+  },
+  "Amrúnwen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Amr%C3%BAnwen"
+  },
+  "Amârbo": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Am%C3%A2rbo"
+  },
+  "Amâsu": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Am%C3%A2su"
+  },
+  "An Shêru Reflecting Pool": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/An_Sh%C3%AAru_Reflecting_Pool"
+  },
+  "Anath": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Anath"
+  },
+  "Anborn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anborn"
+  },
+  "Ancient Letter": {
+    "race": null,
+    "url": null
+  },
+  "Ancient Placard": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ancient_Placard"
+  },
+  "Ancient Ring": {
+    "race": null,
+    "url": null
+  },
+  "Ancient Scroll": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ancient_Scroll"
+  },
+  "Ancient Spirit": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ancient_Spirit"
+  },
+  "Ancient Tapestry": {
+    "race": null,
+    "url": null
+  },
+  "Ancient Watching-stone": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ancient_Watching-stone"
+  },
+  "Andambeth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Andambeth"
+  },
+  "Andfast Tunnelly": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Andfast_Tunnelly"
+  },
+  "Andidhiel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Andidhiel"
+  },
+  "Andiriniel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Andiriniel"
+  },
+  "Andiron": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Andiron"
+  },
+  "Andol": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Andol"
+  },
+  "Andothol": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Andothol"
+  },
+  "Andras": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Andras"
+  },
+  "Andras' Ledger": {
+    "race": null,
+    "url": null
+  },
+  "Andreg": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Andreg"
+  },
+  "Andrethil": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Andrethil"
+  },
+  "Andrew Oakhurst": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Andrew_Oakhurst"
+  },
+  "Andri": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Andri"
+  },
+  "Andur": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Andur_(Ikorb%C3%A2ni)"
+  },
+  "Andy Boffin": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Andy_Boffin"
+  },
+  "Andy Brockhouse": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Andy_Brockhouse"
+  },
+  "Andy Deepwell": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Andy_Deepwell"
+  },
+  "Andy Smallburrow": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Andy_Smallburrow"
+  },
+  "Andyri": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Andyri"
+  },
+  "Andûmu": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/And%C3%BBmu"
+  },
+  "Aneira": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aneira"
+  },
+  "Angbor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Angbor"
+  },
+  "Angbor the Fearless": {
+    "race": null,
+    "url": null
+  },
+  "Angelica Boffin": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Angelica_Boffin"
+  },
+  "Anglaer": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anglaer"
+  },
+  "Anglalaith": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Anglalaith"
+  },
+  "Anglamel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Anglamel"
+  },
+  "Anglor": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Anglor"
+  },
+  "Anglú": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Angl%C3%BA"
+  },
+  "Angmar Citizen": {
+    "race": null,
+    "url": null
+  },
+  "Angmar Invasion Bestower": {
+    "race": null,
+    "url": null
+  },
+  "Angmar Reflecting Pool": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Angmar_Reflecting_Pool"
+  },
+  "Angmar Troll Session Bestower": {
+    "race": null,
+    "url": null
+  },
+  "Angmarim": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Angmarim"
+  },
+  "Angmarim Deserter": {
+    "race": null,
+    "url": null
+  },
+  "Angmarim Missive": {
+    "race": null,
+    "url": null
+  },
+  "Angmarim Spear": {
+    "race": null,
+    "url": null
+  },
+  "Angoleth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Angoleth"
+  },
+  "Angry Longbeard": {
+    "race": null,
+    "url": null
+  },
+  "Angry Man of Dale": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Angry_Man_of_Dale"
+  },
+  "Angry Shopper": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Angry_Shopper"
+  },
+  "Angwedh": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Angwedh"
+  },
+  "Angwun": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Angwun"
+  },
+  "Angàr": {
+    "race": null,
+    "url": null
+  },
+  "Angârmu": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ang%C3%A2rmu"
+  },
+  "Anhebir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Anhebir"
+  },
+  "Anhebron": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Anhebron"
+  },
+  "Anirin": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anirin"
+  },
+  "Anlaf the Forlorn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anlaf_the_Forlorn"
+  },
+  "Anmar": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Anmar"
+  },
+  "Ann Granger": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ann_Granger"
+  },
+  "Annaben": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Annaben"
+  },
+  "Annaethel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Annaethel"
+  },
+  "Annar": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Annar"
+  },
+  "Anne Rumsey": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anne_Rumsey"
+  },
+  "Annie Hayhurst": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Annie_Hayhurst"
+  },
+  "Anniversary Vendor": {
+    "race": null,
+    "url": null
+  },
+  "Annoth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Annoth"
+  },
+  "Annábla": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ann%C3%A1bla"
+  },
+  "Annúdhrod": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ann%C3%BAdhrod"
+  },
+  "Annúngil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ann%C3%BAngil"
+  },
+  "Anoch": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anoch"
+  },
+  "Anoradan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anoradan"
+  },
+  "Anornaneth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Anornaneth"
+  },
+  "Another Matter of Importance": {
+    "race": null,
+    "url": null
+  },
+  "Anrad": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anrad"
+  },
+  "Ansa": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ansa"
+  },
+  "Ansham": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ansham"
+  },
+  "Ansith": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ansith"
+  },
+  "Anson Roper": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Anson_Roper"
+  },
+  "Ansurr": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Ansurr"
+  },
+  "Answith": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Answith"
+  },
+  "Antagâl": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Antag%C3%A2l"
+  },
+  "Anthandir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anthandir"
+  },
+  "Antheron": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Antheron"
+  },
+  "Anurandir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Anurandir"
+  },
+  "Anurin": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anurin"
+  },
+  "Anwen": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anwen"
+  },
+  "Anwynd": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anwynd"
+  },
+  "Anxious Chicken": {
+    "race": null,
+    "url": null
+  },
+  "Anxious Woman": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Anxious_Woman"
+  },
+  "Anyâmat": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Any%C3%A2mat"
+  },
+  "Anárion": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/An%C3%A1rion"
+  },
+  "Anírwen": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/An%C3%ADrwen"
+  },
+  "Anórohir": {
+    "race": "Great eagle",
+    "url": "https://lotro-wiki.com/wiki/An%C3%B3rohir"
+  },
+  "Aphadaer": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Aphadaer"
+  },
+  "Aphadar": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Aphadar"
+  },
+  "Aphamâr": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Apham%C3%A2r"
+  },
+  "Aphila": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Aphila"
+  },
+  "Apple-loving Shrew": {
+    "race": "Shrews",
+    "url": "https://lotro-wiki.com/wiki/Apple-loving_Shrew"
+  },
+  "Aradax": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aradax"
+  },
+  "Aradia": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aradia"
+  },
+  "Arador": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Arador"
+  },
+  "Aradír the Overseer": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arad%C3%ADr_the_Overseer"
+  },
+  "Aradûni Captive": {
+    "race": null,
+    "url": null
+  },
+  "Aradûni Soldier": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arad%C3%BBni_Soldier"
+  },
+  "Aragorn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aragorn"
+  },
+  "Aragorn's Standard": {
+    "race": null,
+    "url": null
+  },
+  "Arahál": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arah%C3%A1l"
+  },
+  "Aralath": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aralath"
+  },
+  "Aran Greenwith": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aran_Greenwith"
+  },
+  "Aran Greyfeather": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Aran_Greyfeather"
+  },
+  "Aranbir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aranbir"
+  },
+  "Arandol": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arandol"
+  },
+  "Aranelleth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Aranelleth"
+  },
+  "Aranhir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aranhir"
+  },
+  "Aras": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aras"
+  },
+  "Arasdil": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Arasdil"
+  },
+  "Araslant": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Araslant"
+  },
+  "Arassiel": {
+    "race": "Maia",
+    "url": "https://lotro-wiki.com/wiki/Arassiel"
+  },
+  "Arastil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arastil"
+  },
+  "Arbald": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arbald"
+  },
+  "Arbor": {
+    "race": null,
+    "url": null
+  },
+  "Arcah, Daughter of Croär": {
+    "race": "Raven",
+    "url": "https://lotro-wiki.com/wiki/Arcah%2C_Daughter_of_Cro%C3%A4r"
+  },
+  "Arch Widdup": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arch_Widdup"
+  },
+  "Arcil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arcil"
+  },
+  "Ardefer": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Ardefer"
+  },
+  "Ardela": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ardela"
+  },
+  "Ardhun": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ardhun"
+  },
+  "Ardith": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Ardith"
+  },
+  "Ardo Aleford": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Ardo_Aleford"
+  },
+  "Ardub": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ardub"
+  },
+  "Ardwyn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ardwyn"
+  },
+  "Arel": {
+    "race": "Horse",
+    "url": "https://lotro-wiki.com/wiki/Arel"
+  },
+  "Areneth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Areneth"
+  },
+  "Arfirion": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Arfirion"
+  },
+  "Arfréa": {
+    "race": null,
+    "url": null
+  },
+  "Arfugol": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Arfugol"
+  },
+  "Argel": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Argel"
+  },
+  "Argirion": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Argirion"
+  },
+  "Ari Longarrow": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Ari_Longarrow"
+  },
+  "Arian": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arian"
+  },
+  "Aric the Stone-speaker": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aric_the_Stone-speaker"
+  },
+  "Ariel": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ariel"
+  },
+  "Ariene": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ariene"
+  },
+  "Arienh": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arienh"
+  },
+  "Arifael": {
+    "race": "Giant-kind",
+    "url": "https://lotro-wiki.com/wiki/Arifael"
+  },
+  "Arimûl": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arim%C3%BBl"
+  },
+  "Arin": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arin"
+  },
+  "Arinora": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arinora"
+  },
+  "Arlach": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Arlach"
+  },
+  "Arly Underhill": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Arly_Underhill"
+  },
+  "Armbeald": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Armbeald"
+  },
+  "Armour of the Usurper": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Armour_of_the_Usurper"
+  },
+  "Armoured Wraith": {
+    "race": null,
+    "url": null
+  },
+  "Armourer Vocation Trainer": {
+    "race": null,
+    "url": null
+  },
+  "Armund": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Armund"
+  },
+  "Arn Bulrush": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arn_Bulrush"
+  },
+  "Arnach Resident": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Arnach_Resident"
+  },
+  "Arnail": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arnail"
+  },
+  "Arnar": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arnar"
+  },
+  "Arnfin": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arnfin"
+  },
+  "Arnfinn": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arnfinn"
+  },
+  "Arnfinnur": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arnfinnur"
+  },
+  "Arnfrei": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arnfrei"
+  },
+  "Arngills": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arngills"
+  },
+  "Arno Diggle": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Arno_Diggle"
+  },
+  "Arnod": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arnod"
+  },
+  "Arnwi": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arnwi_(Stonedeans)"
+  },
+  "Arnwith": {
+    "race": null,
+    "url": null
+  },
+  "Aroch": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Aroch"
+  },
+  "Arochon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arochon"
+  },
+  "Arodinnas": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Arodinnas"
+  },
+  "Arodis": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arodis"
+  },
+  "Arodor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arodor"
+  },
+  "Arodrog": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arodrog"
+  },
+  "Arohir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arohir"
+  },
+  "Arpi Silvertongs": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Arpi_Silvertongs"
+  },
+  "Arre": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arre"
+  },
+  "Arrod": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Arrod"
+  },
+  "Arshûk": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arsh%C3%BBk"
+  },
+  "Artagan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Artagan"
+  },
+  "Artain": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Artain"
+  },
+  "Artamir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Artamir"
+  },
+  "Arthamon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arthamon"
+  },
+  "Arthiel": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Arthiel"
+  },
+  "Arthon": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Arthon"
+  },
+  "Artie Root": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Artie_Root"
+  },
+  "Arttu": {
+    "race": "Earth-kin",
+    "url": "https://lotro-wiki.com/wiki/Arttu"
+  },
+  "Arvaeth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arvaeth"
+  },
+  "Arvaethor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arvaethor"
+  },
+  "Arvedui": {
+    "race": "Shade",
+    "url": "https://lotro-wiki.com/wiki/Arvedui"
+  },
+  "Arvellon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arvellon"
+  },
+  "Arvo": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arvo"
+  },
+  "Arwel": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Arwel_(Cardolan)"
+  },
+  "Arwen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Arwen"
+  },
+  "Arwen Undómiel": {
+    "race": null,
+    "url": null
+  },
+  "Arwen's Musician": {
+    "race": null,
+    "url": null
+  },
+  "Arâm": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ar%C3%A2m"
+  },
+  "Arâma": {
+    "race": "Cat",
+    "url": "https://lotro-wiki.com/wiki/Ar%C3%A2ma"
+  },
+  "Arâniz": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ar%C3%A2niz"
+  },
+  "Ascbert": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Ascbert"
+  },
+  "Asgíl": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Asg%C3%ADl"
+  },
+  "Asharmûl": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Asharm%C3%BBl"
+  },
+  "Ashaug": {
+    "race": "Orc-kind",
+    "url": "https://lotro-wiki.com/wiki/Ashaug"
+  },
+  "Ashenfell": {
+    "race": "Lynx",
+    "url": "https://lotro-wiki.com/wiki/Ashenfell"
+  },
+  "Ashkab": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ashkab"
+  },
+  "Ashlimb": {
+    "race": "Ent",
+    "url": "https://lotro-wiki.com/wiki/Ashlimb"
+  },
+  "Ashnân": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ashn%C3%A2n"
+  },
+  "Ashrokil": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ashrokil"
+  },
+  "Ashâb": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ash%C3%A2b"
+  },
+  "Ashâmi": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ash%C3%A2mi"
+  },
+  "Asilimu": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Asilimu"
+  },
+  "Asitám": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Asit%C3%A1m"
+  },
+  "Askâdurs": {
+    "race": null,
+    "url": null
+  },
+  "Askâdurs of the Fortress": {
+    "race": null,
+    "url": null
+  },
+  "Aslak": {
+    "race": "Earth-kin",
+    "url": "https://lotro-wiki.com/wiki/Aslak"
+  },
+  "Aslaug": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aslaug"
+  },
+  "Asmund": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Asmund"
+  },
+  "Asmólf": {
+    "race": "Giant-kind",
+    "url": "https://lotro-wiki.com/wiki/Asm%C3%B3lf"
+  },
+  "Asphodel Froghorn": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Asphodel_Froghorn"
+  },
+  "Assistant Fallohide": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Assistant_Fallohide"
+  },
+  "Assistant Stable-master": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Assistant_Stable-master"
+  },
+  "Aster Bracegirdle": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Aster_Bracegirdle"
+  },
+  "Aster Hayward": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Aster_Hayward"
+  },
+  "Astiul": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Astiul"
+  },
+  "Astondor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Astondor"
+  },
+  "Astrith": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Astrith"
+  },
+  "Aswald": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Aswald"
+  },
+  "Asórkho": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/As%C3%B3rkho"
+  },
+  "Atarnil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Atarnil"
+  },
+  "Athakan": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Athakan"
+  },
+  "Athal": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Athal"
+  },
+  "Atharbain": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Atharbain"
+  },
+  "Atharon": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Atharon"
+  },
+  "Athel": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Athel"
+  },
+  "Athelard": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Athelard"
+  },
+  "Athelbald": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Athelbald"
+  },
+  "Athelman": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Athelman"
+  },
+  "Athelward": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Athelward"
+  },
+  "Atheric": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Atheric"
+  },
+  "Atherol Took": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Atherol_Took"
+  },
+  "Athgai": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Athgai"
+  },
+  "Athils": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Athils"
+  },
+  "Athra Devister": {
+    "race": "River hobbit",
+    "url": "https://lotro-wiki.com/wiki/Athra_Devister"
+  },
+  "Athradir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Athradir"
+  },
+  "Athradnir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Athradnir"
+  },
+  "Athrandir": {
+    "race": null,
+    "url": null
+  },
+  "Athulf": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Athulf"
+  },
+  "Athálrik": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Ath%C3%A1lrik"
+  },
+  "Atli Spider-bane": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Atli_Spider-bane"
+  },
+  "Atta": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Atta"
+  },
+  "Attack Orders": {
+    "race": null,
+    "url": null
+  },
+  "Atwald": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Atwald"
+  },
+  "Atâlsi": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/At%C3%A2lsi"
+  },
+  "Aubergine": {
+    "race": null,
+    "url": null
+  },
+  "Auctioneer": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Auctioneer"
+  },
+  "Audience Member": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Audience_Member"
+  },
+  "Audvak": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Audvak"
+  },
+  "Aurochs": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Aurochs"
+  },
+  "Aurochs Yearling": {
+    "race": "Aurochs",
+    "url": "https://lotro-wiki.com/wiki/Aurochs_Yearling"
+  },
+  "Austar": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Austar"
+  },
+  "Authellon": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Authellon"
+  },
+  "Authest": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Authest"
+  },
+  "Authi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Authi"
+  },
+  "Authi Gem-cutter": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Authi_Gem-cutter"
+  },
+  "Authlanc": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Authlanc"
+  },
+  "Authun": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Authun"
+  },
+  "Auti": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Auti"
+  },
+  "Avadhril": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Avadhril"
+  },
+  "Avair": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Avair"
+  },
+  "Avan Brocktull": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Avan_Brocktull"
+  },
+  "Avanc": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Avanc"
+  },
+  "Avanen": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Avanen"
+  },
+  "Avar": {
+    "race": null,
+    "url": null
+  },
+  "Avery Crabapple": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Avery_Crabapple"
+  },
+  "Avlath": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Avlath"
+  },
+  "Avon": {
+    "race": null,
+    "url": null
+  },
+  "Avordur": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Avordur"
+  },
+  "Avorrim": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Avorrim"
+  },
+  "Avorthal": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Avorthal"
+  },
+  "Avri": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Avri"
+  },
+  "Ayaluk": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Ayaluk"
+  },
+  "Ayna": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Ayna"
+  },
+  "Ayorzén": {
+    "race": "Easterling",
+    "url": "https://lotro-wiki.com/wiki/Ayorz%C3%A9n"
+  },
+  "Ayorzén the Wily": {
+    "race": "Easterling",
+    "url": "https://lotro-wiki.com/wiki/Ayorz%C3%A9n_the_Wily"
+  },
+  "Ayvan": {
+    "race": null,
+    "url": null
+  },
+  "Ayâl": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Ay%C3%A2l"
+  },
+  "Aza": {
+    "race": "Cat",
+    "url": "https://lotro-wiki.com/wiki/Aza"
+  },
+  "Azagath": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Azagath"
+  },
+  "Azagath Sea-shadow": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Azagath_Sea-shadow"
+  },
+  "Azagâya": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Azag%C3%A2ya"
+  },
+  "Azanulbizar Reflecting Pool": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Azanulbizar_Reflecting_Pool"
+  },
+  "Azog": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Azog"
+  },
+  "Azruthor": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Azruthor"
+  },
+  "Azrât": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Azr%C3%A2t"
+  },
+  "Babarin": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Babarin"
+  },
+  "Babarín": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Babar%C3%ADn"
+  },
+  "Babe": {
+    "race": null,
+    "url": null
+  },
+  "Bachwen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bachwen"
+  },
+  "Badehild Bolga": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Badehild_Bolga"
+  },
+  "Badennas": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Badennas"
+  },
+  "Badger": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Badger"
+  },
+  "Badhordam": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Badhordam"
+  },
+  "Baduhild": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Baduhild"
+  },
+  "Badwila": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Badwila"
+  },
+  "Bag": {
+    "race": null,
+    "url": null
+  },
+  "Baglan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Baglan"
+  },
+  "Bagmund": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bagmund"
+  },
+  "Bagnaz Rot-sting's Bow": {
+    "race": null,
+    "url": null
+  },
+  "Bahanneth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bahanneth"
+  },
+  "Baharúd": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bahar%C3%BAd"
+  },
+  "Bahádring the Unmindful": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bah%C3%A1dring_the_Unmindful"
+  },
+  "Baidhrochiel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Baidhrochiel"
+  },
+  "Bail Threespot": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bail_Threespot"
+  },
+  "Bailey": {
+    "race": "Cow",
+    "url": "https://lotro-wiki.com/wiki/Bailey"
+  },
+  "Bailinn": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bailinn"
+  },
+  "Baillas": {
+    "race": "Ent",
+    "url": "https://lotro-wiki.com/wiki/Baillas"
+  },
+  "Baillindiel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Baillindiel"
+  },
+  "Bain": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bain"
+  },
+  "Bainien": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bainien"
+  },
+  "Bainil": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bainil"
+  },
+  "Bainol": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bainol"
+  },
+  "Bainthir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bainthir"
+  },
+  "Bajâti": {
+    "race": null,
+    "url": null
+  },
+  "Baker of Cliving": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Baker_of_Cliving"
+  },
+  "Bakhtûr": {
+    "race": "Cat",
+    "url": "https://lotro-wiki.com/wiki/Bakht%C3%BBr"
+  },
+  "Bakhíl": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bakh%C3%ADl"
+  },
+  "Balakhad": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Balakhad"
+  },
+  "Balakhâd": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Balakh%C3%A2d"
+  },
+  "Balakhôr": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Balakh%C3%B4r"
+  },
+  "Balakhôr the Scourge": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Balakh%C3%B4r_the_Scourge"
+  },
+  "Balangyl": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Balangyl"
+  },
+  "Balbo Brockhouse": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Balbo_Brockhouse"
+  },
+  "Balchelos": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Balchelos"
+  },
+  "Balchiar the Blood-witch": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Balchiar_the_Blood-witch"
+  },
+  "Baldbark": {
+    "race": "Ent",
+    "url": "https://lotro-wiki.com/wiki/Baldbark"
+  },
+  "Baldgar": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Baldgar"
+  },
+  "Baldmund": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Baldmund"
+  },
+  "Baldnoth": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Baldnoth"
+  },
+  "Baldo Mudfoot": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Baldo_Mudfoot"
+  },
+  "Baldthorne": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Baldthorne"
+  },
+  "Baldwin Foxtail": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Baldwin_Foxtail"
+  },
+  "Baldwine": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Baldwine"
+  },
+  "Balgam": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Balgam"
+  },
+  "Balgiba": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Balgiba"
+  },
+  "Bali": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bali"
+  },
+  "Balidan": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Balidan"
+  },
+  "Balin": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Balin"
+  },
+  "Balk": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Balk"
+  },
+  "Ballard Wilmer": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ballard_Wilmer"
+  },
+  "Ballista": {
+    "race": "Object",
+    "url": "https://lotro-wiki.com/wiki/Ballista"
+  },
+  "Balvaer": {
+    "race": null,
+    "url": null
+  },
+  "Banded Gold": {
+    "race": null,
+    "url": null
+  },
+  "Bando Brandybuck": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bando_Brandybuck"
+  },
+  "Bandrauth Adder-fang": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bandrauth_Adder-fang"
+  },
+  "Bandron": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bandron"
+  },
+  "Bane of Rhûn": {
+    "race": null,
+    "url": null
+  },
+  "Banfuir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Banfuir"
+  },
+  "Banganir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Banganir"
+  },
+  "Bangud": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bangud"
+  },
+  "Banner of the White Hand": {
+    "race": null,
+    "url": null
+  },
+  "Barachen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Barachen"
+  },
+  "Barad": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barad"
+  },
+  "Baradal": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Baradal"
+  },
+  "Baradis": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Baradis"
+  },
+  "Baradír": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barad%C3%ADr"
+  },
+  "Baradûm": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barad%C3%BBm"
+  },
+  "Baragir": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Baragir"
+  },
+  "Barallas": {
+    "race": "Ent",
+    "url": "https://lotro-wiki.com/wiki/Barallas"
+  },
+  "Baranglim": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Baranglim"
+  },
+  "Baraniel": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Baraniel"
+  },
+  "Baranor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Baranor"
+  },
+  "Baranoth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Baranoth"
+  },
+  "Baranwen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Baranwen"
+  },
+  "Barathant": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barathant"
+  },
+  "Barathron": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barathron"
+  },
+  "Barber": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Barber"
+  },
+  "Barbethnir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Barbethnir"
+  },
+  "Barchir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barchir"
+  },
+  "Barchiril": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Barchiril"
+  },
+  "Barcyne": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barcyne"
+  },
+  "Bard": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bard"
+  },
+  "Bard II": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bard_II"
+  },
+  "Bard of Dunland": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bard_of_Dunland"
+  },
+  "Bard of Gondor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bard_of_Gondor"
+  },
+  "Bard of Rohan": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Bard_of_Rohan"
+  },
+  "Bardag Hailhand": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bardag_Hailhand"
+  },
+  "Bardarand": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bardarand"
+  },
+  "Bardúr": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bard%C3%BAr"
+  },
+  "Bargwen": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bargwen"
+  },
+  "Barhador": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barhador"
+  },
+  "Bariel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bariel"
+  },
+  "Barkh": {
+    "race": "Uruk",
+    "url": "https://lotro-wiki.com/wiki/Barkh"
+  },
+  "Barkhûshim Sentry": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Barkh%C3%BBshim_Sentry"
+  },
+  "Barl Audley": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Barl_Audley"
+  },
+  "Barliman Butterbur": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barliman_Butterbur"
+  },
+  "Barmy Rootknot": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Barmy_Rootknot"
+  },
+  "Barrel of Mystery Flesh": {
+    "race": null,
+    "url": null
+  },
+  "Barrel of Pipe-weed": {
+    "race": null,
+    "url": null
+  },
+  "Barrett Nowell": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barrett_Nowell"
+  },
+  "Barri": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barri"
+  },
+  "Bart Rosethorn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bart_Rosethorn"
+  },
+  "Bartender": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bartender"
+  },
+  "Barthalion": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barthalion"
+  },
+  "Barthavron": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Barthavron"
+  },
+  "Barton Halifax": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barton_Halifax"
+  },
+  "Barton Tanner": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barton_Tanner"
+  },
+  "Barton Tyne": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Barton_Tyne"
+  },
+  "Barvessain": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Barvessain"
+  },
+  "Barz": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Barz"
+  },
+  "Baráil": {
+    "race": "Kinta",
+    "url": "https://lotro-wiki.com/wiki/Bar%C3%A1il"
+  },
+  "Barían": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bar%C3%ADan"
+  },
+  "Barûl": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bar%C3%BBl"
+  },
+  "Basdan": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Basdan"
+  },
+  "Bashem": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bashem"
+  },
+  "Bashful Festival-goer": {
+    "race": null,
+    "url": null
+  },
+  "Basil Goodbody": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Basil_Goodbody"
+  },
+  "Basil Gummidge": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Basil_Gummidge"
+  },
+  "Basil Wyndham": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Basil_Wyndham"
+  },
+  "Bass": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bass"
+  },
+  "Bassela": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bassela"
+  },
+  "Bassiril": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bassiril"
+  },
+  "Bat": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Aughaire - Commander": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Aughaire - Soldier": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Deepway - Commander": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Deepway - Soldier": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Lorien Raid - Commander": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Lorien Raid - Soldier": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Rammas Deluon - Commander": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Rammas Deluon - Soldier": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Rhunendin - Commander": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Rhunendin - Soldier": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Smithway - Commander": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Smithway - Soldier": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Twenty First - Commander": {
+    "race": null,
+    "url": null
+  },
+  "Battle Master - Twenty First - Soldier": {
+    "race": null,
+    "url": null
+  },
+  "Battle-ready Orc": {
+    "race": null,
+    "url": null
+  },
+  "Battle-worn Soldier": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Battle-worn_Soldier"
+  },
+  "Batâla": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bat%C3%A2la"
+  },
+  "Baygild": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Baygild"
+  },
+  "Baziphâr": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Baziph%C3%A2r"
+  },
+  "Bear": {
+    "race": null,
+    "url": null
+  },
+  "Bear Cub": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bear_Cub"
+  },
+  "Beaver": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Beaver"
+  },
+  "Becka Burdock": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Becka_Burdock"
+  },
+  "Bed": {
+    "race": null,
+    "url": null
+  },
+  "Bed-roll": {
+    "race": null,
+    "url": null
+  },
+  "Bedraggled Dwarf": {
+    "race": null,
+    "url": null
+  },
+  "Bedroll": {
+    "race": null,
+    "url": null
+  },
+  "Bedwur": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bedwur"
+  },
+  "Bee": {
+    "race": null,
+    "url": null
+  },
+  "Beechbone": {
+    "race": "Ent",
+    "url": "https://lotro-wiki.com/wiki/Beechbone"
+  },
+  "Begga": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Begga"
+  },
+  "Begonia Grubb": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Begonia_Grubb"
+  },
+  "Behilivril": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Behilivril"
+  },
+  "Beiti": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Beiti"
+  },
+  "Bekhel": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bekhel"
+  },
+  "Bekhír": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bekh%C3%ADr"
+  },
+  "Bela": {
+    "race": "Cow",
+    "url": "https://lotro-wiki.com/wiki/Bela"
+  },
+  "Belaith": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Belaith"
+  },
+  "Belba Hardbottle": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Belba_Hardbottle"
+  },
+  "Belco Brockhouse": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Belco_Brockhouse"
+  },
+  "Belegant": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Belegant"
+  },
+  "Belegdaniel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Belegdaniel"
+  },
+  "Beleglaer": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Beleglaer"
+  },
+  "Belegoth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Belegoth"
+  },
+  "Belegraw": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Belegraw"
+  },
+  "Belg": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Belg"
+  },
+  "Belg Goldenvoice": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Belg_Goldenvoice"
+  },
+  "Belg Thickshanks": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Belg_Thickshanks"
+  },
+  "Belga Defthand": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Belga_Defthand"
+  },
+  "Belgen": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Belgen"
+  },
+  "Belgo Brockhouse": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Belgo_Brockhouse"
+  },
+  "Belgo Redsmith": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Belgo_Redsmith"
+  },
+  "Belgur": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Belgur"
+  },
+  "Belhax": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Belhax"
+  },
+  "Beliash": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Beliash"
+  },
+  "Belinda Rosewater": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Belinda_Rosewater"
+  },
+  "Bellflower Pitts": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bellflower_Pitts"
+  },
+  "Belondor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Belondor"
+  },
+  "Beltáni Hunter": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Belt%C3%A1ni_Hunter"
+  },
+  "Beltáni Sheep": {
+    "race": null,
+    "url": null
+  },
+  "Beltáni Shepherd": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Belt%C3%A1ni_Shepherd"
+  },
+  "Belvagor": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Belvagor"
+  },
+  "Belzagar": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Belzagar"
+  },
+  "Benedric Jacklin": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Benedric_Jacklin"
+  },
+  "Benegar Longbottom": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Benegar_Longbottom"
+  },
+  "Bennt Sharp-eye": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bennt_Sharp-eye"
+  },
+  "Bensi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bensi"
+  },
+  "Beorn": {
+    "race": "Beorning",
+    "url": "https://lotro-wiki.com/wiki/Beorn"
+  },
+  "Beorning": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Beorning"
+  },
+  "Beorning Quartermaster": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Beorning_Quartermaster"
+  },
+  "Beorning Scout": {
+    "race": "Beorning",
+    "url": "https://lotro-wiki.com/wiki/Beorning_Scout"
+  },
+  "Beorning Traceries": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Beorning_Traceries"
+  },
+  "Beorning Trader": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Beorning_Trader"
+  },
+  "Beorning Trainer": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Beorning_Trainer"
+  },
+  "Berangar Highknoll": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Berangar_Highknoll"
+  },
+  "Beregond": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Beregond"
+  },
+  "Bereneth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bereneth"
+  },
+  "Berenin": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Berenin"
+  },
+  "Berephon": {
+    "race": null,
+    "url": null
+  },
+  "Bergam": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bergam"
+  },
+  "Bergil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bergil"
+  },
+  "Bergof": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bergof"
+  },
+  "Beriadir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Beriadir"
+  },
+  "Beriaudur": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Beriaudur"
+  },
+  "Beriawen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Beriawen"
+  },
+  "Berilac Boffin": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Berilac_Boffin"
+  },
+  "Berion": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Berion"
+  },
+  "Berkha": {
+    "race": "Bird",
+    "url": "https://lotro-wiki.com/wiki/Berkha"
+  },
+  "Bernard Oaksey": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bernard_Oaksey"
+  },
+  "Bernwyn": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Bernwyn"
+  },
+  "Bersi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bersi"
+  },
+  "Bersta Haystrew": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bersta_Haystrew"
+  },
+  "Bert Bartleby": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bert_Bartleby"
+  },
+  "Bert Cotton": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bert_Cotton"
+  },
+  "Bert Goldenleaf": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bert_Goldenleaf"
+  },
+  "Bert Yould": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bert_Yould"
+  },
+  "Bertel": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bertel"
+  },
+  "Bertha": {
+    "race": null,
+    "url": null
+  },
+  "Berthalend": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Berthalend"
+  },
+  "Berthang": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Berthang"
+  },
+  "Berthon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Berthon"
+  },
+  "Bertred": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bertred"
+  },
+  "Bervun": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bervun"
+  },
+  "Beryl Deepwell": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Beryl_Deepwell"
+  },
+  "Berys": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Berys"
+  },
+  "Bess Forester": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bess_Forester"
+  },
+  "Bess Holewood": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bess_Holewood"
+  },
+  "Beth Crowther": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Beth_Crowther"
+  },
+  "Bethad": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bethad"
+  },
+  "Bethan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bethan"
+  },
+  "Betony Diggins": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Betony_Diggins"
+  },
+  "Betrus": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Betrus"
+  },
+  "Bevan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bevan"
+  },
+  "Bezab": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bezab"
+  },
+  "Bhis-weni-Mâr": {
+    "race": "Drúedain",
+    "url": "https://lotro-wiki.com/wiki/Bhis-weni-M%C3%A2r"
+  },
+  "Bhôd-buri-Mêj": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bh%C3%B4d-buri-M%C3%AAj"
+  },
+  "Biarn": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Biarn"
+  },
+  "Biddy Dogwort": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Biddy_Dogwort"
+  },
+  "Bifur": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bifur"
+  },
+  "Big Battles Beals": {
+    "race": null,
+    "url": null
+  },
+  "Big Bee": {
+    "race": "Sickle-fly",
+    "url": "https://lotro-wiki.com/wiki/Big_Bee"
+  },
+  "Bilbo": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bilbo"
+  },
+  "Bilbo Baggins": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bilbo_Baggins"
+  },
+  "Bill": {
+    "race": "Horse",
+    "url": "https://lotro-wiki.com/wiki/Bill"
+  },
+  "Bill Brockhouse": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bill_Brockhouse"
+  },
+  "Bill Ferny": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bill_Ferny"
+  },
+  "Bill Hayspear": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bill_Hayspear"
+  },
+  "Bill Heathrow": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bill_Heathrow"
+  },
+  "Bill Hyde": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bill_Hyde"
+  },
+  "Bill Mossfoot": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bill_Mossfoot"
+  },
+  "Bill Mossman": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bill_Mossman"
+  },
+  "Bill Rosewood": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bill_Rosewood"
+  },
+  "Bill Shakesburrow": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bill_Shakesburrow"
+  },
+  "Bill Tiller": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bill_Tiller"
+  },
+  "Bill Twiggins": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bill_Twiggins"
+  },
+  "Bill Whitethorn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bill_Whitethorn"
+  },
+  "Bill the Pony": {
+    "race": "Horse",
+    "url": "https://lotro-wiki.com/wiki/Bill_the_Pony"
+  },
+  "Billard Pott": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Billard_Pott"
+  },
+  "Billina": {
+    "race": "Chicken",
+    "url": "https://lotro-wiki.com/wiki/Billina"
+  },
+  "Billy": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Billy"
+  },
+  "Bindbole Kid": {
+    "race": "Critters",
+    "url": "https://lotro-wiki.com/wiki/Bindbole_Kid"
+  },
+  "Bingir": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bingir"
+  },
+  "Bingo Boffin": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bingo_Boffin"
+  },
+  "Bingo Bolger": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bingo_Bolger"
+  },
+  "Bingo's Notes": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bingo%27s_Notes"
+  },
+  "Binír": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bin%C3%ADr"
+  },
+  "Bird": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bird"
+  },
+  "Birdie Thornthicket": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Birdie_Thornthicket"
+  },
+  "Birgir": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Birgir"
+  },
+  "Birgir Listmaker": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Birgir_Listmaker"
+  },
+  "Birn Hornblower": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Birn_Hornblower"
+  },
+  "Birrungur Blacksteel": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Birrungur_Blacksteel"
+  },
+  "Birsa": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Birsa"
+  },
+  "Birási": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bir%C3%A1si"
+  },
+  "Birûk": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bir%C3%BBk"
+  },
+  "Biscuit": {
+    "race": "Cow",
+    "url": "https://lotro-wiki.com/wiki/Biscuit"
+  },
+  "Biyâni": {
+    "race": "Cat",
+    "url": "https://lotro-wiki.com/wiki/Biy%C3%A2ni"
+  },
+  "Bjarni": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bjarni"
+  },
+  "Black Cat": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Black_Cat"
+  },
+  "Black Fire Crate": {
+    "race": null,
+    "url": null
+  },
+  "Black Horse Corpse": {
+    "race": null,
+    "url": null
+  },
+  "Black Númenórean": {
+    "race": null,
+    "url": null
+  },
+  "Black Númenórean Cataloguer": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Black_N%C3%BAmen%C3%B3rean_Cataloguer"
+  },
+  "Black Rider": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Black_Rider"
+  },
+  "Black Rune-marked Collar": {
+    "race": null,
+    "url": null
+  },
+  "Black Sow's Tusks": {
+    "race": null,
+    "url": null
+  },
+  "Black Squirrel": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Black_Squirrel"
+  },
+  "Blackened Sword-hilt": {
+    "race": null,
+    "url": null
+  },
+  "Blackthorn": {
+    "race": "Ent",
+    "url": "https://lotro-wiki.com/wiki/Blackthorn"
+  },
+  "Blackthorn's Messenger": {
+    "race": null,
+    "url": null
+  },
+  "Blacstan": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Blacstan"
+  },
+  "Blaire": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Blaire"
+  },
+  "Bledhun": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bledhun"
+  },
+  "Bledri": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bledri"
+  },
+  "Blemished Trinket": {
+    "race": null,
+    "url": null
+  },
+  "Blighted Branch": {
+    "race": null,
+    "url": null
+  },
+  "Blighted Land of Adagím": {
+    "race": null,
+    "url": null
+  },
+  "Blindsided Hobbit": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Blindsided_Hobbit"
+  },
+  "Bloated Blue Mushroom": {
+    "race": null,
+    "url": null
+  },
+  "Bloda Hopblossom": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bloda_Hopblossom"
+  },
+  "Blodwen": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Blodwen"
+  },
+  "Bloglum": {
+    "race": "Orc-kind",
+    "url": "https://lotro-wiki.com/wiki/Bloglum"
+  },
+  "Blood-bathed Watcher": {
+    "race": "Watching-stone",
+    "url": "https://lotro-wiki.com/wiki/Blood-bathed_Watcher"
+  },
+  "Bloodstain on a Tree": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bloodstain_on_a_Tree"
+  },
+  "Bloodthirsty Orc": {
+    "race": null,
+    "url": null
+  },
+  "Blossom": {
+    "race": "Cow",
+    "url": "https://lotro-wiki.com/wiki/Blossom"
+  },
+  "Blossom Brockhouse": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Blossom_Brockhouse"
+  },
+  "Blossom Gamgee": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Blossom_Gamgee"
+  },
+  "Blothára": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bloth%C3%A1ra"
+  },
+  "Blue Fabric Scrap": {
+    "race": null,
+    "url": null
+  },
+  "Bluebell Grubb": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bluebell_Grubb"
+  },
+  "Bluebell Hornblower": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bluebell_Hornblower"
+  },
+  "Bluet Goldworthy": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bluet_Goldworthy"
+  },
+  "Blythe": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Blythe"
+  },
+  "Boar": {
+    "race": null,
+    "url": null
+  },
+  "Boar-meat": {
+    "race": null,
+    "url": null
+  },
+  "Boat from Lórien": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Boat_from_L%C3%B3rien"
+  },
+  "Bob": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bob"
+  },
+  "Bob Greeneaves": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bob_Greeneaves"
+  },
+  "Bob Proudfoot": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bob_Proudfoot"
+  },
+  "Bob Redthistle": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bob_Redthistle"
+  },
+  "Bob Rosethorn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bob_Rosethorn"
+  },
+  "Bobber-to-Be": {
+    "race": null,
+    "url": null
+  },
+  "Bobby": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bobby"
+  },
+  "Bobo": {
+    "race": null,
+    "url": null
+  },
+  "Bodhran Minstrel": {
+    "race": null,
+    "url": null
+  },
+  "Bodo Burrows": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bodo_Burrows"
+  },
+  "Bodo Goodbody": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bodo_Goodbody"
+  },
+  "Bodyguard": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bodyguard"
+  },
+  "Bofur": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bofur"
+  },
+  "Bog-guardian": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bog-guardian"
+  },
+  "Bog-lurker": {
+    "race": null,
+    "url": null
+  },
+  "Bogi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bogi"
+  },
+  "Bogi Deepdelver": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bogi_Deepdelver"
+  },
+  "Bogifa": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bogifa"
+  },
+  "Bogo Chubb": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bogo_Chubb"
+  },
+  "Boithad": {
+    "race": null,
+    "url": null
+  },
+  "Bok": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bok"
+  },
+  "Bokhór": {
+    "race": null,
+    "url": null
+  },
+  "Boll Needler": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Boll_Needler"
+  },
+  "Bolli": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bolli"
+  },
+  "Bollo Bolger": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bollo_Bolger"
+  },
+  "Bolo Boffin": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bolo_Boffin"
+  },
+  "Boltr": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Boltr"
+  },
+  "Bombur": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bombur"
+  },
+  "Bone-pile": {
+    "race": null,
+    "url": null
+  },
+  "Bonnie Milkweed": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bonnie_Milkweed"
+  },
+  "Bonny Thatcher": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bonny_Thatcher"
+  },
+  "Book": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Book"
+  },
+  "Boradan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Boradan"
+  },
+  "Borangos the Horror": {
+    "race": "Rogmul",
+    "url": "https://lotro-wiki.com/wiki/Borangos_the_Horror"
+  },
+  "Bordhreg": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bordhreg"
+  },
+  "Bordhrist": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bordhrist"
+  },
+  "Borgach": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Borgach"
+  },
+  "Borgar": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Borgar"
+  },
+  "Borghild": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Borghild"
+  },
+  "Borhador": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Borhador"
+  },
+  "Borhashat's Quiver": {
+    "race": null,
+    "url": null
+  },
+  "Bori": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bori"
+  },
+  "Borin": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Borin"
+  },
+  "Borlach of Rimmon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Borlach_of_Rimmon"
+  },
+  "Borndir": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Borndir"
+  },
+  "Boroddil": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Boroddil"
+  },
+  "Boromir": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Boromir"
+  },
+  "Boromir of Gondor": {
+    "race": null,
+    "url": null
+  },
+  "Bortho Bishel": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bortho_Bishel"
+  },
+  "Borvangil": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Borvangil"
+  },
+  "Bosa": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bosa"
+  },
+  "Boss": {
+    "race": null,
+    "url": null
+  },
+  "Bosóta Dôlo": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bos%C3%B3ta_D%C3%B4lo"
+  },
+  "Bothersome Neighbour": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bothersome_Neighbour"
+  },
+  "Bothersome Seagull": {
+    "race": null,
+    "url": null
+  },
+  "Bothwar": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bothwar"
+  },
+  "Botulf": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Botulf"
+  },
+  "Bound Spirit": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bound_Spirit"
+  },
+  "Bounder": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bounder"
+  },
+  "Bounder Boffin": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bounder_Boffin"
+  },
+  "Bounder Chubb": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bounder_Chubb"
+  },
+  "Bounder Dogberry": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bounder_Dogberry"
+  },
+  "Bounder Hawkwort": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bounder_Hawkwort"
+  },
+  "Bounder Primstone": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bounder_Primstone"
+  },
+  "Bounder Tudge": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bounder_Tudge"
+  },
+  "Bounder Tuftlow": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bounder_Tuftlow"
+  },
+  "Bounties": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bounties"
+  },
+  "Bounty Board": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bounty_Board"
+  },
+  "Bounty: A Chicken-thief": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Agan-khô": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Akraz the Vile": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Akvosh": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Barzglúk": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Black Númenóreans in Parth Daenath": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Blackhorn": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Bone Amulets": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Candúr's Escape": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Clearing Ghâs Hejai": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Clearing Jalkhûl": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Clearing Rat Nests": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Crótharc": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Darkwaters in Rath Dúath": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Dokhvor and Húlthak": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Drâghru": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Easterlings in Parth Daenath": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Gethin Oxeye": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Gorthorog Triplets": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Grazadhrú": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Gristlefell": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Gúrkug": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Holkorm": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Jûkhtar": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Kaursu": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Keenclaw": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Kigrush": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Korutásh": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Kurzglok the Many-legged": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Langarch": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Legwêna": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Luhum-gêna": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Maeganc": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Mangath": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Moorstalker": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Narkhrûd": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Nâralarg": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Orcs in Arandor": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Orcs in Rath Dúath": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Quelling Bog-lurkers": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Quelling Shades": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Rakhûl": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Ronkúrz": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Shahâk": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Shálith": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Skrithras": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Strákhal the Strangler": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Suginzi": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Sóthadar the Trickster": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Tamâhu": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Tansy Haresfoot": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Tarlang's Fang": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Thagára": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: The White Stag": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Thunash": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Trolls in Parth Daenath": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Tukûrga": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Uzukar": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Vault Robbery": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: War Dispatches": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Wargs in Arandor": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Wargs in Rath Dúath": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Wicked Daggers": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Wights in Emyn Duir": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Wraiths in Emyn Duir": {
+    "race": null,
+    "url": null
+  },
+  "Bounty: Yambahul": {
+    "race": null,
+    "url": null
+  },
+  "Bow-ready Recruit": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bow-ready_Recruit"
+  },
+  "Bowen": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bowen"
+  },
+  "Bowman": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bowman"
+  },
+  "Bowyer": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bowyer"
+  },
+  "Box": {
+    "race": null,
+    "url": null
+  },
+  "Boy": {
+    "race": null,
+    "url": null
+  },
+  "Boyd Chatfield": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Boyd_Chatfield"
+  },
+  "Bozhéna": {
+    "race": "Zhélruka",
+    "url": "https://lotro-wiki.com/wiki/Bozh%C3%A9na"
+  },
+  "Bracha": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bracha"
+  },
+  "Braigiar": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Braigiar"
+  },
+  "Braiglinn": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Braiglinn"
+  },
+  "Brambeth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brambeth"
+  },
+  "Bran Stagshorn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bran_Stagshorn"
+  },
+  "Branach": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Branach"
+  },
+  "Branan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Branan"
+  },
+  "Brand": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brand"
+  },
+  "Branda Rumble": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Branda_Rumble"
+  },
+  "Brandarth": {
+    "race": null,
+    "url": null
+  },
+  "Brandion": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brandion"
+  },
+  "Brandy Hills Billy": {
+    "race": "Critters",
+    "url": "https://lotro-wiki.com/wiki/Brandy_Hills_Billy"
+  },
+  "Brangil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brangil"
+  },
+  "Brangloth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Brangloth"
+  },
+  "Branhiril": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Branhiril"
+  },
+  "Brathar Crack-helm": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Brathar_Crack-helm"
+  },
+  "Bravantel": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bravantel"
+  },
+  "Brawler Quartermaster": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brawler_Quartermaster"
+  },
+  "Brawler Traceries": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Brawler_Traceries"
+  },
+  "Brawler Trader": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Brawler_Trader"
+  },
+  "Brawler Trainer": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Brawler_Trainer"
+  },
+  "Brazier": {
+    "race": null,
+    "url": null
+  },
+  "Breaker of Oaths": {
+    "race": null,
+    "url": null
+  },
+  "Brechan": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Brechan"
+  },
+  "Brecon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brecon"
+  },
+  "Bree Postmaster": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Bree_Postmaster"
+  },
+  "Bree-land Homesteads": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bree-land_Homesteads"
+  },
+  "Bree-land Reflecting Pool": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Bree-land_Reflecting_Pool"
+  },
+  "Bree-town Gate Guard": {
+    "race": null,
+    "url": null
+  },
+  "Bree-town Watcher": {
+    "race": null,
+    "url": null
+  },
+  "Bregabed": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bregabed"
+  },
+  "Bregar": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bregar"
+  },
+  "Bregaras": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bregaras"
+  },
+  "Bregdal": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bregdal"
+  },
+  "Bregedmor": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bregedmor"
+  },
+  "Bregedúr": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Breged%C3%BAr"
+  },
+  "Breglang": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Breglang"
+  },
+  "Breglaw": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Breglaw"
+  },
+  "Breglobor": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Breglobor"
+  },
+  "Bregoleth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bregoleth"
+  },
+  "Bregon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bregon"
+  },
+  "Bregor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bregor"
+  },
+  "Bregradel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bregradel"
+  },
+  "Bregrochir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bregrochir"
+  },
+  "Breguthryth": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Breguthryth"
+  },
+  "Bregwen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bregwen"
+  },
+  "Brenion": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Brenion"
+  },
+  "Breniriel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Breniriel"
+  },
+  "Brennos": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brennos"
+  },
+  "Brethilas": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Brethilas"
+  },
+  "Brethilor": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Brethilor"
+  },
+  "Brethilthor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brethilthor"
+  },
+  "Brethilwen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Brethilwen"
+  },
+  "Briallen Wynbuch": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Briallen_Wynbuch"
+  },
+  "Briant": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Briant"
+  },
+  "Brid": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brid"
+  },
+  "Brifard": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brifard"
+  },
+  "Brigand": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Brigand"
+  },
+  "Brigand Prisoner": {
+    "race": null,
+    "url": null
+  },
+  "Brigand Treasure-hunter": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Brigand_Treasure-hunter"
+  },
+  "Bright-lily": {
+    "race": null,
+    "url": null
+  },
+  "Brimo Curch": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Brimo_Curch"
+  },
+  "Brinley Gardener": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Brinley_Gardener"
+  },
+  "Brioc": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brioc"
+  },
+  "Briony Malter": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Briony_Malter"
+  },
+  "Brithben": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brithben"
+  },
+  "Britho Woodvine": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Britho_Woodvine"
+  },
+  "Britred": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Britred"
+  },
+  "Britric": {
+    "race": "Rohirrim",
+    "url": "https://lotro-wiki.com/wiki/Britric"
+  },
+  "Broadacres Bunny": {
+    "race": "Critters",
+    "url": "https://lotro-wiki.com/wiki/Broadacres_Bunny"
+  },
+  "Brockbridge Guard": {
+    "race": null,
+    "url": null
+  },
+  "Broda": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Broda"
+  },
+  "Broddi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Broddi"
+  },
+  "Broderic Willowmeade": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Broderic_Willowmeade"
+  },
+  "Brogdagnir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brogdagnir"
+  },
+  "Brogur": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Brogur"
+  },
+  "Broken Amulet": {
+    "race": null,
+    "url": null
+  },
+  "Broken Chain Link": {
+    "race": null,
+    "url": null
+  },
+  "Broken Weapon of the Second Age": {
+    "race": null,
+    "url": null
+  },
+  "Brom Hawksbeard": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Brom_Hawksbeard"
+  },
+  "Bron": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bron"
+  },
+  "Brooch of Lórien": {
+    "race": null,
+    "url": null
+  },
+  "Brosa": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Brosa"
+  },
+  "Bruicheron": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bruicheron"
+  },
+  "Bruidhír": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bruidh%C3%ADr"
+  },
+  "Bruidis": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bruidis"
+  },
+  "Bruigan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bruigan"
+  },
+  "Bruinen Thrush": {
+    "race": "Critters",
+    "url": "https://lotro-wiki.com/wiki/Bruinen_Thrush"
+  },
+  "Bruinir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Bruinir"
+  },
+  "Brumbald Tunnelly": {
+    "race": null,
+    "url": null
+  },
+  "Bruner Stoutthrush": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bruner_Stoutthrush"
+  },
+  "Brungos": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brungos"
+  },
+  "Bruni": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Bruni"
+  },
+  "Brunil": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brunil"
+  },
+  "Bruno Ervinen": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bruno_Ervinen"
+  },
+  "Brunrad": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Brunrad"
+  },
+  "Brunstan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Brunstan"
+  },
+  "Brymir Hammerhand": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Brymir_Hammerhand"
+  },
+  "Bryn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bryn"
+  },
+  "Brynmód": {
+    "race": null,
+    "url": null
+  },
+  "Bryony Elmwood": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Bryony_Elmwood"
+  },
+  "Bráthi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%A1thi"
+  },
+  "Bráthur": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%A1thur"
+  },
+  "Bríya": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Br%C3%ADya"
+  },
+  "Bróin": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%B3in"
+  },
+  "Brósan": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%B3san"
+  },
+  "Bróthi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%B3thi"
+  },
+  "Brúlen": {
+    "race": "Cow",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%BAlen"
+  },
+  "Brúlen's Rump": {
+    "race": null,
+    "url": null
+  },
+  "Brúnfair": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%BAnfair"
+  },
+  "Brúngallon": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%BAngallon"
+  },
+  "Brúngwath": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Br%C3%BAngwath"
+  },
+  "Brúni Stonehelm": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%BAni_Stonehelm"
+  },
+  "Brúnion": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%BAnion"
+  },
+  "Brútha the Wayward": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Br%C3%BAtha_the_Wayward"
+  },
+  "Brûdo": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Br%C3%BBdo"
+  },
+  "Buckley Sheppard": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Buckley_Sheppard"
+  },
+  "Bud": {
+    "race": "Dog",
+    "url": "https://lotro-wiki.com/wiki/Bud"
+  },
+  "Budgeford": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Budgeford"
+  },
+  "Budli Greatsmith": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Budli_Greatsmith"
+  },
+  "Bugan Spear": {
+    "race": null,
+    "url": null
+  },
+  "Builder": {
+    "race": null,
+    "url": null
+  },
+  "Builder Borin": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Builder_Borin"
+  },
+  "Builder Earur": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Builder_Earur"
+  },
+  "Building Beaver": {
+    "race": "Beast",
+    "url": "https://lotro-wiki.com/wiki/Building_Beaver"
+  },
+  "Bungo Bolger": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bungo_Bolger"
+  },
+  "Bungo Brockhouse": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bungo_Brockhouse"
+  },
+  "Bungo Grubb": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bungo_Grubb"
+  },
+  "Bungo Puddifoot": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Bungo_Puddifoot"
+  },
+  "Bunting": {
+    "race": "Critters",
+    "url": "https://lotro-wiki.com/wiki/Bunting"
+  },
+  "Burdy Gamwich": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Burdy_Gamwich"
+  },
+  "Burghild": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Burghild"
+  },
+  "Burginda": {
+    "race": "Rohirrim",
+    "url": "https://lotro-wiki.com/wiki/Burginda"
+  },
+  "Burglar Quartermaster": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Burglar_Quartermaster"
+  },
+  "Burglar Traceries": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Burglar_Traceries"
+  },
+  "Burglar Trader": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Burglar_Trader"
+  },
+  "Burglar Trainer": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Burglar_Trainer"
+  },
+  "Burgthryth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Burgthryth"
+  },
+  "Burkni": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Burkni"
+  },
+  "Burl Beeman": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Burl_Beeman"
+  },
+  "Burl Stonecrop": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Burl_Stonecrop"
+  },
+  "Burlung": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Burlung"
+  },
+  "Burned-out Camp-fire": {
+    "race": null,
+    "url": null
+  },
+  "Burnoth": {
+    "race": null,
+    "url": null
+  },
+  "Burnoth, son of Baldeg": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Burnoth%2C_son_of_Baldeg"
+  },
+  "Burt Farmer": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Burt_Farmer"
+  },
+  "Burt Nine-tales": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Burt_Nine-tales"
+  },
+  "Butcher of Cliving": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Butcher_of_Cliving"
+  },
+  "Butcher's Knife": {
+    "race": null,
+    "url": null
+  },
+  "Buttercup": {
+    "race": null,
+    "url": null
+  },
+  "Buttercup Grubb": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Buttercup_Grubb"
+  },
+  "Buttercup North-took": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Buttercup_North-took"
+  },
+  "Butters": {
+    "race": "Cow",
+    "url": "https://lotro-wiki.com/wiki/Butters"
+  },
+  "Buttons": {
+    "race": "Horse",
+    "url": "https://lotro-wiki.com/wiki/Buttons"
+  },
+  "Byre Tor Refugee": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Byre_Tor_Refugee"
+  },
+  "Byrnstan": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Byrnstan"
+  },
+  "Byrski Hardprow": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Byrski_Hardprow"
+  },
+  "Bystander": {
+    "race": null,
+    "url": null
+  },
+  "Bánor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A1nor"
+  },
+  "Bánoth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A1noth"
+  },
+  "Bávor": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A1vor"
+  },
+  "Bâbur": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A2bur"
+  },
+  "Bâdarul": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A2darul"
+  },
+  "Bâdmash": {
+    "race": "Cat",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A2dmash"
+  },
+  "Bâdukhur": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A2dukhur"
+  },
+  "Bâkhadir": {
+    "race": "Orc-kind",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A2khadir"
+  },
+  "Bâlamar": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A2lamar"
+  },
+  "Bârshud": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A2rshud"
+  },
+  "Bârshud II": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A2rshud_II"
+  },
+  "Bâzadur": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A2zadur"
+  },
+  "Béathan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A9athan"
+  },
+  "Bébba": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A9bba"
+  },
+  "Béolof": {
+    "race": null,
+    "url": null
+  },
+  "Béored": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A9ored"
+  },
+  "Béortnoth": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A9ortnoth"
+  },
+  "Béowald": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A9owald"
+  },
+  "Bési": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%A9si"
+  },
+  "Bêtam the Couthful": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%AAtam_the_Couthful"
+  },
+  "Bíli": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%ADli"
+  },
+  "Bíralad": {
+    "race": "Kinta",
+    "url": "https://lotro-wiki.com/wiki/B%C3%ADralad"
+  },
+  "Bói": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%B3i"
+  },
+  "Bólwerk": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%B3lwerk"
+  },
+  "Bór": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%B3r"
+  },
+  "Bórnek": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%B3rnek"
+  },
+  "Bósi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%B3si"
+  },
+  "Bótro": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%B3tro"
+  },
+  "Bótuz Frostblood": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%B3tuz_Frostblood"
+  },
+  "Bôdo": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%B4do"
+  },
+  "Bôgalekh": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%B4galekh"
+  },
+  "Búdan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%BAdan"
+  },
+  "Búi": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%BAi"
+  },
+  "Búkk": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/B%C3%BAkk"
+  },
+  "Búth Luikh Wound-counter": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%BAth_Luikh_Wound-counter"
+  },
+  "Búth Sánkhas Tale-spinner": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/B%C3%BAth_S%C3%A1nkhas_Tale-spinner"
+  },
+  "Cabed": {
+    "race": "Shade",
+    "url": "https://lotro-wiki.com/wiki/Cabed"
+  },
+  "Cachúnir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Cach%C3%BAnir"
+  },
+  "Cad Buckthorn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cad_Buckthorn"
+  },
+  "Cada": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cada"
+  },
+  "Cadarn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cadarn"
+  },
+  "Cadda": {
+    "race": null,
+    "url": null
+  },
+  "Caddabrand": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Caddabrand"
+  },
+  "Caddarun": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Caddarun"
+  },
+  "Cadel Balchtrod": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Cadel_Balchtrod"
+  },
+  "Cadelh": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cadelh"
+  },
+  "Cadelhin": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Cadelhin"
+  },
+  "Cadell": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Cadell"
+  },
+  "Cadfrith": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cadfrith"
+  },
+  "Cadi": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cadi"
+  },
+  "Cadogan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cadogan"
+  },
+  "Cadsterre": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Cadsterre"
+  },
+  "Cadthorn": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cadthorn"
+  },
+  "Cadugan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cadugan"
+  },
+  "Cadvan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cadvan"
+  },
+  "Cadwalader": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Cadwalader"
+  },
+  "Cadwallon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cadwallon"
+  },
+  "Caebar": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Caebar"
+  },
+  "Caebar's Notes on the Crew": {
+    "race": null,
+    "url": null
+  },
+  "Cage Keys": {
+    "race": null,
+    "url": null
+  },
+  "Cai": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cai"
+  },
+  "Cailin": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Cailin"
+  },
+  "Cairches": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Cairches"
+  },
+  "Cairelledh": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Cairelledh"
+  },
+  "Cairiel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Cairiel"
+  },
+  "Cairn": {
+    "race": null,
+    "url": null
+  },
+  "Cairn of Stones for Carchammadel": {
+    "race": null,
+    "url": null
+  },
+  "Cairn of Stones for Colhamnir": {
+    "race": null,
+    "url": null
+  },
+  "Cairn of Stones for Tadan": {
+    "race": null,
+    "url": null
+  },
+  "Cal Sprigley": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cal_Sprigley"
+  },
+  "Caladol": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Caladol"
+  },
+  "Calaneth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calaneth"
+  },
+  "Calargyl": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calargyl"
+  },
+  "Calatherdir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calatherdir"
+  },
+  "Calatúr": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calat%C3%BAr"
+  },
+  "Calbeniel": {
+    "race": null,
+    "url": null
+  },
+  "Calder Cob": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calder_Cob"
+  },
+  "Caledhrín": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Caledhr%C3%ADn"
+  },
+  "Calelloth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Calelloth"
+  },
+  "Calembel Cottontail": {
+    "race": "Critters",
+    "url": "https://lotro-wiki.com/wiki/Calembel_Cottontail"
+  },
+  "Calendorion": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Calendorion"
+  },
+  "Calendos": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Calendos"
+  },
+  "Calendui": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Calendui"
+  },
+  "Calengil": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Calengil"
+  },
+  "Calenglad": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calenglad"
+  },
+  "Calengoth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Calengoth"
+  },
+  "Calenhen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Calenhen"
+  },
+  "Calennen": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calennen"
+  },
+  "Calenthon": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Calenthon"
+  },
+  "Calin": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calin"
+  },
+  "Calion": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calion"
+  },
+  "Calithil": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Calithil"
+  },
+  "Call Into The Darkness": {
+    "race": null,
+    "url": null
+  },
+  "Callbox": {
+    "race": null,
+    "url": null
+  },
+  "Callothor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Callothor"
+  },
+  "Callum": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Callum"
+  },
+  "Calmed Cave-claw": {
+    "race": null,
+    "url": null
+  },
+  "Calpheth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Calpheth"
+  },
+  "Caltha Goodchild": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Caltha_Goodchild"
+  },
+  "Caltha Tunnelly": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Caltha_Tunnelly"
+  },
+  "Caltha's Helper": {
+    "race": null,
+    "url": null
+  },
+  "Calthendin": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Calthendin"
+  },
+  "Caltholiel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Caltholiel"
+  },
+  "Calúrmin": {
+    "race": "Kinta",
+    "url": "https://lotro-wiki.com/wiki/Cal%C3%BArmin"
+  },
+  "Cam Applewood": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cam_Applewood"
+  },
+  "Cam Puddifoot": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Cam_Puddifoot"
+  },
+  "Camaen": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Camaen"
+  },
+  "Camelia Buttonbloom": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Camelia_Buttonbloom"
+  },
+  "Camellia Boffin": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Camellia_Boffin"
+  },
+  "Camilla Peake": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Camilla_Peake"
+  },
+  "Campanula Chubb": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Campanula_Chubb"
+  },
+  "Camran": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Camran"
+  },
+  "Camruin": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Camruin"
+  },
+  "Canaddal": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Canaddal"
+  },
+  "Candac Brightwood": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Candac_Brightwood"
+  },
+  "Candaith": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Candaith"
+  },
+  "Candelleth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Candelleth"
+  },
+  "Candiel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Candiel"
+  },
+  "Candithil": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Candithil"
+  },
+  "Candron": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Candron"
+  },
+  "Candúr": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cand%C3%BAr_(Ringl%C3%B3_Vale)"
+  },
+  "Canglim": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Canglim"
+  },
+  "Cangoras": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Cangoras"
+  },
+  "Cangrail": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cangrail"
+  },
+  "Cannasgam": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Cannasgam"
+  },
+  "Cannoth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cannoth"
+  },
+  "Cannuion": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cannuion"
+  },
+  "Cape of Belfalas Homesteads": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Cape_of_Belfalas_Homesteads"
+  },
+  "Captain": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Captain"
+  },
+  "Captain Agelmund": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Agelmund"
+  },
+  "Captain Brackenbrook": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Brackenbrook"
+  },
+  "Captain Cirnaith": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Cirnaith"
+  },
+  "Captain Garmund": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Garmund"
+  },
+  "Captain Gazathrug": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Captain_Gazathrug"
+  },
+  "Captain Hanâbu": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Han%C3%A2bu"
+  },
+  "Captain Imladir": {
+    "race": null,
+    "url": null
+  },
+  "Captain Khâtaphos": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Kh%C3%A2taphos"
+  },
+  "Captain Lachír": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Lach%C3%ADr"
+  },
+  "Captain Maeral": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Maeral"
+  },
+  "Captain Noreth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Noreth"
+  },
+  "Captain Quartermaster": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Quartermaster"
+  },
+  "Captain Róglarg": {
+    "race": "Orc-kind",
+    "url": "https://lotro-wiki.com/wiki/Captain_R%C3%B3glarg"
+  },
+  "Captain Thandor": {
+    "race": null,
+    "url": null
+  },
+  "Captain Traceries": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Captain_Traceries"
+  },
+  "Captain Trader": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Captain_Trader"
+  },
+  "Captain Trainer": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Captain_Trainer"
+  },
+  "Captain Trotter": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain_Trotter"
+  },
+  "Captain-General Daerdan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captain-General_Daerdan"
+  },
+  "Captain-General Tordúr": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Captain-General_Tord%C3%BAr"
+  },
+  "Captive": {
+    "race": null,
+    "url": null
+  },
+  "Captive Builder": {
+    "race": null,
+    "url": null
+  },
+  "Captive Harvester": {
+    "race": null,
+    "url": null
+  },
+  "Captive Lion": {
+    "race": null,
+    "url": null
+  },
+  "Captive Lioness": {
+    "race": null,
+    "url": null
+  },
+  "Captive Scout": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Captive_Scout"
+  },
+  "Captured Beltáni": {
+    "race": "Beltáni",
+    "url": "https://lotro-wiki.com/wiki/Captured_Belt%C3%A1ni"
+  },
+  "Captured Craftsman": {
+    "race": null,
+    "url": null
+  },
+  "Captured Craftswoman": {
+    "race": null,
+    "url": null
+  },
+  "Captured Crofter": {
+    "race": null,
+    "url": null
+  },
+  "Captured Dourhand": {
+    "race": null,
+    "url": null
+  },
+  "Captured Dunlending": {
+    "race": null,
+    "url": null
+  },
+  "Captured Dwarf": {
+    "race": null,
+    "url": null
+  },
+  "Captured Halfling": {
+    "race": null,
+    "url": null
+  },
+  "Captured Longbeard": {
+    "race": null,
+    "url": null
+  },
+  "Captured Man": {
+    "race": null,
+    "url": null
+  },
+  "Captured Raft-elf": {
+    "race": null,
+    "url": null
+  },
+  "Captured Ranger": {
+    "race": null,
+    "url": null
+  },
+  "Captured Rohirrim": {
+    "race": null,
+    "url": null
+  },
+  "Captured Scout": {
+    "race": null,
+    "url": null
+  },
+  "Captured Slave": {
+    "race": null,
+    "url": null
+  },
+  "Captured Soldier": {
+    "race": null,
+    "url": null
+  },
+  "Caradog Henbuch": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Caradog_Henbuch"
+  },
+  "Carandolion": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Carandolion"
+  },
+  "Caras Galadhon Warden": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Caras_Galadhon_Warden"
+  },
+  "Caravan Merchant": {
+    "race": null,
+    "url": null
+  },
+  "Cardavor": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Cardavor"
+  },
+  "Cardolan Reflecting Pool": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Cardolan_Reflecting_Pool"
+  },
+  "Caredwen": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Caredwen"
+  },
+  "Careful Merchant": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Careful_Merchant"
+  },
+  "Carethon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Carethon"
+  },
+  "Cariad": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cariad"
+  },
+  "Carl Proudfoot": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Carl_Proudfoot"
+  },
+  "Carlo Blagrove": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Carlo_Blagrove"
+  },
+  "Carlo Williams": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Carlo_Williams"
+  },
+  "Carlong": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Carlong"
+  },
+  "Carnelian Bracegirdle": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Carnelian_Bracegirdle"
+  },
+  "Carolyn Goodnough": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Carolyn_Goodnough"
+  },
+  "Caron": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Caron"
+  },
+  "Cart": {
+    "race": null,
+    "url": null
+  },
+  "Carus": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Carus"
+  },
+  "Carver Greenlake": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Carver_Greenlake"
+  },
+  "Carver Gírma": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Carver_G%C3%ADrma"
+  },
+  "Castamir Supporter": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Castamir_Supporter"
+  },
+  "Cat": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Cat"
+  },
+  "Cathorn": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Cathorn"
+  },
+  "Catrin": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Catrin"
+  },
+  "Cave-claw": {
+    "race": null,
+    "url": null
+  },
+  "Cecil Oaksey": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cecil_Oaksey"
+  },
+  "Cecil Voller": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cecil_Voller"
+  },
+  "Cedivor": {
+    "race": "Race of men",
+    "url": "https://lotro-wiki.com/wiki/Cedivor"
+  },
+  "Cedivor Hedgerow": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cedivor_Hedgerow"
+  },
+  "Cedrach": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cedrach"
+  },
+  "Celairant": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celairant"
+  },
+  "Celairel": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celairel"
+  },
+  "Celairen": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celairen"
+  },
+  "Celairoth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celairoth"
+  },
+  "Celandine Brandybuck": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Celandine_Brandybuck"
+  },
+  "Celeblas": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celeblas"
+  },
+  "Celeblír": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celebl%C3%ADr"
+  },
+  "Celeborn": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celeborn"
+  },
+  "Celebrandir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celebrandir"
+  },
+  "Celebrimbor": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celebrimbor"
+  },
+  "Celebrom": {
+    "race": "Gondorian",
+    "url": "https://lotro-wiki.com/wiki/Celebrom"
+  },
+  "Celebros": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Celebros"
+  },
+  "Celechest": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celechest"
+  },
+  "Celegdal": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celegdal"
+  },
+  "Celegdes": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celegdes"
+  },
+  "Celegon": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celegon"
+  },
+  "Celegúien": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celeg%C3%BAien"
+  },
+  "Celenath": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celenath"
+  },
+  "Celephadh": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celephadh"
+  },
+  "Celephir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celephir"
+  },
+  "Celethon": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Celethon"
+  },
+  "Celethros": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celethros"
+  },
+  "Celia Greenweed": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celia_Greenweed"
+  },
+  "Cellineth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Cellineth"
+  },
+  "Celofa": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celofa"
+  },
+  "Celonor": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celonor"
+  },
+  "Celoseth": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Celoseth"
+  },
+  "Celsia 'Lightfinger' Gosling": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Celsia_%27Lightfinger%27_Gosling"
+  },
+  "Celudir": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celudir"
+  },
+  "Celun": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Celun"
+  },
+  "Cemenduril Farmer": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cemenduril_Farmer"
+  },
+  "Cendal": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cendal"
+  },
+  "Cendrew": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cendrew"
+  },
+  "Cenedel": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cenedel"
+  },
+  "Cenlieg": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cenlieg"
+  },
+  "Cenric": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cenric"
+  },
+  "Central Gondor Reflecting Pool": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Central_Gondor_Reflecting_Pool"
+  },
+  "Cenulf": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cenulf"
+  },
+  "Ceorl": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Ceorl"
+  },
+  "Cerdic": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cerdic"
+  },
+  "Cerebthos": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Cerebthos"
+  },
+  "Cerethon": {
+    "race": null,
+    "url": null
+  },
+  "Ceri": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ceri"
+  },
+  "Certherdir": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Certherdir"
+  },
+  "Certhíril": {
+    "race": "Elf",
+    "url": "https://lotro-wiki.com/wiki/Certh%C3%ADril"
+  },
+  "Cerys": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cerys"
+  },
+  "Cetelgat": {
+    "race": "Croftlands",
+    "url": "https://lotro-wiki.com/wiki/Cetelgat"
+  },
+  "Ceveneth": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Ceveneth"
+  },
+  "Chakâr": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Chak%C3%A2r"
+  },
+  "Chalûni": {
+    "race": "Cat",
+    "url": "https://lotro-wiki.com/wiki/Chal%C3%BBni"
+  },
+  "Champion Quartermaster": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Champion_Quartermaster"
+  },
+  "Champion Traceries": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Champion_Traceries"
+  },
+  "Champion Trader": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Champion_Trader"
+  },
+  "Champion Trainer": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Champion_Trainer"
+  },
+  "Chan-két Doloi": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Chan-k%C3%A9t_Doloi"
+  },
+  "Charlotte": {
+    "race": null,
+    "url": null
+  },
+  "Charred Note": {
+    "race": null,
+    "url": null
+  },
+  "Charvey": {
+    "race": null,
+    "url": null
+  },
+  "Charzâd": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Charz%C3%A2d"
+  },
+  "Chatty Hobbit": {
+    "race": "Hobbit",
+    "url": "https://lotro-wiki.com/wiki/Chatty_Hobbit"
+  },
+  "Chayasír Man": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Chayas%C3%ADr_Man"
+  },
+  "Chayasír Woman": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Chayas%C3%ADr_Woman"
+  },
+  "Cheery Freebooter": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Cheery_Freebooter"
+  },
+  "Cheese-maker of Cliving": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Cheese-maker_of_Cliving"
+  },
+  "Chenan": {
+    "race": "Man",
+    "url": "https://lotro-wiki.com/wiki/Chenan"
+  },
+  "Cherêka": {
+    "race": "Dwarf",
+    "url": "https://lotro-wiki.com/wiki/Cher%C3%AAka"
+  },
+  "Chest": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Chest"
+  },
+  "Chest-wear Vendor": {
+    "race": "Race of man",
+    "url": "https://lotro-wiki.com/wiki/Chest-wear_Vendor"
+  },
+  "Chetwood Chicken": {
+    "race": "Bird",
+    "url": "https://lotro-wiki.com/wiki/Chetwood_Chicken"
+  },
+  "Chicken": {
+    "race": null,
+    "url": "https://lotro-wiki.com/wiki/Chicken"
+  }
+}
