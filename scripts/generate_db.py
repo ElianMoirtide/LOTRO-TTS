@@ -16,6 +16,13 @@ import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+# Add scripts directory to sys.path for embedded Python
+scripts_dir = Path(__file__).resolve().parent
+if str(scripts_dir) not in sys.path:
+    sys.path.insert(0, str(scripts_dir))
+
+from assign_voices import load_voice_pools, get_deterministic_voice_id
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -81,7 +88,8 @@ def create_schema(conn: sqlite3.Connection):
         name_fr TEXT,
         gender TEXT,
         race TEXT,
-        url TEXT
+        url TEXT,
+        voice_id TEXT
     );
     """)
 
@@ -119,6 +127,7 @@ def create_indexes(conn: sqlite3.Connection):
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_name_de ON NPCs(name_de);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_name_en ON NPCs(name_en);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_name_fr ON NPCs(name_fr);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_voice_id ON NPCs(voice_id);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_quest_texts_npc_id ON Quest_Texts(npc_id);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_quest_texts_quest_id ON Quest_Texts(quest_id);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_quest_texts_type ON Quest_Texts(text_type);")
@@ -206,6 +215,10 @@ def generate_database(src_dir: Path, output_db: Path):
         except Exception as e:
             logger.warning(f"Could not load races cache from {json_cache}: {e}")
 
+    # Load voice profile pools directly from curated voices library
+    voices_base_dir = Path(__file__).resolve().parent.parent / "data" / "voices"
+    voice_pools, default_narrator = load_voice_pools(voices_base_dir)
+
     npcs_dict: dict[int, tuple] = {}
     for _, elem in ET.iterparse(npc_file, events=("end",)):
         if elem.tag == "NPC":
@@ -220,7 +233,8 @@ def generate_database(src_dir: Path, output_db: Path):
                 race_info = (cached_races.get(clean_name) or cached_races.get(name_en) or {}) if name_en else {}
                 race = elem.attrib.get("race") or race_info.get("race")
                 url = elem.attrib.get("url") or race_info.get("url")
-                npcs_dict[nid] = (nid, name_en, name_de, name_fr, gender, race, url)
+                voice_id = get_deterministic_voice_id(nid, gender, race, voice_pools, default_narrator)
+                npcs_dict[nid] = (nid, name_en, name_de, name_fr, gender, race, url, voice_id)
         elem.clear()
 
     logger.info(f"Loaded {len(npcs_dict)} NPCs from NPC.xml in {time.time() - t0:.2f}s")
@@ -427,6 +441,7 @@ def generate_database(src_dir: Path, output_db: Path):
         if nid not in npcs_dict:
             clean_name = name_en.strip("'\"` \t\r\n") if name_en else ""
             race_info = (cached_races.get(clean_name) or cached_races.get(name_en) or {}) if name_en else {}
+            voice_id = get_deterministic_voice_id(nid, None, race_info.get("race"), voice_pools, default_narrator)
             npcs_dict[nid] = (
                 nid,
                 name_en,
@@ -434,7 +449,8 @@ def generate_database(src_dir: Path, output_db: Path):
                 npc_localized_names["fr"].get(nid),
                 None,
                 race_info.get("race"),
-                race_info.get("url")
+                race_info.get("url"),
+                voice_id
             )
     logger.info(f"Total NPCs (including quest interactables): {len(npcs_dict)}")
 
@@ -444,7 +460,7 @@ def generate_database(src_dir: Path, output_db: Path):
     logger.info("Writing data to SQLite database...")
     t0 = time.time()
     cur = conn.cursor()
-    cur.executemany("INSERT INTO NPCs VALUES (?, ?, ?, ?, ?, ?, ?)", npcs_dict.values())
+    cur.executemany("INSERT INTO NPCs VALUES (?, ?, ?, ?, ?, ?, ?, ?)", npcs_dict.values())
     cur.executemany("INSERT INTO Quests VALUES (?, ?, ?, ?)", quests_rows)
     cur.executemany("INSERT INTO Quest_Texts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", quest_texts_dict.values())
     conn.commit()
