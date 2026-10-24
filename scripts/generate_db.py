@@ -193,15 +193,18 @@ def generate_database(src_dir: Path, output_db: Path):
         sys.exit(1)
 
     # Load scraped races cache if available
-    races_cache_file = npc_dir / "npc_races.json"
+    json_cache = npc_dir / "npc_races.json"
     cached_races: dict[str, dict] = {}
-    if races_cache_file.exists():
+    if json_cache.exists():
         try:
-            with open(races_cache_file, "r", encoding="utf-8") as f:
-                cached_races = json.load(f)
-            logger.info(f"Loaded {len(cached_races)} cached races from {races_cache_file.name}")
+            with open(json_cache, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                for k, v in data.items():
+                    if v.get("race"):
+                        cached_races[k] = v
+            logger.info(f"Loaded {len(cached_races)} cached races from {json_cache.name}")
         except Exception as e:
-            logger.warning(f"Could not load races cache from {races_cache_file}: {e}")
+            logger.warning(f"Could not load races cache from {json_cache}: {e}")
 
     npcs_dict: dict[int, tuple] = {}
     for _, elem in ET.iterparse(npc_file, events=("end",)):
@@ -213,7 +216,8 @@ def generate_database(src_dir: Path, output_db: Path):
                 name_de = npc_localized_names["de"].get(nid)
                 name_fr = npc_localized_names["fr"].get(nid)
                 gender = elem.attrib.get("gender")
-                race_info = cached_races.get(name_en) or {} if name_en else {}
+                clean_name = name_en.strip("'\"` \t\r\n") if name_en else ""
+                race_info = (cached_races.get(clean_name) or cached_races.get(name_en) or {}) if name_en else {}
                 race = elem.attrib.get("race") or race_info.get("race")
                 url = elem.attrib.get("url") or race_info.get("url")
                 npcs_dict[nid] = (nid, name_en, name_de, name_fr, gender, race, url)
@@ -421,7 +425,8 @@ def generate_database(src_dir: Path, output_db: Path):
     # Add any referenced quest-giving entities/objects to NPCs to preserve foreign key integrity
     for nid, name_en in extra_referenced_npcs.items():
         if nid not in npcs_dict:
-            race_info = cached_races.get(name_en) or {} if name_en else {}
+            clean_name = name_en.strip("'\"` \t\r\n") if name_en else ""
+            race_info = (cached_races.get(clean_name) or cached_races.get(name_en) or {}) if name_en else {}
             npcs_dict[nid] = (
                 nid,
                 name_en,
