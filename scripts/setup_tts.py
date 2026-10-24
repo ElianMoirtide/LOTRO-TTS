@@ -4,7 +4,14 @@
 LOTRO-TTS Setup Script
 1. Enables site-packages for embedded Python by activating 'import site' in *._pth.
 2. Installs pip into embedded Python if not present (via get-pip.py).
-3. Installs PyTorch (GPU / CUDA 12.6 or CPU) and required audio/TTS libraries.
+3. Installs PyTorch (GPU / CUDA 12.6 or CPU).
+4. Installs OmniVoice (k2-fsa/OmniVoice) and all required AI/Audio dependencies:
+   - omnivoice
+   - openai-whisper
+   - soundfile
+   - scipy
+   - librosa
+   - transformers
 """
 
 import argparse
@@ -59,40 +66,57 @@ def install_pip():
     print("Pip installation successful!")
 
 
-def install_pytorch(mode: str):
-    """Installs PyTorch and TorchAudio with CUDA or CPU."""
+def install_packages(mode: str):
+    """Installs PyTorch, OmniVoice, Whisper and all audio support packages."""
     mode = mode.lower().strip()
-    print(f"\nInstalling PyTorch in mode: {mode.upper()}...")
+    print(f"\n========================================================")
+    print(f"Installing PyTorch & TorchAudio in mode: {mode.upper()}...")
+    print(f"========================================================")
 
     if mode == "gpu":
         print(f"Using CUDA index: {PYTORCH_CUDA_INDEX}")
-        cmd = [
+        cmd_torch = [
             str(PYTHON_EXE), "-m", "pip", "install",
             "--upgrade", "--no-warn-script-location",
             "torch", "torchaudio",
             "--index-url", PYTORCH_CUDA_INDEX
         ]
     else:
-        cmd = [
+        cmd_torch = [
             str(PYTHON_EXE), "-m", "pip", "install",
             "--upgrade", "--no-warn-script-location",
             "torch", "torchaudio"
         ]
 
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd_torch, check=True)
 
-    # Additional audio processing packages
-    extra_packages = ["soundfile", "numpy", "transformers", "scipy"]
-    print(f"\nInstalling audio support packages: {', '.join(extra_packages)}...")
+    # Core Audio, Speech & Zero-Shot Voice Cloning packages
+    extra_packages = [
+        "omnivoice",
+        "openai-whisper",
+        "soundfile",
+        "scipy",
+        "librosa",
+        "transformers",
+        "numpy"
+    ]
+    print(f"\n========================================================")
+    print(f"Installing Voice Cloning Engine & Dependencies:")
+    print(f"  {', '.join(extra_packages)}")
+    print(f"========================================================")
     cmd_extra = [str(PYTHON_EXE), "-m", "pip", "install", "--upgrade", "--no-warn-script-location"] + extra_packages
     subprocess.run(cmd_extra, check=True)
 
-    # Verify installation and CUDA availability
+    # Verification
     verify_cmd = [
         str(PYTHON_EXE), "-c",
-        "import torch; print(f'PyTorch: {torch.__version__} | CUDA available: {torch.cuda.is_available()} | Device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"CPU\"}')"
+        "import torch, soundfile, omnivoice, whisper; "
+        "print(f'PyTorch: {torch.__version__} | CUDA available: {torch.cuda.is_available()} | Device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"CPU\"}'); "
+        "print('OmniVoice & Whisper: Successfully loaded!')"
     ]
-    print("\nVerifying PyTorch configuration:")
+    print("\n========================================================")
+    print("Verifying Installation:")
+    print("========================================================")
     subprocess.run(verify_cmd)
 
 
@@ -108,14 +132,9 @@ def main():
 
     enable_site_packages()
     install_pip()
-    install_pytorch(args.mode)
+    install_packages(args.mode)
     print("\nLOTRO-TTS environment is ready!")
 
 
 if __name__ == "__main__":
     main()
-
-
-if __name__ == "__main__":
-    main()
-

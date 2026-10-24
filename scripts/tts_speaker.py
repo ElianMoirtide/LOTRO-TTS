@@ -171,6 +171,8 @@ if __name__ == "__main__":
     parser.add_argument("--lang", type=str, choices=["de", "en"], default="de", help="Language code")
     parser.add_argument("--output", type=str, default=None, help="Output wav file path")
     
+    parser.add_argument("--device", type=str, choices=["cuda", "cpu"], default=None, help="Compute device (default: auto-detect cuda/cpu)")
+    
     args = parser.parse_args()
-    speaker = LotroSpeaker()
+    speaker = LotroSpeaker(device=args.device)
     speaker.speak(args.text, npc_name_or_category=args.npc, lang=args.lang, output_path=args.output)

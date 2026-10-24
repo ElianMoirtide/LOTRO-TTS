@@ -6,14 +6,11 @@ echo ========================================================
 echo LOTRO-TTS Offline Local Voice Cloning (OmniVoice)
 echo ========================================================
 
-set "PY_EXE=D:\temp\LOTRO-TTS\python\win64\python.exe"
+set "PY_EXE=%~dp0python\win64\python.exe"
 
 if not exist "%PY_EXE%" (
-    set "PY_EXE=%~dp0python\win64\python.exe"
-)
-
-if not exist "%PY_EXE%" (
-    echo [ERROR] Embedded Python not found.
+    echo [ERROR] Embedded Python not found at: %PY_EXE%
+    echo Bitte fuehren Sie zuerst setup_tts.bat aus!
     pause
     exit /b 1
 )
