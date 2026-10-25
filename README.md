@@ -135,3 +135,11 @@ LOTRO-TTS/
 ├── setup_tts.bat             # 1-click environment installer
 └── start_lotro_tts.bat       # 1-click background service launcher
 ```
+
+---
+
+## 🙏 Credits & Acknowledgments
+
+- **Idea & Inspiration**: Inspired by the concepts and community efforts of [Khazad-Voice-TTS](https://github.com/Khazad-Voice-TTS) and *LOTROToSpeech*.
+- **Game Data & Quest Database**: Powered by data and lore extractions from the incredible [LotroCompanion lotro-data](https://github.com/LotroCompanion/lotro-data) repository.
+- **Voice Profiles**: Generated and curated directly using authentic in-game audio assets from *The Lord of the Rings Online* to capture the genuine atmosphere of Middle-earth.
