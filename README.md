@@ -65,38 +65,38 @@ You have **two convenient ways** to trigger text-to-speech in-game:
 
 1. **In-Game Button ("Read aloud" / "Vorlesen")**:
    - Targeting an NPC reveals the LOTRO button **"Read aloud"** (or **"Vorlesen"** in German).
+   - Clicking the button logs `TTS|<LANG>|<NPC_NAME>` to `Script.log`, which immediately triggers the service with the target NPC's identity.
    - Hold `Ctrl` to drag and reposition the button anywhere on your screen.
 2. **Middle Mouse Button (Mouse 3)**:
-   - Alternatively, press your **Middle Mouse Button (Mouse 3)** whenever a quest or instance window is open. You do not need to hover over the button.
+   - Alternatively, press your **Middle Mouse Button (Mouse 3)** whenever a quest or instance window is open.
+   - This directly triggers the screen reader pipeline using the most recently detected language and target NPC from the log, without needing to click the button.
 
 ---
 
 ## ⚙️ How It Works Under the Hood
 
 ```
-[In-Game Click / Mouse 3]
-         │
-         ├──> Plugin writes instantaneous signal to 'Script.log' (Language + NPC Target)
-         │
-         ▼
-[LOTRO-TTS Pipeline Service]
-         │
-         ├── 1. Window Detection & OCR (RapidOCR)
-         │      - Scans the quest / instance dialogue box (skin-independent).
-         │      - Uses fast-path title scanning when window position is cached.
-         │
-         ├── 2. Text & Speaker Resolution (SQLite Database: lotro.db)
-         │      - Quests: Full un-truncated original text from database.
-         │      - Instances: Direct OCR text with diacritics and character normalization.
-         │      - NPC: Resolves race/gender profile (e.g. dwarf_female, elf_male).
-         │
-         ├── 3. Audio Cache Check
-         │      - Has this dialogue been generated before? -> Instant playback (0 ms)!
-         │
-         └── 4. Zero-Shot Speech Synthesis (OmniVoice)
-                - Sentence streaming: Sentence 1 plays through speakers immediately.
-                - Next sentences synthesized concurrently in the background.
-                - Saves complete audio to cache for future instant re-use.
+[In-Game Button Click] ──────────────────────────┐
+  (Writes 'TTS|<LANG>|<NPC>' to Script.log)      │
+                                                 ▼
+[Middle Mouse Click (Mouse 3)] ────────> [LOTRO-TTS Pipeline Service]
+  (Uses last known log context)                  │
+                                                 ├── 1. Window Detection & OCR (RapidOCR)
+                                                 │      - Scans the quest / instance dialogue box (skin-independent).
+                                                 │      - Uses fast-path title scanning when window position is cached.
+                                                 │
+                                                 ├── 2. Text & Speaker Resolution (SQLite Database: lotro.db)
+                                                 │      - Quests: Full un-truncated original text from database.
+                                                 │      - Instances: Direct OCR text with diacritics and character normalization.
+                                                 │      - NPC: Resolves race/gender profile (e.g. dwarf_female, elf_male).
+                                                 │
+                                                 ├── 3. Audio Cache Check
+                                                 │      - Has this dialogue been generated before? -> Instant playback (0 ms)!
+                                                 │
+                                                 └── 4. Zero-Shot Speech Synthesis (OmniVoice)
+                                                        - Sentence streaming: Sentence 1 plays through speakers immediately.
+                                                        - Next sentences synthesized concurrently in the background.
+                                                        - Saves complete audio to cache for future instant re-use.
 ```
 
 ---
