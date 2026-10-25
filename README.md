@@ -1,137 +1,137 @@
-# LOTRO-TTS (Lord of the Rings Online - Text-to-Speech)
+# LOTRO-TTS (The Lord of the Rings Online - Text-to-Speech)
 
-Ein modernes, lokales und offline-fähiges Text-to-Speech (TTS) System für **Der Herr der Ringe Online** (*The Lord of the Rings Online*). 
+A modern, local, and fully offline Text-to-Speech (TTS) system for **The Lord of the Rings Online** (*LOTRO*).
 
-Das Projekt vertont automatisch Quest- und Instanz-Dialoge im Spiel mit passenden, authentischen Charakterstimmen (Elben, Zwerge, Hobbits, Menschen, Orks etc.) unter Berücksichtigung von Rasse, Volk und Geschlecht – wahlweise auf **Deutsch** oder **Englisch**.
-
----
-
-## 🌟 Hauptfunktionen
-
-- **Vollständig lokal & offline**: Keine Cloud-Anbindung oder externen API-Schlüssel erforderlich. Läuft direkt auf deiner Hardware.
-- **Zweisprachig (DE / EN)**: Erkennt automatisch die Client-Sprache (Deutsch oder Englisch) und wählt die passende deutsche oder englische Stimmbibliothek.
-- **Intelligente Quest- & Instanz-Erkennung**:
-  - **Standard-Quests**: Erkennt den Questtitel und lädt den **vollständigen, ungekürzten Text** aus der integrierten SQLite-Datenbank (auch wenn Textteile im Spiel hinter Scrollbalken liegen).
-  - **Instanzen & dynamische Dialoge**: Liest den Text direkt per GPU-beschleunigtem OCR (`RapidOCR`) aus dem Spielfenster.
-- **Authentische Zero-Shot Stimmenzuordnung**:
-  - Ermittelt anhand des NPC-Namens automatisch Rasse, Volk und Geschlecht (z. B. Mensch männlich, Zwerg weiblich, Hobbit, Elb, Ork, Erzähler).
-  - Deterministische Stimmvergabe: Ein NPC behält bei wiederholtem Treffen stets denselben Sprecher.
-- **Maximale Performance & Echtzeit-Reaktion**:
-  - **Fast-Path Window-Caching**: Merkt sich die Position des Spielfensters für blitzschnelle Erkennung in Millisekunden.
-  - **Satzweises Audio-Streaming**: Lange Texte beginnen bereits nach dem ersten Satz zu sprechen – kein langes Warten auf die Gesamtberechnung.
-  - **Audio-Caching**: Einmal berechnete Quests werden im Cache gespeichert und beim nächsten Mal mit **0 ms Latenz** sofort abgespielt.
-- **Plattformunabhängig**: Lauffähig unter **Windows** und **Linux** (inklusive **Steam Deck** via Proton).
+LOTRO-TTS breathes life into quest dialogues and instance scenarios using authentic voice models tailored to each NPC's race, lineage, and gender (Elves, Dwarves, Hobbits, Men, Orcs, Ents, etc.) — supporting both **English** and **German** game clients.
 
 ---
 
-## 🛠️ Voraussetzungen
+## 🌟 Key Features
 
-- **Grafikkarte (Empfohlen)**: NVIDIA-Grafikkarte mit CUDA-Unterstützung (z. B. RTX-Serie) für Sprachgenerierung in Sekundenschnelle. *(CPU-Modus ist als Fallback ebenfalls möglich).*
-- **Der Herr der Ringe Online**: Standard-Installation.
+- **100% Local & Offline**: No cloud subscriptions, no external APIs, and no telemetry. All inference runs directly on your local hardware.
+- **Bilingual (English & German)**: Automatically detects game client language (`EN` / `DE`) and switches to the corresponding curated voice library and transcripts.
+- **Intelligent Quest & Instance Window Detection**:
+  - **Standard Quests**: Reads the quest title and retrieves the **complete, un-truncated original text** from the embedded SQLite database (even if parts are hidden behind in-game scrollbars).
+  - **Instances & Dynamic Scenarios**: Reads the dialogue text directly from the screen using GPU-accelerated OCR (`RapidOCR`).
+- **Authentic Zero-Shot Voice Allocation**:
+  - Automatically identifies NPC race, lineage, and gender (e.g. Man Male, Dwarf Female, Hobbit, Elf, Orc, Narrator) from the database.
+  - Deterministic voice assignment: An NPC consistently retains the exact same voice actor profile across playthroughs.
+- **Engineered for Speed & Low Latency**:
+  - **Fast-Path Window Caching**: Caches the in-game dialogue window coordinates for near-instant OCR recognition.
+  - **Sentence-Level Audio Streaming**: Begins speaking on the very first sentence (~0.3s) while calculating subsequent sentences smoothly in the background.
+  - **Persistent Audio Caching**: Repeated dialogues and quests play instantly with **0 ms latency**.
+- **Cross-Platform**: Runs natively on **Windows** and **Linux** (including **Steam Deck** via Proton).
 
 ---
 
-## 🚀 Vor der ersten Benutzung (Einrichtung)
+## 🛠️ Requirements
 
-### 1. In-Game Plugin installieren
-Kopiere den Ordner `src/plugins/TTS` in dein LOTRO-Pluginverzeichnis:
+- **Graphics Card (Recommended)**: NVIDIA GPU with CUDA support (e.g. RTX series) for instant speech generation. *(CPU mode is supported as a fallback).*
+- **The Lord of the Rings Online**: Standard game installation.
+
+---
+
+## 🚀 Getting Started (First-Time Setup)
+
+### 1. Install the In-Game Lua Plugin
+Copy the `src/plugins/TTS` folder into your LOTRO Plugins directory:
 - **Windows**: `Documents\The Lord of the Rings Online\Plugins\TTS`
-- **Linux / Steam Deck**: `[Steam-Pfad]/compatdata/212500/pfx/drive_c/users/steamuser/Documents/The Lord of the Rings Online/Plugins/TTS`
+- **Linux / Steam Deck**: `[Steam-Path]/compatdata/212500/pfx/drive_c/users/steamuser/Documents/The Lord of the Rings Online/Plugins/TTS`
 
-*Tipp: Aktiviere das Plugin im Spiel über den LOTRO-Zusatzmodul-Manager oder mit dem Chat-Befehl `/plugins load tts`.*
+*Tip: Enable the plugin in-game via the LOTRO Plugin Manager or by typing `/plugins load tts` in chat.*
 
-### 2. KI- & Audio-Umgebung installieren (Einmalig)
-Führe im Hauptordner einfach die Batch-Datei aus:
+### 2. Set Up the AI & Audio Environment (One-Time)
+Run the automated setup batch file in the root folder:
 ```cmd
 setup_tts.bat
 ```
-Das Skript fragt dich nach dem gewünschten Modus:
-- **1) GPU (NVIDIA / CUDA)** *(Empfohlen)*: Installiert PyTorch mit CUDA-Unterstützung und GPU-beschleunigter OCR.
-- **2) CPU**: Installiert die reine Prozessor-Variante (langsamer, aber ohne NVIDIA-Grafikkarte lauffähig).
+Select your desired compute mode:
+- **1) GPU (NVIDIA / CUDA)** *(Recommended)*: Installs PyTorch with CUDA acceleration and GPU-accelerated OCR.
+- **2) CPU**: Installs the CPU-only version (runs without an NVIDIA GPU, but with higher latency).
 
 ---
 
-## 🎮 Bedienung & Programmstart
+## 🎮 How to Use & Start the Program
 
-### Starten des Dienstes
-Starte vor oder während des Spielens einfach:
+### Starting the Service
+Before or while playing LOTRO, run:
 ```cmd
 start_lotro_tts.bat
 ```
-Der Hintergrunddienst überwacht nun das Spiel und wartet auf deinen Auslöser.
+The background service monitors the game client and waits for your trigger.
 
-### Wie wird das Vorlesen im Spiel ausgelöst?
-Du hast **zwei Möglichkeiten**, das Vorlesen eines Dialogs zu starten:
+### Triggering Dialogue in Game
+You have **two convenient ways** to trigger text-to-speech in-game:
 
-1. **In-Game-Button „Vorlesen“**:
-   - Wenn du einen NPC im Spiel im Ziel hast, erscheint der LOTRO-Button **„Vorlesen“** (bzw. **„Read aloud“** im englischen Client).
-   - Mit gedrückter `Strg`-Taste kannst du den Button per Drag & Drop an eine beliebige Position ziehen.
-2. **Mittlere Maustaste (Maus 3)**:
-   - Alternativ drückst du einfach die **mittlere Maustaste**, sobald ein Quest- oder Instanzfenster geöffnet ist. Der Cursor muss dafür nicht auf den Button bewegt werden.
+1. **In-Game Button ("Read aloud" / "Vorlesen")**:
+   - Targeting an NPC reveals the LOTRO button **"Read aloud"** (or **"Vorlesen"** in German).
+   - Hold `Ctrl` to drag and reposition the button anywhere on your screen.
+2. **Middle Mouse Button (Mouse 3)**:
+   - Alternatively, press your **Middle Mouse Button (Mouse 3)** whenever a quest or instance window is open. You do not need to hover over the button.
 
 ---
 
-## ⚙️ Funktionsweise im Detail
+## ⚙️ How It Works Under the Hood
 
 ```
-[In-Game Klick / Maus 3]
+[In-Game Click / Mouse 3]
          │
-         ├──> Plugin schreibt Signal in 'Script.log' (Sprache + NPC-Name)
+         ├──> Plugin writes instantaneous signal to 'Script.log' (Language + NPC Target)
          │
          ▼
-[LOTRO-TTS Service]
+[LOTRO-TTS Pipeline Service]
          │
-         ├── 1. Fenster-Erkennung & Screenreader (RapidOCR)
-         │      - Scannt das Quest-/Instanzfenster (unterstützt alle UI-Skins).
-         │      - Bei bekannter Fensterposition via Fast-Path in Millisekunden.
+         ├── 1. Window Detection & OCR (RapidOCR)
+         │      - Scans the quest / instance dialogue box (skin-independent).
+         │      - Uses fast-path title scanning when window position is cached.
          │
-         ├── 2. Text- & Sprecher-Auflösung (SQLite Datenbank: lotro.db)
-         │      - Quests: Vollständiger Originaltext aus der Datenbank.
-         │      - Instanzen: Direkter OCR-Text mit Rechtschreib- und Umlaut-Korrektur.
-         │      - NPC: Ermittelt Kategorie (z. B. dwarf_female, elf_male) & Stimmprofil.
+         ├── 2. Text & Speaker Resolution (SQLite Database: lotro.db)
+         │      - Quests: Full un-truncated original text from database.
+         │      - Instances: Direct OCR text with diacritics and character normalization.
+         │      - NPC: Resolves race/gender profile (e.g. dwarf_female, elf_male).
          │
-         ├── 3. Audio-Cache Check
-         │      - Wurde der Text bereits gesprochen? -> Sofortige Wiedergabe (0 ms)!
+         ├── 3. Audio Cache Check
+         │      - Has this dialogue been generated before? -> Instant playback (0 ms)!
          │
-         └── 4. Sprachsynthese (OmniVoice Zero-Shot Voice Cloning)
-                - Satzweises Streaming: Satz 1 startet sofort über die Lautsprecher.
-                - Nahtlose Hintergrund-Berechnung der Folgesätze.
-                - Abspeichern in den Cache für zukünftige Durchläufe.
+         └── 4. Zero-Shot Speech Synthesis (OmniVoice)
+                - Sentence streaming: Sentence 1 plays through speakers immediately.
+                - Next sentences synthesized concurrently in the background.
+                - Saves complete audio to cache for future instant re-use.
 ```
 
 ---
 
-## 🔧 Erweiterte Optionen & CLI
+## 🔧 Advanced Options & Command Line Arguments
 
-`lotro_service.py` kann auch mit individuellen Parametern gestartet werden:
+You can run `lotro_service.py` with custom arguments:
 
 ```cmd
-python\win64\python.exe scripts\lotro_service.py [OPTIONEN]
+python\win64\python.exe scripts\lotro_service.py [OPTIONS]
 ```
 
-| Parameter | Standard | Beschreibung |
+| Option | Default | Description |
 | :--- | :--- | :--- |
-| `--mode` | `auto` | Berechnungsmodus: `auto` (erkennt RTX/CUDA automatisch), `cuda` oder `cpu`. |
-| `--docs-dir` | *Auto* | Pfad zum LOTRO-Dokumentenverzeichnis (Standard: `D:\Dokumente\The Lord of the Rings Online`). |
-| `--no-mouse` | *deaktiviert* | Deaktiviert den globalen Mittlere-Maustaste-Trigger (nur noch In-Game-Button aktiv). |
+| `--mode` | `auto` | Compute mode: `auto` (auto-detects CUDA/RTX GPU), `cuda`, or `cpu`. |
+| `--docs-dir` | *Auto* | Path to LOTRO user documents directory (default: `%USERPROFILE%\Documents\The Lord of the Rings Online`). |
+| `--no-mouse` | *disabled* | Disables the global middle mouse button trigger (in-game button only). |
 
 ---
 
-## 📁 Projektstruktur
+## 📁 Repository Structure
 
 ```
 LOTRO-TTS/
 ├── data/
-│   ├── lotro.db              # SQLite-Datenbank (17.700+ NPCs, 15.000+ Quests & Texte)
-│   └── voices/               # Kuratierte Sprachprofile (de / en)
-│       ├── de/               # Deutsche Stimmprofile nach Völkern/Geschlecht
-│       └── en/               # Englische Stimmprofile nach Völkern/Geschlecht
+│   ├── lotro.db              # SQLite Database (17,700+ NPCs, 15,000+ Quests & Texts)
+│   └── voices/               # Curated Voice Profiles (de / en)
+│       ├── de/               # German reference audio profiles by race & gender
+│       └── en/               # English reference audio profiles by race & gender
 ├── scripts/
-│   ├── lotro_service.py      # Hauptdienst (Log-Tailer, Trigger & Workflow-Steuerung)
-│   ├── screen_reader.py      # Screenreader, RapidOCR & Fenster-Geometrie-Caching
-│   ├── tts_speaker.py        # OmniVoice Zero-Shot Engine, Streaming & Audio-Cache
-│   └── setup_tts.py          # Installations- und Umgebungs-Setup
-├── src/plugins/TTS/          # Lua-Plugin für den LOTRO-Client (In-Game UI)
-├── setup_tts.bat             # 1-Klick Installer
-└── start_lotro_tts.bat       # 1-Klick Starter für den Hintergrunddienst
+│   ├── lotro_service.py      # Core service (log watcher, trigger dispatcher, pipeline)
+│   ├── screen_reader.py      # Screen reader, RapidOCR, and window geometry cache
+│   ├── tts_speaker.py        # OmniVoice Zero-Shot engine, streaming & audio cache
+│   └── setup_tts.py          # Setup & environment installation script
+├── src/plugins/TTS/          # Lua Plugin for the LOTRO client (in-game UI)
+├── setup_tts.bat             # 1-click environment installer
+└── start_lotro_tts.bat       # 1-click background service launcher
 ```
