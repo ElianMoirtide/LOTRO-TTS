@@ -120,11 +120,19 @@ class LotroSpeaker:
         
         return selected["voice_id"], ref_audio_path, ref_text
 
-    def speak(self, text, npc_name_or_category="narrator", lang="de", output_path=None):
+    def speak(self, text, npc_name_or_category="narrator", lang="de", output_path=None, cache_key=None):
         """
         Synthesizes authentic speech for given NPC / category and text.
+        Includes persistent disk cache and sentence-level streaming for instant playback.
         """
-        # Determine category
+        import hashlib
+        import re
+
+        text = text.strip()
+        if not text:
+            return None
+
+        # Determine category & NPC info
         if npc_name_or_category in [
             "elf_female", "elf_male", "man_female", "man_male",
             "hobbit_female", "hobbit_male", "dwarf_female", "dwarf_male",
@@ -137,32 +145,121 @@ class LotroSpeaker:
             
         voice_id, ref_audio, ref_text = self.select_voice_template(category, lang=lang, seed_key=npc_name)
         
+        # 1. AUDIO CACHE CHECK
+        cache_dir = self.base_dir / "cache" / "audio"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        text_hash = hashlib.md5(f"{voice_id}_{lang}_{text}".encode("utf-8")).hexdigest()
+        cached_wav = cache_dir / f"{text_hash}.wav"
+        
+        if cached_wav.exists() and cached_wav.stat().st_size > 44:
+            print(f"[{lang.upper()}] [AUDIO CACHE HIT] Playing cached audio instantly for '{npc_name}'...")
+            self.play_audio(cached_wav)
+            return cached_wav
+
         print(f"[{lang.upper()}] Speaking for '{npc_name}' as {category} using template {voice_id}...")
         print(f"  Reference audio: {ref_audio.name}")
-        print(f"  Reference prompt: {ref_text}")
         
-        # OmniVoice Zero-Shot Generation
-        result = self.model.generate(
-            text=text,
-            ref_audio=str(ref_audio),
-            ref_text=ref_text,
-            language=lang
-        )
+        # 2. STREAMING OR DIRECT SYNTHESIS
+        # Split into sentences for fast Time-To-First-Audio if text is long
+        sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text) if s.strip()]
         
-        audio_data = result[0].squeeze()
-        sample_rate = 24000
-        
-        if not output_path:
-            out_dir = self.base_dir / "audio_samples"
-            out_dir.mkdir(parents=True, exist_ok=True)
-            output_path = out_dir / f"{category}_{lang}.wav"
-        else:
-            output_path = Path(output_path)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            
-        sf.write(str(output_path), audio_data, sample_rate)
-        print(f"  Generated speech saved to: {output_path}")
-        return output_path
+        # If short text (1-2 sentences), generate directly
+        if len(sentences) <= 2 or len(text) < 180:
+            result = self.model.generate(
+                text=text,
+                ref_audio=str(ref_audio),
+                ref_text=ref_text,
+                language=lang
+            )
+            audio_data = result[0].squeeze()
+            sample_rate = 24000
+            sf.write(str(cached_wav), audio_data, sample_rate)
+            self.play_audio(cached_wav)
+            return cached_wav
+
+        # For longer texts, stream chunk by chunk
+        self._stream_speech(sentences, ref_audio, ref_text, lang, cached_wav)
+        return cached_wav
+
+    def _stream_speech(self, sentences, ref_audio, ref_text, lang, final_cached_wav):
+        """Generates and plays sentences sequentially with zero wait-time between chunks."""
+        import queue
+        import threading
+
+        audio_queue = queue.Queue()
+        stop_event = threading.Event()
+        all_chunks = []
+
+        def player_thread():
+            import winsound
+            import tempfile
+            import time
+
+            while not stop_event.is_set() or not audio_queue.empty():
+                try:
+                    chunk = audio_queue.get(timeout=0.2)
+                    chunk_duration = len(chunk) / 24000.0
+                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                        tmp_path = Path(tmp.name)
+                    sf.write(str(tmp_path), chunk, 24000)
+                    # Play synchronous so next sentence waits until current is finished
+                    try:
+                        winsound.PlaySound(str(tmp_path), winsound.SND_FILENAME)
+                    except Exception:
+                        pass
+                    try:
+                        tmp_path.unlink()
+                    except Exception:
+                        pass
+                    audio_queue.task_done()
+                except queue.Empty:
+                    continue
+
+        play_t = threading.Thread(target=player_thread, daemon=True)
+        play_t.start()
+
+        try:
+            for i, sent in enumerate(sentences):
+                res = self.model.generate(
+                    text=sent,
+                    ref_audio=str(ref_audio),
+                    ref_text=ref_text,
+                    language=lang
+                )
+                chunk = res[0].squeeze()
+                all_chunks.append(chunk)
+                audio_queue.put(chunk)
+                if i == 0:
+                    print(f"  First sentence ready! Playback started instantly.")
+        finally:
+            stop_event.set()
+            play_t.join()
+
+        # Save concatenated full WAV to persistent cache for future instant re-use
+        if all_chunks:
+            import numpy as np
+            full_audio = np.concatenate(all_chunks)
+            sf.write(str(final_cached_wav), full_audio, 24000)
+
+    def play_audio(self, audio_file):
+        """Plays a WAV file asynchronously or via standard system sound."""
+        try:
+            import winsound
+            winsound.PlaySound(str(audio_file), winsound.SND_FILENAME | winsound.SND_ASYNC)
+            return
+        except Exception:
+            pass
+
+        try:
+            # Fallback for Linux / macOS
+            import subprocess
+            if sys.platform.startswith("linux"):
+                subprocess.Popen(["aplay", "-q", str(audio_file)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            elif sys.platform == "darwin":
+                subprocess.Popen(["afplay", str(audio_file)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception as e:
+            print(f"Could not play audio automatically: {e}", file=sys.stderr)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LOTRO-TTS Production Speaker")

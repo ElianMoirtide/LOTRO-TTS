@@ -90,7 +90,7 @@ def install_packages(mode: str):
 
     subprocess.run(cmd_torch, check=True)
 
-    # Core Audio, Speech & Zero-Shot Voice Cloning packages
+    # Core Audio, Speech, Zero-Shot Voice Cloning & Screenreader packages
     extra_packages = [
         "omnivoice",
         "openai-whisper",
@@ -98,10 +98,15 @@ def install_packages(mode: str):
         "scipy",
         "librosa",
         "transformers",
-        "numpy"
+        "numpy",
+        "rapidocr_onnxruntime",
+        "onnxruntime-gpu",
+        "mss",
+        "pynput",
+        "Pillow"
     ]
     print(f"\n========================================================")
-    print(f"Installing Voice Cloning Engine & Dependencies:")
+    print(f"Installing Voice Cloning, Screenreader & Dependencies:")
     print(f"  {', '.join(extra_packages)}")
     print(f"========================================================")
     cmd_extra = [str(PYTHON_EXE), "-m", "pip", "install", "--upgrade", "--no-warn-script-location"] + extra_packages
