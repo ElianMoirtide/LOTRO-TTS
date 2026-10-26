@@ -13,7 +13,7 @@ I've looked up their repositories and tested them, it worked, but i wasn't fully
 In the end i just wanted the program to be completely "portable" (no installation of external Tools, e.g. without Tesseract OCR in Khazad-Voice-TTS, and everything of the tool stays in its Folder, nowhere else) and structured as i wanted it to be with support primarily for german language. Also i used sound files from the game for the voices. Most are already good, but some are need to be changed or added. Thats a WIP. Thanks for reading.
 
 WIP:
-- Performance (specifically delay between pressed button and TTS is playing)
+- Performance (specifically delay between pressed button and TTS is playing, e.g. OCR on 4k)
 - More unique voices
 
 ---
