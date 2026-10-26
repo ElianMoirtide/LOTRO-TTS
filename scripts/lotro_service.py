@@ -115,7 +115,7 @@ class LotroPipelineService:
 
             # 2. Run OCR & window analysis with cached geometry
             logger.info("Scanning screen for quest / instance dialog...")
-            scan_result = self.screen_reader.scan_screen_with_cache(screen_img, target_npc=target_name)
+            scan_result = self.screen_reader.scan_screen_with_cache(screen_img, target_npc=target_name, lang=lang_code)
             
             window_type = scan_result.get("window_type", "unknown")
             title = scan_result.get("title", "")

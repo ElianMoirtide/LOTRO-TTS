@@ -54,7 +54,7 @@ class LotroScreenReader:
                 pass
         return self.ocr_engine
 
-    def scan_screen_with_cache(self, full_screen_img, target_npc: str = "") -> Dict[str, Any]:
+    def scan_screen_with_cache(self, full_screen_img, target_npc: str = "", lang: str = "de") -> Dict[str, Any]:
         """
         Scans using cached window coordinates first for near-instant OCR.
         Falls back to scanning the full screen if the cached crop does not contain a valid dialog.
@@ -85,9 +85,9 @@ class LotroScreenReader:
                 fast_title = " ".join([b[1].strip() for b in title_ocr if not re.search(r'(AUFGABENSTUFE|QUEST LEVEL|^X$)', b[1], re.IGNORECASE)])
                 fast_title = re.sub(r'^[^\w\s]+|[^\w\s]+$', '', fast_title).strip()
                 if fast_title and self.db_path.exists():
-                    q_id, db_text = self._lookup_quest_in_db(fast_title, target_npc=target_npc)
+                    q_id, db_text = self._lookup_quest_in_db(fast_title, target_npc=target_npc, lang=lang)
                     if db_text:
-                        print(f"[LotroScreenReader] Fast-path DB hit on cached title: '{fast_title}'")
+                        print(f"[LotroScreenReader] Fast-path DB hit on cached title: '{fast_title}' ({lang.upper()})")
                         is_instance = bool(re.search(r'^(INSTANZ|INSTANCE)', fast_title, re.IGNORECASE))
                         return {
                             "window_type": "instance" if is_instance else "quest",
@@ -101,18 +101,18 @@ class LotroScreenReader:
 
             # If fast title check didn't match DB, scan the full cached box (e.g. dynamic dialog)
             cropped_box = full_screen_img[y1:y2, x1:x2]
-            res = self.scan_image(cropped_box, target_npc=target_npc)
+            res = self.scan_image(cropped_box, target_npc=target_npc, lang=lang)
             if res.get("final_text") and res.get("title"):
                 return res
 
         # 2. Fallback to Full Screen scan and update cached location
-        res = self.scan_image(full_screen_img, target_npc=target_npc)
+        res = self.scan_image(full_screen_img, target_npc=target_npc, lang=lang)
         if res.get("window_box"):
             self.cached_window_box = res["window_box"]
             print(f"[LotroScreenReader] Cached dialog window geometry: {self.cached_window_box}")
         return res
 
-    def scan_image(self, image_input, target_npc: str = "") -> Dict[str, Any]:
+    def scan_image(self, image_input, target_npc: str = "", lang: str = "de") -> Dict[str, Any]:
         """
         Scans a window image or file path using RapidOCR.
         Supports PIL.Image, numpy.ndarray, file path str/Path, or bytes.
@@ -197,9 +197,10 @@ class LotroScreenReader:
         cleaned_dialog_lines = []
         for b in left_dialog_boxes:
             t = b["text"]
-            t = re.sub(r"^['\"]?[TtIil][ce]h\b", "'Ich", t)
-            t = re.sub(r"\bStraBe\b", "Straße", t)
-            t = re.sub(r"\bZahesten\b", "Zähesten", t)
+            if lang.lower() == "de":
+                t = re.sub(r"^['\"]?[TtIil][ce]h\b", "'Ich", t)
+                t = re.sub(r"\bStraBe\b", "Straße", t)
+                t = re.sub(r"\bZahesten\b", "Zähesten", t)
             cleaned_dialog_lines.append(t)
 
         dialog_text = "\n\n".join(cleaned_dialog_lines)
@@ -216,11 +217,10 @@ class LotroScreenReader:
             )
 
         # 3. DB Lookup:
-        # Check if the title exists in the database
         db_text = None
         quest_id = None
         if title and self.db_path.exists():
-            quest_id, db_text = self._lookup_quest_in_db(title, target_npc=target_npc)
+            quest_id, db_text = self._lookup_quest_in_db(title, target_npc=target_npc, lang=lang)
 
         # Final text selection: prefer DB text if matched, otherwise clean OCR text
         final_text = db_text if db_text else dialog_text
@@ -235,8 +235,8 @@ class LotroScreenReader:
             "window_box": window_box
         }
 
-    def _lookup_quest_in_db(self, title: str, target_npc: str = "") -> Tuple[Optional[int], Optional[str]]:
-        """Queries lotro.db for best matching quest title and fetches bestower text."""
+    def _lookup_quest_in_db(self, title: str, target_npc: str = "", lang: str = "de") -> Tuple[Optional[int], Optional[str]]:
+        """Queries lotro.db for best matching quest title and fetches bestower text in requested language."""
         try:
             conn = sqlite3.connect(str(self.db_path))
             cur = conn.cursor()
@@ -271,26 +271,29 @@ class LotroScreenReader:
                 conn.close()
                 return None, None
 
+            is_en = (lang.lower() == "en")
+
             # If target NPC name was passed from plugin, match NPC-specific dialog first
             if target_npc:
                 cur.execute("""
-                    SELECT qt.text_de, qt.text_en 
+                    SELECT qt.text_en, qt.text_de 
                     FROM Quest_Texts qt
                     JOIN NPCs n ON qt.npc_id = n.id
                     WHERE qt.quest_id = ? AND (LOWER(n.name_de) = LOWER(?) OR LOWER(n.name_en) = LOWER(?))
                     LIMIT 1
                 """, (matched_id, target_npc, target_npc))
                 npc_row = cur.fetchone()
-                if npc_row and (npc_row[0] or npc_row[1]):
-                    conn.close()
-                    text = npc_row[0] or npc_row[1]
-                    text = re.sub(r'\$\{PLAYERNAME:([^\[\|]+)[^}]*\}', r'\1', text)
-                    text = re.sub(r'\$\{PLAYER[^}]*\}', 'Freund', text)
-                    return matched_id, text.strip()
+                if npc_row:
+                    text_candidate = (npc_row[0] if is_en else npc_row[1]) or (npc_row[1] if is_en else npc_row[0])
+                    if text_candidate:
+                        conn.close()
+                        text = re.sub(r'\$\{PLAYERNAME:([^\[\|]+)[^}]*\}', r'\1', text_candidate)
+                        text = re.sub(r'\$\{PLAYER[^}]*\}', 'friend' if is_en else 'Freund', text)
+                        return matched_id, text.strip()
 
             # Otherwise fetch standard bestower / dialog text
             cur.execute("""
-                SELECT text_de, text_en FROM Quest_Texts 
+                SELECT text_en, text_de FROM Quest_Texts 
                 WHERE quest_id = ? AND text_type IN ('bestower', 'dialog', 'description')
                 ORDER BY CASE text_type 
                     WHEN 'bestower' THEN 1 
@@ -302,10 +305,10 @@ class LotroScreenReader:
             conn.close()
 
             if text_row:
-                text = text_row[0] or text_row[1]
-                if text:
-                    text = re.sub(r'\$\{PLAYERNAME:([^\[\|]+)[^}]*\}', r'\1', text)
-                    text = re.sub(r'\$\{PLAYER[^}]*\}', 'Freund', text)
+                text_candidate = (text_row[0] if is_en else text_row[1]) or (text_row[1] if is_en else text_row[0])
+                if text_candidate:
+                    text = re.sub(r'\$\{PLAYERNAME:([^\[\|]+)[^}]*\}', r'\1', text_candidate)
+                    text = re.sub(r'\$\{PLAYER[^}]*\}', 'friend' if is_en else 'Freund', text)
                     return matched_id, text.strip()
 
         except Exception as e:
