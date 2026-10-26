@@ -2,9 +2,22 @@
 
 A modern, local, and fully offline Text-to-Speech (TTS) system for **The Lord of the Rings Online** (*LOTRO*).
 
-LOTRO-TTS breathes life into quest dialogues and instance scenarios using authentic voice models tailored to each NPC's race, lineage, and gender (Elves, Dwarves, Hobbits, Men, Orcs, Ents, etc.) — supporting both **English** and **German** game clients.
+LOTRO-TTS breathes life into quest dialogues and instance scenarios using authentic voice models tailored to each NPC's race, lineage, and gender (Elves, Dwarves, Hobbits, Men, Orcs, Ents, etc.) — supporting both **English** and **German** game clients. (and maybe French if requested lol)
 
 ---
+
+## 💡 Motivation & Personal Vision (**not AI written**)
+
+So basically i was bothered by all those quests without voiceover. So i looked up if there is already any tool and ofc i've found LotroToSpeech, Khazad-Voice-TTS and newly Project Questa.
+I've looked up their repositories and tested them, it worked, but i wasn't fully satisfied - especially with german language support. Also i wanted to do some technical changes. My first attempt was by forking Khazad-Voice-TTS and tried to modify it to my needs/wishes, but pretty quick i realized that i'd had to change too much. So i started from scratch and took inspiration of the workflows of those projects and adapted them to my project.
+In the end i just wanted the program to be completely "portable" (no installation of external Tools, e.g. without Tesseract OCR in Khazad-Voice-TTS, and everything of the tool stays in its Folder, nowhere else) and structured as i wanted it to be with support primarily for german language. Also i used sound files from the game for the voices. Most are already good, but some are need to be changed or added. Thats a WIP. Thanks for reading.
+
+WIP:
+- Performance (specifically delay between pressed button and TTS is playing)
+- More unique voices
+
+---
+**below is written/documented with AI.... ain't no way i'm writing that whole Thing lol**
 
 ## 🌟 Key Features
 
@@ -48,6 +61,15 @@ setup_tts.bat
 Select your desired compute mode:
 - **1) GPU (NVIDIA / CUDA)** *(Recommended)*: Installs PyTorch with CUDA acceleration and GPU-accelerated OCR.
 - **2) CPU**: Installs the CPU-only version (runs without an NVIDIA GPU, but with higher latency).
+
+### 3. Generate the Quest Database (`lotro.db`) (One-Time)
+Because the pre-compiled SQLite database (`lotro.db`) contains over 17,700 NPCs and 15,000 quests and exceeds Git repository file size limits, it is generated locally on your machine prior to first use:
+```cmd
+run_update_sources.bat
+```
+*This downloads the latest lore data from the LotroCompanion repository and automatically generates `data/lotro.db` in a few minutes.*
+
+*(Optional: If you already have local XML source files, you can simply run `run_generate_db.bat` instead).*
 
 ---
 
