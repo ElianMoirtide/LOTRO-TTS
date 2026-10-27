@@ -201,9 +201,51 @@ class LotroPipelineService:
                 logger.error(f"Error watching log: {e}")
                 time.sleep(1.0)
 
+def get_default_lotro_documents_dir() -> Path:
+    """
+    Detects the default 'The Lord of the Rings Online' documents directory.
+    On Windows, it queries the Windows Registry ('User Shell Folders' -> 'Personal')
+    to properly handle users with custom/relocated Documents folders (e.g. D:\\Dokumente, OneDrive, etc.).
+    Falls back to user home directory or Linux/Proton wine prefixes.
+    """
+    # 1. Windows Registry detection
+    if sys.platform.startswith("win"):
+        try:
+            import winreg
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+            )
+            raw_path, _ = winreg.QueryValueEx(key, "Personal")
+            winreg.CloseKey(key)
+            expanded_path = os.path.expandvars(raw_path)
+            candidate = Path(expanded_path) / "The Lord of the Rings Online"
+            return candidate
+        except Exception as e:
+            logger.debug(f"Registry documents detection failed: {e}")
+
+    # 2. Standard user home fallback (Windows & Linux native)
+    home_docs = Path.home() / "Documents" / "The Lord of the Rings Online"
+    if home_docs.exists():
+        return home_docs
+
+    # German Documents folder fallback
+    home_docs_de = Path.home() / "Dokumente" / "The Lord of the Rings Online"
+    if home_docs_de.exists():
+        return home_docs_de
+
+    # 3. Linux Steam Proton / Steam Deck search
+    if sys.platform.startswith("linux"):
+        steam_lotro_paths = list(Path.home().glob(".steam/steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online"))
+        if steam_lotro_paths:
+            return steam_lotro_paths[0]
+
+    return home_docs
+
 def main():
     parser = argparse.ArgumentParser(description="LOTRO-TTS Service")
-    parser.add_argument("--docs-dir", type=str, default=r"D:\Dokumente\The Lord of the Rings Online", help="Path to LOTRO Documents folder")
+    default_docs = get_default_lotro_documents_dir()
+    parser.add_argument("--docs-dir", type=str, default=str(default_docs), help=f"Path to LOTRO Documents folder (default: {default_docs})")
     parser.add_argument("--mode", choices=["auto", "cuda", "cpu"], default="auto", help="Compute mode (auto detects CUDA/RTX)")
     parser.add_argument("--no-mouse", action="store_true", help="Disable middle mouse button trigger")
     args = parser.parse_args()
