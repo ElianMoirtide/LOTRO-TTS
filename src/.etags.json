@@ -1,10 +1,10 @@
 {
-  "npc\\npc.xml": "\"f058bd85faee9bbfba94852325616ea3347dd8bee6552a55c57956401f29e35e\"",
-  "npc\\npc_de.xml": "\"f927e7bd3e0774042d043fc0e72af274fe436efecd3315dca4f48355fad6e442\"",
-  "npc\\npc_en.xml": "\"10394c4d7d706e5a0f2b1d8194b0f7c29eee583fe6ab16a9720ba9c3e13c2275\"",
-  "npc\\npc_fr.xml": "\"cceae468e02c914cab3e92b064a3a51406acd2df4b38c00db939c26821d11b39\"",
-  "quests\\quests.xml": "\"bed1f6a9cddd2bebec565163d1cb16075473257aa4a910a2e9dec61ec4cd3100\"",
-  "quests\\quests_de.xml": "\"2d3acb1b1256bf1ce319168727771cd8e82d2a03c4f9b91fccfebba6e0cca370\"",
-  "quests\\quests_en.xml": "\"8ff67a4a58b3a7996877c72c57ff7babb7abfae2876e103656b67cd80b886251\"",
-  "quests\\quests_fr.xml": "\"2f2968cb6b3f357f1183e127c4459fa6ba3fdf76bc9479746315739d8bbfaf15\""
+  "npc\\npc.xml": "\"5aac9ac2196359ede83ff5474da507344402ca8bfb183eb9cc8cde951b94f3d0\"",
+  "npc\\npc_de.xml": "\"d226426fac0e39462b7784730bd798722d199ac26fd26331af5529d78a54c8cc\"",
+  "npc\\npc_en.xml": "\"f29193b798bb08a8be06b95f3c19d8ab97fcefe5ae05afefef233ada4f8dbc30\"",
+  "npc\\npc_fr.xml": "\"30b6020b49bb85bd4355f89741df4cd669f65fc18d24b565291c0ca230dae557\"",
+  "quests\\quests.xml": "\"2532b117d4d1389af94d02477f0c688bfd845f4099a32f81bea70be00a75e496\"",
+  "quests\\quests_de.xml": "\"f2951f4c8371b567e1adc20befcb9c1d292b2e0d15eea47e5ec4bc53a4afe5c9\"",
+  "quests\\quests_en.xml": "\"ff516f825572749e36982a27bbc60bf57305c4f71955d8a764ec96702cf7400d\"",
+  "quests\\quests_fr.xml": "\"2812ffb2103a466a4e1b654e5d65e6b2386d490c34fde4135d69a06f5640c638\""
 }

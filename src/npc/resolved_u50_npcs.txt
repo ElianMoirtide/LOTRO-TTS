@@ -1,0 +1,196 @@
+# LOTRO-TTS Update 50 NPC Race Resolutions
+# Generated based on LOTRO lore and in-game database context
+
+# Inanimate objects / Vendors / Internal test dummies
+Accessory = Object
+Classic = Object
+Cooking Bookshelf = Object
+Cooking Goods = Object
+Cosmetics = Object
+Currency Exchange = Object
+DNT - Set on LB = Object
+DNT NOT USED = Object
+Draugardh Decoration Vendor = Object
+Dust = Object
+Edgecase = Object
+Egg = Object
+Equipment Anvil = Object
+Farming Bookshelf = Object
+Farming Goods = Object
+Figure = Object
+Foresting Goods = Object
+Gem = Object
+Geode = Object
+Heavy Armour = Object
+Improved Recipes = Object
+JWBarry = Object
+Javatar = Object
+Jewellery Bookshelf = Object
+Jewellery and Cloaks = Object
+Legendary Recipes = Object
+Light Armour = Object
+Lockbox = Object
+MadeOfLions = Object
+Medium Armour = Object
+Metalsmithing Bookshelf = Object
+NEED A NAME <TBD> = Object
+NPComplete = Object
+Nathan TBD = Object
+Prospecting Goods = Object
+Quest Barrel 1 = Object
+Recipes = Object
+Rock = Object
+Scenario = Object
+Shell = Object
+Singed Paper = Object
+Slumped Figure = Object
+SomeEngineer = Object
+Special Goods = Object
+Standing Figure = Object
+TBD = Object
+Tailoring Bookshelf = Object
+Tens = Object
+Test Bestower = Object
+Test Completer = Object
+Tester McKeeperson = Object
+Weapons = Object
+Weisel TBD = Object
+Woodworking Bookshelf = Object
+
+# Spirits & Special beings
+Nargroth Spirit = Dead
+Wayward Spirit = Dead
+Voice from Above = Narrator
+
+# Sauron / Maia
+Sauron the Deceiver = Maia
+Sauron the Scarred = Maia
+
+# Werewolves / Draugrim / Gaurhoth (bred wolves/werewolves of Draugardh)
+Baidhroch = Werewolf
+Daerchant = Werewolf
+Draugrim = Werewolf
+Draugrim Commander = Werewolf
+Elugor = Werewolf
+Gaurhoth = Werewolf
+Gaurhoth Emissary = Werewolf
+Gaurhoth of Draugardh = Werewolf
+Narchraw = Werewolf
+Rhugarnag = Werewolf
+Rhísarch = Werewolf
+Thothrach = Werewolf
+Urdagras = Werewolf
+
+# Orcs & Half-orcs / Uruk-hai
+Dagfaust the Death-hungry = Orc
+Durnanc Gloom-grip = Orc
+Khûrz-hai = Orc
+Mothgorod = Orc
+Yazluk-garga = Orc
+Zagrukh the Thundrous = Orc
+
+# Elves (Glánnothrim & Scouts)
+Callonor = Elf
+Carnech = Elf
+Celegnor = Elf
+Dorlath = Elf
+Glenniel = Elf
+Glánnothrim Warrior = Elf
+Gorndir = Elf
+Haereldir = Elf
+Limgelon = Elf
+Netharas = Elf
+Nimfinn = Elf
+
+# Drúedain (Woses of Khemozêl in Dhol Tûg)
+Bhêkh-maka-Chêrd = Drúedain
+Chêl-buri-Chêl = Drúedain
+Dhên-maka-Kwêl = Drúedain
+Dêkh-maka-Spêr = Drúedain
+Dêkh-maka-Tût = Drúedain
+Dôr-buri-Nêr = Drúedain
+Dûsh-pulo-Yûg = Drúedain
+Ghêd-buri-Nûr = Drúedain
+Ghôm-weni-Hêk = Drúedain
+Hrêg-buri-Khêr = Drúedain
+Hrûd-buri-Khêsh = Drúedain
+Hêg-maka-Chêrd = Drúedain
+Hûdh-pulo-Tûth = Drúedain
+Injured Khemozêl = Drúedain
+Khemozêl Cook = Drúedain
+Khemozêl Jeweller = Drúedain
+Khemozêl Mentor = Drúedain
+Khemozêl Prisoner = Drúedain
+Khemozêl Scout = Drúedain
+Khemozêl Warrior = Drúedain
+Khemozêl Woodworker = Drúedain
+Khôi-buri-Bhêr = Drúedain
+Khûl-weni-Bhârd = Drúedain
+Kwêt-maka-Ghêrdh = Drúedain
+Lêk-buri-Sût = Drúedain
+Mên-buri-Drû = Drúedain
+Môr-pulo-Mên = Drúedain
+Nâm-weni-Khû = Drúedain
+Pêk-dhug-Bhôd = Drúedain
+Shêi-dhug-Phîn = Drúedain
+Sêk-pulo-Têg = Drúedain
+Sêkh-buri-Wêp = Drúedain
+Yêm-pulo-Wêgh = Drúedain
+
+# Easterlings (Têtikir clan & Haradrim / Kintai / Amrun Men)
+Alghila = Man
+Anagúl = Man
+Arzheki = Man
+Azatikh = Man
+Bagatur = Man
+Brorda = Man
+Buyoda = Man
+Dying Cultist = Man
+Ertezul = Man
+Follower of Mûlazar = Man
+Guard of the Jail = Man
+Hammendal = Man
+Húlamath = Man
+Imilbek = Man
+Injured Têtikir = Man
+Khashkhilar = Man
+Khushba = Man
+Khutor = Man
+Komil = Man
+Kuluk = Man
+Mindaug = Man
+Mindaug the Seeker = Man
+Mût = Man
+Niyoz = Man
+Nûlbanath = Man
+Order of the Eye Cultist = Man
+Ormon = Man
+Ozodi = Man
+Rashan = Man
+Rûkhor = Man
+Sarikhol = Man
+Scout Mentor = Man
+Scout of Draugardh = Man
+Scout's Scholar = Man
+Sengi = Man
+Shedil = Man
+Sigefót = Man
+Sumbula = Man
+Sóghut Bastukh = Man
+Tarbohom = Man
+Tasila = Man
+Tavern-keeper = Man
+Toghan = Man
+Trapped Townsfolk = Man
+Tréowe = Man
+Têtikir Hunter = Man
+Têtikir Mentor = Man
+Têtikir Metalsmith = Man
+Têtikir Quartermaster = Man
+Têtikir Scout = Man
+Têtikir Tailor = Man
+Têtikir Weaponsmith = Man
+Uludakh = Man
+Wynflad = Man
+Zapharo = Man
+

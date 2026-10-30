@@ -180,8 +180,8 @@
     "url": "https://lotro-wiki.com/wiki/Acca"
   },
   "Accessory": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Accessory Vendor": {
     "race": "Race of man",
@@ -5972,8 +5972,8 @@
     "url": "https://lotro-wiki.com/wiki/Clark_Standish"
   },
   "Classic": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Clayton Cole": {
     "race": "Man",
@@ -6212,12 +6212,12 @@
     "url": "API"
   },
   "Cooking Bookshelf": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Cooking Goods": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Coomb Coney": {
     "race": "Critters",
@@ -6316,8 +6316,8 @@
     "url": "https://lotro-wiki.com/wiki/Cosmetic_Pets_Vendor"
   },
   "Cosmetics": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Costumed Hobbit": {
     "race": "Hobbit",
@@ -6544,8 +6544,8 @@
     "url": "https://lotro-wiki.com/wiki/Curious_Onlooker"
   },
   "Currency Exchange": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Cursed Britou": {
     "race": "Man",
@@ -6764,16 +6764,16 @@
     "url": null
   },
   "DNT - Set on LB": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "DNT Goat": {
     "race": "Creature",
     "url": "API"
   },
   "DNT NOT USED": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "DNT Utûgi Guard": {
     "race": "Man",
@@ -8324,8 +8324,8 @@
     "url": "https://lotro-wiki.com/wiki/Duskleaf"
   },
   "Dust": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Dustfell": {
     "race": "Man",
@@ -8784,8 +8784,8 @@
     "url": "https://lotro-wiki.com/wiki/Edgar_Standish"
   },
   "Edgecase": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Edhan": {
     "race": "Man",
@@ -8892,8 +8892,8 @@
     "url": "API"
   },
   "Egg": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Egil Oldbeard": {
     "race": "Dwarf",
@@ -9632,8 +9632,8 @@
     "url": "https://lotro-wiki.com/wiki/Ephr%C3%A2ti"
   },
   "Equipment Anvil": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Erandir": {
     "race": "Man",
@@ -10320,12 +10320,12 @@
     "url": "API"
   },
   "Farming Bookshelf": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Farming Goods": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Faroniel": {
     "race": "Elf",
@@ -10544,8 +10544,8 @@
     "url": "API"
   },
   "Figure": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Filadal": {
     "race": "Elf",
@@ -10888,8 +10888,8 @@
     "url": "https://lotro-wiki.com/wiki/Foreman_Rosethorn"
   },
   "Foresting Goods": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Forgamdir": {
     "race": "Race of men",
@@ -11856,8 +11856,8 @@
     "url": "https://lotro-wiki.com/wiki/Gelwen"
   },
   "Gem": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Gemma": {
     "race": "Race of man",
@@ -11872,8 +11872,8 @@
     "url": "https://lotro-wiki.com/wiki/Gentian_Bolger"
   },
   "Geode": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Geode Hunter": {
     "race": "Dwarf",
@@ -14384,8 +14384,8 @@
     "url": "https://lotro-wiki.com/wiki/Heathfells_Hare"
   },
   "Heavy Armour": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Heavy Armour Quartermaster": {
     "race": "Man",
@@ -15992,8 +15992,8 @@
     "url": "https://lotro-wiki.com/wiki/Imprisoned_Warrior"
   },
   "Improved Recipes": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Imrahil": {
     "race": "Man",
@@ -16684,8 +16684,8 @@
     "url": "https://lotro-wiki.com/wiki/I%C3%B3n"
   },
   "JWBarry": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Jack Cloverdale": {
     "race": "Man",
@@ -16788,8 +16788,8 @@
     "url": "API"
   },
   "Javatar": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Javish": {
     "race": "Race of man",
@@ -16828,16 +16828,16 @@
     "url": "https://lotro-wiki.com/wiki/Jewel_Underhill"
   },
   "Jewellery Bookshelf": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Jewellery Trader": {
     "race": "Man",
     "url": "https://lotro-wiki.com/wiki/Jewellery_Trader_(Sundering_of_Osgiliath)"
   },
   "Jewellery and Cloaks": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Jidâlo": {
     "race": "Man",
@@ -18316,8 +18316,8 @@
     "url": "https://lotro-wiki.com/wiki/Leg-wear_Vendor"
   },
   "Legendary Recipes": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Legendary Service - I": {
     "race": null,
@@ -18568,8 +18568,8 @@
     "url": null
   },
   "Light Armour": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Light Armour Quartermaster": {
     "race": "Man",
@@ -18828,8 +18828,8 @@
     "url": "https://lotro-wiki.com/wiki/Local_Supplier"
   },
   "Lockbox": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Locrin": {
     "race": "Man",
@@ -19532,8 +19532,8 @@
     "url": "https://lotro-wiki.com/wiki/Maddoc_Stagshorn"
   },
   "MadeOfLions": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Madelgard": {
     "race": "Man",
@@ -20400,8 +20400,8 @@
     "url": "https://lotro-wiki.com/wiki/Medi"
   },
   "Medium Armour": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Medium Armour Quartermaster": {
     "race": "Man",
@@ -20812,8 +20812,8 @@
     "url": "https://lotro-wiki.com/wiki/Messenger_of_Erebor"
   },
   "Metalsmithing Bookshelf": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Methin": {
     "race": "Dwarf",
@@ -21752,12 +21752,12 @@
     "url": "https://lotro-wiki.com/wiki/M%C3%BBtahir"
   },
   "NEED A NAME <TBD>": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "NPComplete": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Nabatínu": {
     "race": "Man",
@@ -22064,8 +22064,8 @@
     "url": "https://lotro-wiki.com/wiki/Nathan_Hodges"
   },
   "Nathan TBD": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Nathdil": {
     "race": "Man",
@@ -24632,8 +24632,8 @@
     "url": "https://lotro-wiki.com/wiki/Professor"
   },
   "Prospecting Goods": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Provisioner": {
     "race": "Man",
@@ -24744,8 +24744,8 @@
     "url": "https://lotro-wiki.com/wiki/Quennel"
   },
   "Quest Barrel 1": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Quick-wit Culver": {
     "race": "Man",
@@ -25092,8 +25092,8 @@
     "url": null
   },
   "Recipes": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Recovery Order": {
     "race": null,
@@ -25676,8 +25676,8 @@
     "url": "https://lotro-wiki.com/wiki/Rochwen"
   },
   "Rock": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Rodaglar": {
     "race": "Man",
@@ -26696,8 +26696,8 @@
     "url": null
   },
   "Scenario": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Scholar Bookshelf": {
     "race": "Man",
@@ -27156,8 +27156,8 @@
     "url": "https://lotro-wiki.com/wiki/Sheldon_Roper"
   },
   "Shell": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Sheltering Child": {
     "race": "Man",
@@ -27568,8 +27568,8 @@
     "url": "https://lotro-wiki.com/wiki/Sindri_(Gondamon)"
   },
   "Singed Paper": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Sini": {
     "race": "Man",
@@ -27820,8 +27820,8 @@
     "url": "https://lotro-wiki.com/wiki/Slinky_Cat"
   },
   "Slumped Figure": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Slágin": {
     "race": "Dwarf",
@@ -28052,8 +28052,8 @@
     "url": "https://lotro-wiki.com/wiki/Solvi_Scrollbearer"
   },
   "SomeEngineer": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Sonnagh": {
     "race": "Man",
@@ -28160,8 +28160,8 @@
     "url": "https://lotro-wiki.com/wiki/Spear-ready_Recruit"
   },
   "Special Goods": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Special Items Trader": {
     "race": "Uruk",
@@ -28292,8 +28292,8 @@
     "url": "https://lotro-wiki.com/wiki/Stan_Chesham"
   },
   "Standing Figure": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Standing Stone": {
     "race": null,
@@ -28960,8 +28960,8 @@
     "url": "https://lotro-wiki.com/wiki/S%C3%BBzakh"
   },
   "TBD": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "TBD Carver": {
     "race": "",
@@ -29120,8 +29120,8 @@
     "url": "https://lotro-wiki.com/wiki/Taidelen"
   },
   "Tailoring Bookshelf": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Tainted Chain": {
     "race": null,
@@ -29592,8 +29592,8 @@
     "url": null
   },
   "Tens": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Tentacle": {
     "race": null,
@@ -29640,16 +29640,16 @@
     "url": "https://lotro-wiki.com/wiki/Tesni"
   },
   "Test Bestower": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Test Completer": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Tester McKeeperson": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Tethafnel": {
     "race": "Elf",
@@ -32660,8 +32660,8 @@
     "url": null
   },
   "Weapons": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Weapons Vendor": {
     "race": "Race of man",
@@ -32708,8 +32708,8 @@
     "url": "https://lotro-wiki.com/wiki/Wegil"
   },
   "Weisel TBD": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Welduth Lhush": {
     "race": "Hobbit",
@@ -33160,8 +33160,8 @@
     "url": null
   },
   "Woodworking Bookshelf": {
-    "race": "",
-    "url": ""
+    "race": "Object",
+    "url": "API"
   },
   "Word of Craft Traceries": {
     "race": null,
@@ -33878,5 +33878,501 @@
   "Partygoer": {
     "race": "Hobbit",
     "url": "https://lotro-wiki.com/wiki/Partygoer"
+  },
+  "Draugardh Decoration Vendor": {
+    "race": "Object",
+    "url": "API"
+  },
+  "Nargroth Spirit": {
+    "race": "Dead",
+    "url": "API"
+  },
+  "Wayward Spirit": {
+    "race": "Dead",
+    "url": "API"
+  },
+  "Voice from Above": {
+    "race": "Narrator",
+    "url": "API"
+  },
+  "Sauron the Deceiver": {
+    "race": "Maia",
+    "url": "API"
+  },
+  "Sauron the Scarred": {
+    "race": "Maia",
+    "url": "API"
+  },
+  "Baidhroch": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Daerchant": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Draugrim": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Draugrim Commander": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Elugor": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Gaurhoth": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Gaurhoth Emissary": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Gaurhoth of Draugardh": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Narchraw": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Rhugarnag": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Rhísarch": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Thothrach": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Urdagras": {
+    "race": "Werewolf",
+    "url": "API"
+  },
+  "Dagfaust the Death-hungry": {
+    "race": "Orc",
+    "url": "API"
+  },
+  "Durnanc Gloom-grip": {
+    "race": "Orc",
+    "url": "API"
+  },
+  "Khûrz-hai": {
+    "race": "Orc",
+    "url": "API"
+  },
+  "Mothgorod": {
+    "race": "Orc",
+    "url": "API"
+  },
+  "Yazluk-garga": {
+    "race": "Orc",
+    "url": "API"
+  },
+  "Zagrukh the Thundrous": {
+    "race": "Orc",
+    "url": "API"
+  },
+  "Callonor": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Carnech": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Celegnor": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Dorlath": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Glenniel": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Glánnothrim Warrior": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Gorndir": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Haereldir": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Limgelon": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Netharas": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Nimfinn": {
+    "race": "Elf",
+    "url": "API"
+  },
+  "Bhêkh-maka-Chêrd": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Chêl-buri-Chêl": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Dhên-maka-Kwêl": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Dêkh-maka-Spêr": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Dêkh-maka-Tût": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Dôr-buri-Nêr": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Dûsh-pulo-Yûg": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Ghêd-buri-Nûr": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Ghôm-weni-Hêk": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Hrêg-buri-Khêr": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Hrûd-buri-Khêsh": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Hêg-maka-Chêrd": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Hûdh-pulo-Tûth": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Injured Khemozêl": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Khemozêl Cook": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Khemozêl Jeweller": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Khemozêl Mentor": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Khemozêl Prisoner": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Khemozêl Scout": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Khemozêl Warrior": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Khemozêl Woodworker": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Khôi-buri-Bhêr": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Khûl-weni-Bhârd": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Kwêt-maka-Ghêrdh": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Lêk-buri-Sût": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Mên-buri-Drû": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Môr-pulo-Mên": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Nâm-weni-Khû": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Pêk-dhug-Bhôd": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Shêi-dhug-Phîn": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Sêk-pulo-Têg": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Sêkh-buri-Wêp": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Yêm-pulo-Wêgh": {
+    "race": "Dredain",
+    "url": "API"
+  },
+  "Alghila": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Anagúl": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Arzheki": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Azatikh": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Bagatur": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Brorda": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Buyoda": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Dying Cultist": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Ertezul": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Follower of Mûlazar": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Guard of the Jail": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Hammendal": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Húlamath": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Imilbek": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Injured Têtikir": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Khashkhilar": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Khushba": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Khutor": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Komil": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Kuluk": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Mindaug": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Mindaug the Seeker": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Mût": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Niyoz": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Nûlbanath": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Order of the Eye Cultist": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Ormon": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Ozodi": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Rashan": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Rûkhor": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Sarikhol": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Scout Mentor": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Scout of Draugardh": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Scout's Scholar": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Sengi": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Shedil": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Sigefót": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Sumbula": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Sóghut Bastukh": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Tarbohom": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Tasila": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Tavern-keeper": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Toghan": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Trapped Townsfolk": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Tréowe": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Têtikir Hunter": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Têtikir Mentor": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Têtikir Metalsmith": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Têtikir Quartermaster": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Têtikir Scout": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Têtikir Tailor": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Têtikir Weaponsmith": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Uludakh": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Wynflad": {
+    "race": "Man",
+    "url": "API"
+  },
+  "Zapharo": {
+    "race": "Man",
+    "url": "API"
   }
 }
