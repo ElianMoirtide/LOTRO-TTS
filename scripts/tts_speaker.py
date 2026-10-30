@@ -34,15 +34,44 @@ class LotroSpeaker:
         self.model = self.model.to(self.device)
         print("OmniVoice model loaded successfully!")
         
-        # Load voice indexes for de and en
+        # Load voice indexes for all supported native voice libraries (de, en, fr)
         self.indices = {}
-        for lang in ["de", "en"]:
+        for lang in ["de", "en", "fr"]:
             idx_file = self.voices_dir / lang / "voice_index.json"
             if idx_file.exists():
                 with open(idx_file, "r", encoding="utf-8") as f:
                     self.indices[lang] = json.load(f)
             else:
                 self.indices[lang] = []
+
+        # Warm up OmniVoice with a silent 1-word generation to initialize CUDA kernels & VRAM allocations
+        self._warmup_engine()
+
+    def _warmup_engine(self):
+        """Performs a silent mini-generation to pre-warm CUDA kernels and avoid first-sentence latency."""
+        try:
+            # Pick any available reference audio from the loaded index
+            ref_item = None
+            for l in ["en", "de", "fr"]:
+                if self.indices.get(l):
+                    ref_item = self.indices[l][0]
+                    break
+
+            if ref_item:
+                ref_audio_path = self.voices_dir / ref_item["audio_file"]
+                if ref_audio_path.exists():
+                    print(f"Pre-warming TTS engine kernels on [{self.device}]...")
+                    # Generate a short neutral word silently (no audio playback)
+                    _ = self.model.generate(
+                        text="Greetings.",
+                        ref_audio=str(ref_audio_path),
+                        ref_text=ref_item.get("text", "Greetings."),
+                        language="en"
+                    )
+                    print("TTS engine pre-warmed and ready for instant playback!")
+        except Exception as e:
+            # Warm-up is non-critical, service will continue normally if it fails
+            print(f"TTS warm-up notice: {e}")
                 
     def get_npc_info(self, npc_name_or_id):
         """Looks up NPC race and gender from data/lotro.db"""
@@ -58,12 +87,12 @@ class LotroSpeaker:
             row = c.fetchone()
         else:
             name_query = str(npc_name_or_id).strip()
-            # Try exact match first
-            c.execute("SELECT name_en, race, gender, voice_id FROM NPCs WHERE name_en = ? OR name_de = ? LIMIT 1", (name_query, name_query))
+            # Try exact match first across all supported language names
+            c.execute("SELECT name_en, race, gender, voice_id FROM NPCs WHERE name_en = ? OR name_de = ? OR name_fr = ? OR name_es = ? LIMIT 1", (name_query, name_query, name_query, name_query))
             row = c.fetchone()
             # If not found, try fuzzy LIKE match
             if not row:
-                c.execute("SELECT name_en, race, gender, voice_id FROM NPCs WHERE name_en LIKE ? OR name_de LIKE ? LIMIT 1", (f"%{name_query}%", f"%{name_query}%"))
+                c.execute("SELECT name_en, race, gender, voice_id FROM NPCs WHERE name_en LIKE ? OR name_de LIKE ? OR name_fr LIKE ? OR name_es LIKE ? LIMIT 1", (f"%{name_query}%", f"%{name_query}%", f"%{name_query}%", f"%{name_query}%"))
                 row = c.fetchone()
             
         conn.close()
@@ -98,7 +127,10 @@ class LotroSpeaker:
 
     def select_voice_template(self, category, lang="de", seed_key=None):
         """Selects reference audio and sidecar transcript for cloning"""
-        lang_items = self.indices.get(lang, [])
+        # For languages without authentic LOTRO audio samples (e.g. Italian 'it'),
+        # use the authentic English reference audio pool for cross-lingual zero-shot cloning.
+        ref_lang = lang if lang in self.indices and self.indices[lang] else "en"
+        lang_items = self.indices.get(ref_lang, [])
         cat_matches = [it for it in lang_items if it["category"] == category]
         
         if not cat_matches:
@@ -265,7 +297,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LOTRO-TTS Production Speaker")
     parser.add_argument("--text", type=str, required=True, help="Text to speak")
     parser.add_argument("--npc", type=str, default="narrator", help="NPC name (e.g. Galadriel, Lobelia) or category (elf_female, etc.)")
-    parser.add_argument("--lang", type=str, choices=["de", "en"], default="de", help="Language code")
+    parser.add_argument("--lang", type=str, choices=["de", "en", "fr", "es", "it"], default="de", help="Language code")
     parser.add_argument("--output", type=str, default=None, help="Output wav file path")
     
     parser.add_argument("--device", type=str, choices=["cuda", "cpu"], default=None, help="Compute device (default: auto-detect cuda/cpu)")

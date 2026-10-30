@@ -15,7 +15,8 @@ echo ========================================================
 echo        LOTRO-TTS Background Service and Screenreader
 echo ========================================================
 echo Watching The Lord of the Rings Online / Script.log...
-echo Click "Vorlesen" in-game or press Middle Mouse Button (Maus 3)!
+echo Trigger speech in-game via Plugin or Middle Mouse Button (Mouse 3)!
+echo Tip: Run with --config to change your language settings.
 echo ========================================================
 
 cd /d "%BASE_DIR%"

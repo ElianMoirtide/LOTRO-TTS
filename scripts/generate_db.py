@@ -86,6 +86,7 @@ def create_schema(conn: sqlite3.Connection):
         name_en TEXT,
         name_de TEXT,
         name_fr TEXT,
+        name_es TEXT,
         gender TEXT,
         race TEXT,
         url TEXT,
@@ -98,7 +99,8 @@ def create_schema(conn: sqlite3.Connection):
         id INTEGER PRIMARY KEY,
         title_en TEXT,
         title_de TEXT,
-        title_fr TEXT
+        title_fr TEXT,
+        title_es TEXT
     );
     """)
 
@@ -111,6 +113,7 @@ def create_schema(conn: sqlite3.Connection):
         text_en TEXT,
         text_de TEXT,
         text_fr TEXT,
+        text_es TEXT,
         order_index INTEGER,
         objective_index INTEGER,
         FOREIGN KEY (quest_id) REFERENCES Quests(id),
@@ -127,6 +130,7 @@ def create_indexes(conn: sqlite3.Connection):
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_name_de ON NPCs(name_de);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_name_en ON NPCs(name_en);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_name_fr ON NPCs(name_fr);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_name_es ON NPCs(name_es);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_voice_id ON NPCs(voice_id);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_quest_texts_npc_id ON Quest_Texts(npc_id);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_quest_texts_quest_id ON Quest_Texts(quest_id);")
@@ -166,13 +170,13 @@ def generate_database(src_dir: Path, output_db: Path):
         sys.exit(1)
 
     # -------------------------------------------------------------
-    # 1. Parse localized NPC XML files (npc_de.xml, npc_en.xml, npc_fr.xml)
+    # 1. Parse localized NPC XML files (npc_de.xml, npc_en.xml, npc_fr.xml, npc_es.xml)
     # -------------------------------------------------------------
-    logger.info("Parsing localized NPC files (en, de, fr)...")
+    logger.info("Parsing localized NPC files (en, de, fr, es)...")
     t0 = time.time()
-    npc_localized_names: dict[str, dict[int, str]] = {"en": {}, "de": {}, "fr": {}}
+    npc_localized_names: dict[str, dict[int, str]] = {"en": {}, "de": {}, "fr": {}, "es": {}}
 
-    for lang in ["en", "de", "fr"]:
+    for lang in ["en", "de", "fr", "es"]:
         lang_file = find_file_case_insensitive(npc_dir, f"npc_{lang}.xml")
         if not lang_file.exists():
             logger.warning(f"Localized NPC file not found: {lang_file}")
@@ -228,25 +232,26 @@ def generate_database(src_dir: Path, output_db: Path):
                 name_en = npc_localized_names["en"].get(nid) or clean_text(elem.attrib.get("name"))
                 name_de = npc_localized_names["de"].get(nid)
                 name_fr = npc_localized_names["fr"].get(nid)
+                name_es = npc_localized_names["es"].get(nid)
                 gender = elem.attrib.get("gender")
                 clean_name = name_en.strip("'\"` \t\r\n") if name_en else ""
                 race_info = (cached_races.get(clean_name) or cached_races.get(name_en) or {}) if name_en else {}
                 race = elem.attrib.get("race") or race_info.get("race")
                 url = elem.attrib.get("url") or race_info.get("url")
                 voice_id = get_deterministic_voice_id(nid, gender, race, voice_pools, default_narrator)
-                npcs_dict[nid] = (nid, name_en, name_de, name_fr, gender, race, url, voice_id)
+                npcs_dict[nid] = (nid, name_en, name_de, name_fr, name_es, gender, race, url, voice_id)
         elem.clear()
 
     logger.info(f"Loaded {len(npcs_dict)} NPCs from NPC.xml in {time.time() - t0:.2f}s")
 
     # -------------------------------------------------------------
-    # 3. Parse localized Quests XML files (quests_de.xml, quests_en.xml, quests_fr.xml)
+    # 3. Parse localized Quests XML files (quests_de.xml, quests_en.xml, quests_fr.xml, quests_es.xml)
     # -------------------------------------------------------------
-    logger.info("Parsing localized Quest files (en, de, fr)...")
+    logger.info("Parsing localized Quest files (en, de, fr, es)...")
     t0 = time.time()
-    quest_labels: dict[str, dict[str, str]] = {"en": {}, "de": {}, "fr": {}}
+    quest_labels: dict[str, dict[str, str]] = {"en": {}, "de": {}, "fr": {}, "es": {}}
 
-    for lang in ["en", "de", "fr"]:
+    for lang in ["en", "de", "fr", "es"]:
         lang_file = find_file_case_insensitive(quests_dir, f"quests_{lang}.xml")
         if not lang_file.exists():
             logger.warning(f"Localized Quest file not found: {lang_file}")
@@ -292,7 +297,8 @@ def generate_database(src_dir: Path, output_db: Path):
             title_en = quest_labels["en"].get(str(qid)) or qname
             title_de = quest_labels["de"].get(str(qid))
             title_fr = quest_labels["fr"].get(str(qid))
-            quests_rows.append((qid, title_en, title_de, title_fr))
+            title_es = quest_labels["es"].get(str(qid))
+            quests_rows.append((qid, title_en, title_de, title_fr, title_es))
 
             order_idx = 1
 
@@ -308,6 +314,7 @@ def generate_database(src_dir: Path, output_db: Path):
                     quest_labels["en"].get(tid),
                     quest_labels["de"].get(tid),
                     quest_labels["fr"].get(tid),
+                    quest_labels["es"].get(tid),
                     order_idx,
                     None
                 )
@@ -331,6 +338,7 @@ def generate_database(src_dir: Path, output_db: Path):
                         quest_labels["en"].get(tid),
                         quest_labels["de"].get(tid),
                         quest_labels["fr"].get(tid),
+                        quest_labels["es"].get(tid),
                         order_idx,
                         None
                     )
@@ -355,6 +363,7 @@ def generate_database(src_dir: Path, output_db: Path):
                             quest_labels["en"].get(tid),
                             quest_labels["de"].get(tid),
                             quest_labels["fr"].get(tid),
+                            quest_labels["es"].get(tid),
                             order_idx,
                             obj_idx
                         )
@@ -377,6 +386,7 @@ def generate_database(src_dir: Path, output_db: Path):
                                 quest_labels["en"].get(tid),
                                 quest_labels["de"].get(tid),
                                 quest_labels["fr"].get(tid),
+                                quest_labels["es"].get(tid),
                                 order_idx,
                                 obj_idx
                             )
@@ -400,6 +410,7 @@ def generate_database(src_dir: Path, output_db: Path):
                         quest_labels["en"].get(tid),
                         quest_labels["de"].get(tid),
                         quest_labels["fr"].get(tid),
+                        quest_labels["es"].get(tid),
                         order_idx,
                         None
                     )
@@ -427,6 +438,7 @@ def generate_database(src_dir: Path, output_db: Path):
                             quest_labels["en"].get(tid),
                             quest_labels["de"].get(tid),
                             quest_labels["fr"].get(tid),
+                            quest_labels["es"].get(tid),
                             order_idx,
                             None
                         )
@@ -447,6 +459,7 @@ def generate_database(src_dir: Path, output_db: Path):
                 name_en,
                 npc_localized_names["de"].get(nid),
                 npc_localized_names["fr"].get(nid),
+                npc_localized_names["es"].get(nid),
                 None,
                 race_info.get("race"),
                 race_info.get("url"),
@@ -460,9 +473,9 @@ def generate_database(src_dir: Path, output_db: Path):
     logger.info("Writing data to SQLite database...")
     t0 = time.time()
     cur = conn.cursor()
-    cur.executemany("INSERT INTO NPCs VALUES (?, ?, ?, ?, ?, ?, ?, ?)", npcs_dict.values())
-    cur.executemany("INSERT INTO Quests VALUES (?, ?, ?, ?)", quests_rows)
-    cur.executemany("INSERT INTO Quest_Texts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", quest_texts_dict.values())
+    cur.executemany("INSERT INTO NPCs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", npcs_dict.values())
+    cur.executemany("INSERT INTO Quests VALUES (?, ?, ?, ?, ?)", quests_rows)
+    cur.executemany("INSERT INTO Quest_Texts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", quest_texts_dict.values())
     conn.commit()
     logger.info(f"Database insertion completed in {time.time() - t0:.2f}s")
 

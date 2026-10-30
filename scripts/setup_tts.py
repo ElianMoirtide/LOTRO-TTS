@@ -90,7 +90,7 @@ def install_packages(mode: str):
 
     subprocess.run(cmd_torch, check=True)
 
-    # Core Audio, Speech, Zero-Shot Voice Cloning & Screenreader packages
+    # Core Audio, Speech, Zero-Shot Voice Cloning, Translation & Screenreader packages
     extra_packages = [
         "omnivoice",
         "openai-whisper",
@@ -98,13 +98,17 @@ def install_packages(mode: str):
         "scipy",
         "librosa",
         "transformers",
+        "sentencepiece",
         "numpy",
         "rapidocr_onnxruntime",
-        "onnxruntime-gpu",
         "mss",
+        "psutil",
         "pynput",
-        "Pillow"
+        "Pillow",
     ]
+    if mode == "gpu":
+        # Match PyTorch cu126 (CUDA 12 runtime DLLs)
+        extra_packages.append("onnxruntime-gpu==1.20.0")
     print(f"\n========================================================")
     print(f"Installing Voice Cloning, Screenreader & Dependencies:")
     print(f"  {', '.join(extra_packages)}")

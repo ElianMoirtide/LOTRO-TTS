@@ -47,6 +47,11 @@ SOURCES = [
         "rel_path": Path("npc") / "npc_fr.xml",
         "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/labels/fr/npc.xml"
     },
+    {
+        "name": "npc_es.xml",
+        "rel_path": Path("npc") / "npc_es.xml",
+        "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/labels/es/npc.xml"
+    },
     # Quest data
     {
         "name": "quests.xml",
@@ -67,6 +72,11 @@ SOURCES = [
         "name": "quests_fr.xml",
         "rel_path": Path("quests") / "quests_fr.xml",
         "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/labels/fr/quests.xml"
+    },
+    {
+        "name": "quests_es.xml",
+        "rel_path": Path("quests") / "quests_es.xml",
+        "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/labels/es/quests.xml"
     },
 ]
 
