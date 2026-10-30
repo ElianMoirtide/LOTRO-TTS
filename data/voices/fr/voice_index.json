@@ -1,0 +1,578 @@
+[
+  {
+    "voice_id": "elf_female_1",
+    "category": "elf_female",
+    "gender": "female",
+    "race": "elf",
+    "original_file": "0A00045B.ogg",
+    "text": "Mae govannen ! Auriez-vous un moment à m'accorder ?",
+    "audio_file": "fr\\elf_female\\elf_female_1.ogg"
+  },
+  {
+    "voice_id": "elf_female_2",
+    "category": "elf_female",
+    "gender": "female",
+    "race": "elf",
+    "original_file": "0A00045E.ogg",
+    "text": "Suilad mellon ! Voulez-vous rester un peu ?",
+    "audio_file": "fr\\elf_female\\elf_female_2.ogg"
+  },
+  {
+    "voice_id": "elf_female_3",
+    "category": "elf_female",
+    "gender": "female",
+    "race": "elf",
+    "original_file": "0A000463.ogg",
+    "text": "Voulez-vous rester un peu afin que je vous parle de mes ennuis ?",
+    "audio_file": "fr\\elf_female\\elf_female_3.ogg"
+  },
+  {
+    "voice_id": "elf_female_4",
+    "category": "elf_female",
+    "gender": "female",
+    "race": "elf",
+    "original_file": "0A00046F.ogg",
+    "text": "Par Elbereth ! Enfin quelqu'un qui pourra m'aider.",
+    "audio_file": "fr\\elf_female\\elf_female_4.ogg"
+  },
+  {
+    "voice_id": "elf_female_5",
+    "category": "elf_female",
+    "gender": "female",
+    "race": "elf",
+    "original_file": "0A001E1D.ogg",
+    "text": "Je vous salue. Me tendrez-vous une oreille amicale ?",
+    "audio_file": "fr\\elf_female\\elf_female_5.ogg"
+  },
+  {
+    "voice_id": "elf_female_6",
+    "category": "elf_female",
+    "gender": "female",
+    "race": "elf",
+    "original_file": "0A020DD5.ogg",
+    "text": "Non, cela ne sert à rien.",
+    "audio_file": "fr\\elf_female\\elf_female_6.ogg"
+  },
+  {
+    "voice_id": "elf_male_1",
+    "category": "elf_male",
+    "gender": "male",
+    "race": "elf",
+    "original_file": "0A020DD8.ogg",
+    "text": "My realm in the north of the wood came under threat, but I seized the victory.",
+    "audio_file": "fr\\elf_male\\elf_male_1.ogg"
+  },
+  {
+    "voice_id": "elf_male_2",
+    "category": "elf_male",
+    "gender": "male",
+    "race": "elf",
+    "original_file": "0A015DBD.ogg",
+    "text": "Nous restons sans rien faire, tant que la tempête d'Isengard se fait de plus en plus menaçante.",
+    "audio_file": "fr\\elf_male\\elf_male_2.ogg"
+  },
+  {
+    "voice_id": "elf_male_3",
+    "category": "elf_male",
+    "gender": "male",
+    "race": "elf",
+    "original_file": "0A020DD7.ogg",
+    "text": "How did you enjoy your exploration of my father's halls?",
+    "audio_file": "fr\\elf_male\\elf_male_3.ogg"
+  },
+  {
+    "voice_id": "elf_male_4",
+    "category": "elf_male",
+    "gender": "male",
+    "race": "elf",
+    "original_file": "0A020DD2.ogg",
+    "text": "I welcome you to the halls of Felegoth and to the greater wood of Eryn Lasgalen.",
+    "audio_file": "fr\\elf_male\\elf_male_4.ogg"
+  },
+  {
+    "voice_id": "elf_male_5",
+    "category": "elf_male",
+    "gender": "male",
+    "race": "elf",
+    "original_file": "0A020DFD.ogg",
+    "text": "I do not know what lies beyond that room of deep shadow. Remain alert.",
+    "audio_file": "fr\\elf_male\\elf_male_5.ogg"
+  },
+  {
+    "voice_id": "elf_male_6",
+    "category": "elf_male",
+    "gender": "male",
+    "race": "elf",
+    "original_file": "0A01B628.ogg",
+    "text": "Bien le bonjour. Pourriez-vous me consacrer une minute de votre temps ?",
+    "audio_file": "fr\\elf_male\\elf_male_6.ogg"
+  },
+  {
+    "voice_id": "man_female_1",
+    "category": "man_female",
+    "gender": "female",
+    "race": "man",
+    "original_file": "0A001DCD.ogg",
+    "text": "Je vous salue. Comment puis-je vous aider ?",
+    "audio_file": "fr\\man_female\\man_female_1.ogg"
+  },
+  {
+    "voice_id": "man_female_2",
+    "category": "man_female",
+    "gender": "female",
+    "race": "man",
+    "original_file": "0A000B91.ogg",
+    "text": "Arrêtez de musarder, et dites-moi ce que vous voulez !",
+    "audio_file": "fr\\man_female\\man_female_2.ogg"
+  },
+  {
+    "voice_id": "man_female_3",
+    "category": "man_female",
+    "gender": "female",
+    "race": "man",
+    "original_file": "0A000437.ogg",
+    "text": "Me tendrez-vous une oreille amicale ?",
+    "audio_file": "fr\\man_female\\man_female_3.ogg"
+  },
+  {
+    "voice_id": "man_female_4",
+    "category": "man_female",
+    "gender": "female",
+    "race": "man",
+    "original_file": "0A000443.ogg",
+    "text": "Vous n'aurez donc pas la courtoisie de m'écouter ?",
+    "audio_file": "fr\\man_female\\man_female_4.ogg"
+  },
+  {
+    "voice_id": "man_female_5",
+    "category": "man_female",
+    "gender": "female",
+    "race": "man",
+    "original_file": "0A000B64.ogg",
+    "text": "Pardon ? Vous avez besoin de quelque chose ?",
+    "audio_file": "fr\\man_female\\man_female_5.ogg"
+  },
+  {
+    "voice_id": "man_female_6",
+    "category": "man_female",
+    "gender": "female",
+    "race": "man",
+    "original_file": "0A01EE47.ogg",
+    "text": "I should have left the city with the others. Too late now.",
+    "audio_file": "fr\\man_female\\man_female_6.ogg"
+  },
+  {
+    "voice_id": "man_male_1",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "original_file": "0A000BA8.ogg",
+    "text": "L'histoire que j'ai à vous raconter est bien pénible.",
+    "audio_file": "fr\\man_male\\man_male_1.ogg"
+  },
+  {
+    "voice_id": "man_male_2",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "original_file": "0A014BB6.ogg",
+    "text": "Si le courage suffisait pour vaincre les magiciens, il y a longtemps que ce serait fait.",
+    "audio_file": "fr\\man_male\\man_male_2.ogg"
+  },
+  {
+    "voice_id": "man_male_3",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "original_file": "0A000399.ogg",
+    "text": "Si vous venez en paix, peut-être aiderez-vous les nôtres.",
+    "audio_file": "fr\\man_male\\man_male_3.ogg"
+  },
+  {
+    "voice_id": "man_male_4",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "original_file": "0A0003A5.ogg",
+    "text": "Bienvenue si vous venez donner un coup de main !",
+    "audio_file": "fr\\man_male\\man_male_4.ogg"
+  },
+  {
+    "voice_id": "man_male_5",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "original_file": "0A010078.ogg",
+    "text": "Bienvenue à vous, tant que vous ne nous dérangez pas.",
+    "audio_file": "fr\\man_male\\man_male_5.ogg"
+  },
+  {
+    "voice_id": "man_male_6",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "original_file": "0A010141.ogg",
+    "text": "Nous sommes de simples fermiers et avons bien peu à vous offrir.",
+    "audio_file": "fr\\man_male\\man_male_6.ogg"
+  },
+  {
+    "voice_id": "hobbit_female_1",
+    "category": "hobbit_female",
+    "gender": "female",
+    "race": "hobbit",
+    "original_file": "0A0085B9.ogg",
+    "text": "Je suis heureuse que vous m'écoutiez !",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_1.ogg"
+  },
+  {
+    "voice_id": "hobbit_female_2",
+    "category": "hobbit_female",
+    "gender": "female",
+    "race": "hobbit",
+    "original_file": "0A0085C8.ogg",
+    "text": "Nous n'avons pas de temps à perdre, je pense.",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_2.ogg"
+  },
+  {
+    "voice_id": "hobbit_female_3",
+    "category": "hobbit_female",
+    "gender": "female",
+    "race": "hobbit",
+    "original_file": "0A0085AA.ogg",
+    "text": "Les Lumi-väki ont besoin de votre aide.",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_3.ogg"
+  },
+  {
+    "voice_id": "hobbit_female_4",
+    "category": "hobbit_female",
+    "gender": "female",
+    "race": "hobbit",
+    "original_file": "0A000970.ogg",
+    "text": "Il vous faut quelque chose aujourd'hui ?",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_4.ogg"
+  },
+  {
+    "voice_id": "hobbit_female_5",
+    "category": "hobbit_female",
+    "gender": "female",
+    "race": "hobbit",
+    "original_file": "0A00088F.ogg",
+    "text": "Excusez-moi, j'avais la tête ailleurs !",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_5.ogg"
+  },
+  {
+    "voice_id": "hobbit_male_1",
+    "category": "hobbit_male",
+    "gender": "male",
+    "race": "hobbit",
+    "original_file": "0A0004F2.ogg",
+    "text": "Auriez-vous du temps à m'accorder ?",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_1.ogg"
+  },
+  {
+    "voice_id": "hobbit_male_2",
+    "category": "hobbit_male",
+    "gender": "male",
+    "race": "hobbit",
+    "original_file": "0A00056E.ogg",
+    "text": "Ça ne mènera sûrement à rien, mais je pourrais vous parler ?",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_2.ogg"
+  },
+  {
+    "voice_id": "hobbit_male_3",
+    "category": "hobbit_male",
+    "gender": "male",
+    "race": "hobbit",
+    "original_file": "0A000565.ogg",
+    "text": "Désolé de vous déranger, vous pourriez m'aider ?",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_3.ogg"
+  },
+  {
+    "voice_id": "hobbit_male_4",
+    "category": "hobbit_male",
+    "gender": "male",
+    "race": "hobbit",
+    "original_file": "0A00056F.ogg",
+    "text": "Ça ne mènera sûrement à rien, mais je pourrais vous parler ?",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_4.ogg"
+  },
+  {
+    "voice_id": "hobbit_male_5",
+    "category": "hobbit_male",
+    "gender": "male",
+    "race": "hobbit",
+    "original_file": "0A000570.ogg",
+    "text": "Je peux vous demander de m'accorder un moment ?",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_5.ogg"
+  },
+  {
+    "voice_id": "hobbit_male_6",
+    "category": "hobbit_male",
+    "gender": "male",
+    "race": "hobbit",
+    "original_file": "0A000500.ogg",
+    "text": "Juste ciel ! M'entendrez-vous !",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_6.ogg"
+  },
+  {
+    "voice_id": "dwarf_male_1",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "dwarf",
+    "original_file": "0A000394.ogg",
+    "text": "Nous ne savons pas qui sont nos amis. En faites-vous partie ?",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_1.ogg"
+  },
+  {
+    "voice_id": "dwarf_male_2",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "dwarf",
+    "original_file": "0A0008D8.ogg",
+    "text": "Il vous faut quelque chose aujourd'hui ?",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_2.ogg"
+  },
+  {
+    "voice_id": "dwarf_male_3",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "dwarf",
+    "original_file": "0A000921.ogg",
+    "text": "Il vous faut quelque chose aujourd'hui ?",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_3.ogg"
+  },
+  {
+    "voice_id": "dwarf_male_4",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "dwarf",
+    "original_file": "0A0085A1.ogg",
+    "text": "Il y a des créatures affreuses dans les étendues gelées.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_4.ogg"
+  },
+  {
+    "voice_id": "dwarf_male_5",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "dwarf",
+    "original_file": "0A0085A3.ogg",
+    "text": "La main du Roi-Sorcier s'étend sur nous depuis le passé !",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_5.ogg"
+  },
+  {
+    "voice_id": "dwarf_male_6",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "dwarf",
+    "original_file": "0A00DFF8.ogg",
+    "text": "Vous devrez tuer un orque dans chaque région où un Gris-Marteau a subi des torts.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_6.ogg"
+  },
+  {
+    "voice_id": "dwarf_female_1",
+    "category": "dwarf_female",
+    "gender": "female",
+    "race": "dwarf",
+    "original_file": "0A0085AC.ogg",
+    "text": "Les Lumi-väki ont besoin de votre aide.",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_1.ogg"
+  },
+  {
+    "voice_id": "dwarf_female_2",
+    "category": "dwarf_female",
+    "gender": "female",
+    "race": "dwarf",
+    "original_file": "0A0085B2.ogg",
+    "text": "Nous n'avons pas de temps à perdre, je pense.",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_2.ogg"
+  },
+  {
+    "voice_id": "dwarf_female_3",
+    "category": "dwarf_female",
+    "gender": "female",
+    "race": "dwarf",
+    "original_file": "0A0087A8.ogg",
+    "text": "D'où venez-vous en cet hiver glacé ?",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_3.ogg"
+  },
+  {
+    "voice_id": "dwarf_female_4",
+    "category": "dwarf_female",
+    "gender": "female",
+    "race": "dwarf",
+    "original_file": "0A021020.ogg",
+    "text": "You think the Heart of the Mountain has been stolen from my brother's tomb?",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_4.ogg"
+  },
+  {
+    "voice_id": "dwarf_female_5",
+    "category": "dwarf_female",
+    "gender": "female",
+    "race": "dwarf",
+    "original_file": "0A008654.ogg",
+    "text": "Nous ne courberons pas l'échine devant la Couronne de Fer !",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_5.ogg"
+  },
+  {
+    "voice_id": "dwarf_female_6",
+    "category": "dwarf_female",
+    "gender": "female",
+    "race": "dwarf",
+    "original_file": "0A008794.ogg",
+    "text": "Le souffle glacé du Roi-Sorcier gèle tout par ici.",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_6.ogg"
+  },
+  {
+    "voice_id": "orc_1",
+    "category": "orc",
+    "gender": "male",
+    "race": "orc",
+    "original_file": "0A013550.ogg",
+    "text": "Je vais vous réduire en poussière !",
+    "audio_file": "fr\\orc\\orc_1.ogg"
+  },
+  {
+    "voice_id": "orc_2",
+    "category": "orc",
+    "gender": "male",
+    "race": "orc",
+    "original_file": "0A013578.ogg",
+    "text": "Levez-vous à présent que je puisse vous écraser !",
+    "audio_file": "fr\\orc\\orc_2.ogg"
+  },
+  {
+    "voice_id": "orc_3",
+    "category": "orc",
+    "gender": "male",
+    "race": "orc",
+    "original_file": "0A013070.ogg",
+    "text": "Sous ma bannière, cette forteresse est aujourd'hui au service du Seigneur Ténébreux !",
+    "audio_file": "fr\\orc\\orc_3.ogg"
+  },
+  {
+    "voice_id": "troll_1",
+    "category": "troll",
+    "gender": "male",
+    "race": "troll",
+    "original_file": "0A013550.ogg",
+    "text": "Je vais vous réduire en poussière !",
+    "audio_file": "fr\\troll\\troll_1.ogg"
+  },
+  {
+    "voice_id": "troll_2",
+    "category": "troll",
+    "gender": "male",
+    "race": "troll",
+    "original_file": "0A013578.ogg",
+    "text": "Levez-vous à présent que je puisse vous écraser !",
+    "audio_file": "fr\\troll\\troll_2.ogg"
+  },
+  {
+    "voice_id": "ent_1",
+    "category": "ent",
+    "gender": "neutral",
+    "race": "ent",
+    "original_file": "0A0085A7.ogg",
+    "text": "Des voix cruelles nous parlent dans le vent.",
+    "audio_file": "fr\\ent\\ent_1.ogg"
+  },
+  {
+    "voice_id": "ent_2",
+    "category": "ent",
+    "gender": "neutral",
+    "race": "ent",
+    "original_file": "0A01001E.ogg",
+    "text": "De sombres créatures hantent la nuit.",
+    "audio_file": "fr\\ent\\ent_2.ogg"
+  },
+  {
+    "voice_id": "dead_1",
+    "category": "dead",
+    "gender": "neutral",
+    "race": "dead",
+    "original_file": "0A00EE86.ogg",
+    "text": "So many tender morsels, where to start?",
+    "audio_file": "fr\\dead\\dead_1.ogg"
+  },
+  {
+    "voice_id": "dead_2",
+    "category": "dead",
+    "gender": "neutral",
+    "race": "dead",
+    "original_file": "0A012C40.ogg",
+    "text": "Votre existence arrive à son terme. Mais dites-vous qu'au moins dans la mort, vous allez rejoindre mon armée. Consolez-vous.",
+    "audio_file": "fr\\dead\\dead_2.ogg"
+  },
+  {
+    "voice_id": "dead_3",
+    "category": "dead",
+    "gender": "neutral",
+    "race": "dead",
+    "original_file": "0A012D58.ogg",
+    "text": "Another fool dies, soon to rise up by my bidding!",
+    "audio_file": "fr\\dead\\dead_3.ogg"
+  },
+  {
+    "voice_id": "dead_4",
+    "category": "dead",
+    "gender": "neutral",
+    "race": "dead",
+    "original_file": "0A012BA8.ogg",
+    "text": "Go back to the shadow!",
+    "audio_file": "fr\\dead\\dead_4.ogg"
+  },
+  {
+    "voice_id": "narrator_1",
+    "category": "narrator",
+    "gender": "neutral",
+    "race": "narrator",
+    "original_file": "0A0085A0.ogg",
+    "text": "C'est une belle journée pour raconter des histoires !",
+    "audio_file": "fr\\narrator\\narrator_1.ogg"
+  },
+  {
+    "voice_id": "narrator_2",
+    "category": "narrator",
+    "gender": "neutral",
+    "race": "narrator",
+    "original_file": "0A013999.ogg",
+    "text": "Mais les Hommes des Montagnes refusèrent de l'honorer.",
+    "audio_file": "fr\\narrator\\narrator_2.ogg"
+  },
+  {
+    "voice_id": "narrator_3",
+    "category": "narrator",
+    "gender": "neutral",
+    "race": "narrator",
+    "original_file": "0A01002E.ogg",
+    "text": "Le sommeil me fuit car les ombres de la nuit n'apportent que la peur.",
+    "audio_file": "fr\\narrator\\narrator_3.ogg"
+  },
+  {
+    "voice_id": "narrator_4",
+    "category": "narrator",
+    "gender": "neutral",
+    "race": "narrator",
+    "original_file": "0A0085A5.ogg",
+    "text": "L'ombre d'Angmar s'étend sur nous.",
+    "audio_file": "fr\\narrator\\narrator_4.ogg"
+  },
+  {
+    "voice_id": "narrator_5",
+    "category": "narrator",
+    "gender": "neutral",
+    "race": "narrator",
+    "original_file": "0A0085A7.ogg",
+    "text": "Des voix cruelles nous parlent dans le vent.",
+    "audio_file": "fr\\narrator\\narrator_5.ogg"
+  },
+  {
+    "voice_id": "narrator_6",
+    "category": "narrator",
+    "gender": "neutral",
+    "race": "narrator",
+    "original_file": "0A01001E.ogg",
+    "text": "De sombres créatures hantent la nuit.",
+    "audio_file": "fr\\narrator\\narrator_6.ogg"
+  }
+]

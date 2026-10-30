@@ -106,15 +106,21 @@ def install_packages(mode: str):
         "pynput",
         "Pillow",
     ]
-    if mode == "gpu":
-        # Match PyTorch cu126 (CUDA 12 runtime DLLs)
-        extra_packages.append("onnxruntime-gpu==1.20.0")
     print(f"\n========================================================")
     print(f"Installing Voice Cloning, Screenreader & Dependencies:")
     print(f"  {', '.join(extra_packages)}")
     print(f"========================================================")
     cmd_extra = [str(PYTHON_EXE), "-m", "pip", "install", "--upgrade", "--no-warn-script-location"] + extra_packages
     subprocess.run(cmd_extra, check=True)
+
+    if mode == "gpu":
+        # Install onnxruntime-gpu==1.20.0 (matching CUDA 12 / cu126) after rapidocr
+        # so CPU onnxruntime does not shadow CUDAExecutionProvider
+        cmd_ort_gpu = [
+            str(PYTHON_EXE), "-m", "pip", "install",
+            "onnxruntime-gpu==1.20.0", "--force-reinstall", "--no-deps", "--no-warn-script-location"
+        ]
+        subprocess.run(cmd_ort_gpu, check=True)
 
     # Verification
     verify_cmd = [

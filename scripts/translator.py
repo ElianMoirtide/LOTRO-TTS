@@ -97,13 +97,13 @@ class LotroTranslator:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message=".*sacremoses.*")
             try:
-                # Fast offline load if already downloaded
+                # Fast offline load if already downloaded (use_safetensors=False avoids PR conversion lookup)
                 tokenizer = MarianTokenizer.from_pretrained(model_id, local_files_only=True)
-                model = MarianMTModel.from_pretrained(model_id, local_files_only=True)
+                model = MarianMTModel.from_pretrained(model_id, local_files_only=True, use_safetensors=False)
             except Exception:
                 logger.info(f"Downloading translation model '{model_id}' (one-time download)...")
                 tokenizer = MarianTokenizer.from_pretrained(model_id)
-                model = MarianMTModel.from_pretrained(model_id)
+                model = MarianMTModel.from_pretrained(model_id, use_safetensors=False)
 
         if self.device == "cuda" and torch.cuda.is_available():
             model = model.to("cuda")

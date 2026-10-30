@@ -23,7 +23,7 @@
     "gender": "female",
     "race": "elf",
     "original_file": "0A000463.ogg",
-    "text": "Allow me to speak of my sorrow.",
+    "text": "Will you stay a moment and learn of my troubles?",
     "audio_file": "en\\elf_female\\elf_female_3.ogg"
   },
   {
@@ -50,7 +50,7 @@
     "gender": "female",
     "race": "elf",
     "original_file": "0A020DD5.ogg",
-    "text": "No, that path leads to ruin.",
+    "text": "No. It's just no use.",
     "audio_file": "en\\elf_female\\elf_female_6.ogg"
   },
   {
@@ -59,7 +59,7 @@
     "gender": "male",
     "race": "elf",
     "original_file": "0A020DD8.ogg",
-    "text": "My realm in the north of the wood was in danger, but I was victorious.",
+    "text": "My realm in the north of the wood came under threat, but I seized the victory.",
     "audio_file": "en\\elf_male\\elf_male_1.ogg"
   },
   {
@@ -76,8 +76,8 @@
     "category": "elf_male",
     "gender": "male",
     "race": "elf",
-    "original_file": "0A01B895.ogg",
-    "text": "Can you tell anything from the confused muddle of footprints?",
+    "original_file": "0A020DD7.ogg",
+    "text": "How did you enjoy your exploration of my father's halls?",
     "audio_file": "en\\elf_male\\elf_male_3.ogg"
   },
   {
@@ -85,8 +85,8 @@
     "category": "elf_male",
     "gender": "male",
     "race": "elf",
-    "original_file": "0A014BB6.ogg",
-    "text": "If it took only courage to win battles against wizards, this would be done already.",
+    "original_file": "0A020DD2.ogg",
+    "text": "I welcome you to the halls of Felegoth and to the greater wood of Eryn Lasgalen.",
     "audio_file": "en\\elf_male\\elf_male_4.ogg"
   },
   {
@@ -94,8 +94,8 @@
     "category": "elf_male",
     "gender": "male",
     "race": "elf",
-    "original_file": "0A01B965.ogg",
-    "text": "The orcs that fled the east wall may have passed nearby.",
+    "original_file": "0A020DFD.ogg",
+    "text": "I do not know what lies beyond that room of deep shadow. Remain alert.",
     "audio_file": "en\\elf_male\\elf_male_5.ogg"
   },
   {
@@ -103,8 +103,8 @@
     "category": "elf_male",
     "gender": "male",
     "race": "elf",
-    "original_file": "0A015242.ogg",
-    "text": "You run errands for folk long sworn to be the enemies of my people.",
+    "original_file": "0A01B628.ogg",
+    "text": "Hail friend, may I have a moment of your time?",
     "audio_file": "en\\elf_male\\elf_male_6.ogg"
   },
   {
@@ -122,7 +122,7 @@
     "gender": "female",
     "race": "man",
     "original_file": "0A000B91.ogg",
-    "text": "Quickly, do not linger and tell me what you want!",
+    "text": "Quickly, do not dally, and tell me what you want!",
     "audio_file": "en\\man_female\\man_female_2.ogg"
   },
   {
@@ -167,7 +167,7 @@
     "gender": "male",
     "race": "man",
     "original_file": "0A000BA8.ogg",
-    "text": "I have truly terrible things to report.",
+    "text": "My tale is a grievous one indeed.",
     "audio_file": "en\\man_male\\man_male_1.ogg"
   },
   {
@@ -175,8 +175,8 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "original_file": "0A000BC9.ogg",
-    "text": "Would you have the kindness to speak with me for a moment?",
+    "original_file": "0A014BB6.ogg",
+    "text": "If it took only courage to win battles against wizards, this would be done already.",
     "audio_file": "en\\man_male\\man_male_2.ogg"
   },
   {
@@ -185,7 +185,7 @@
     "gender": "male",
     "race": "man",
     "original_file": "0A000399.ogg",
-    "text": "If you come in peace, then you will help us, will you not?",
+    "text": "If you come in peace, perhaps you will help the Earth-kin.",
     "audio_file": "en\\man_male\\man_male_3.ogg"
   },
   {
@@ -194,7 +194,7 @@
     "gender": "male",
     "race": "man",
     "original_file": "0A0003A5.ogg",
-    "text": "If you are here to help, then you are welcome.",
+    "text": "If you have come to help, you are welcome here.",
     "audio_file": "en\\man_male\\man_male_4.ogg"
   },
   {
@@ -239,7 +239,7 @@
     "gender": "female",
     "race": "hobbit",
     "original_file": "0A0085AA.ogg",
-    "text": "The Lumi-folk could use your help.",
+    "text": "The Lumi-väki could use your assistance.",
     "audio_file": "en\\hobbit_female\\hobbit_female_3.ogg"
   },
   {
@@ -248,7 +248,7 @@
     "gender": "female",
     "race": "hobbit",
     "original_file": "0A000970.ogg",
-    "text": "What can I get for you? Do you have any request?",
+    "text": "Would you need something today?",
     "audio_file": "en\\hobbit_female\\hobbit_female_4.ogg"
   },
   {
@@ -275,7 +275,7 @@
     "gender": "male",
     "race": "hobbit",
     "original_file": "0A00056E.ogg",
-    "text": "Even if of no use, may I speak with you?",
+    "text": "I'm sure it will do no good, but may I speak with you?",
     "audio_file": "en\\hobbit_male\\hobbit_male_2.ogg"
   },
   {
@@ -293,7 +293,7 @@
     "gender": "male",
     "race": "hobbit",
     "original_file": "0A00056F.ogg",
-    "text": "Even if of no use, may I speak with you?",
+    "text": "I'm sure that will do no good, but may I speak with you?",
     "audio_file": "en\\hobbit_male\\hobbit_male_4.ogg"
   },
   {
@@ -302,7 +302,7 @@
     "gender": "male",
     "race": "hobbit",
     "original_file": "0A000570.ogg",
-    "text": "Could I steal a moment of your time?",
+    "text": "Could I take a moment of your time?",
     "audio_file": "en\\hobbit_male\\hobbit_male_5.ogg"
   },
   {
@@ -311,7 +311,7 @@
     "gender": "male",
     "race": "hobbit",
     "original_file": "0A000500.ogg",
-    "text": "Oh please, do at least hear me!",
+    "text": "Mercy me, will you hear me out?",
     "audio_file": "en\\hobbit_male\\hobbit_male_6.ogg"
   },
   {
@@ -320,7 +320,7 @@
     "gender": "male",
     "race": "dwarf",
     "original_file": "0A000394.ogg",
-    "text": "My people have not given up the fight against the Angmarim.",
+    "text": "We do not know who is our friend. Are you?",
     "audio_file": "en\\dwarf_male\\dwarf_male_1.ogg"
   },
   {
@@ -329,7 +329,7 @@
     "gender": "male",
     "race": "dwarf",
     "original_file": "0A0008D8.ogg",
-    "text": "What can I do for you? Do you have any request?",
+    "text": "Would you need something today?",
     "audio_file": "en\\dwarf_male\\dwarf_male_2.ogg"
   },
   {
@@ -338,7 +338,7 @@
     "gender": "male",
     "race": "dwarf",
     "original_file": "0A000921.ogg",
-    "text": "What will it be? Do you have any wish?",
+    "text": "Would you need something today?",
     "audio_file": "en\\dwarf_male\\dwarf_male_3.ogg"
   },
   {
@@ -347,7 +347,7 @@
     "gender": "male",
     "race": "dwarf",
     "original_file": "0A0085A1.ogg",
-    "text": "Terrible things are happening!",
+    "text": "There are terrible things in the icy wastes of Evendim.",
     "audio_file": "en\\dwarf_male\\dwarf_male_4.ogg"
   },
   {
@@ -356,7 +356,7 @@
     "gender": "male",
     "race": "dwarf",
     "original_file": "0A0085A3.ogg",
-    "text": "The hand of the Witch-king reaches from the past for us.",
+    "text": "The Witch-king's hand stretches out to us from the past.",
     "audio_file": "en\\dwarf_male\\dwarf_male_5.ogg"
   },
   {
@@ -365,7 +365,7 @@
     "gender": "male",
     "race": "dwarf",
     "original_file": "0A00DFF8.ogg",
-    "text": "You must strike down the enemy to put an end to the terror.",
+    "text": "You must slay an orc in every region in which a Greyhammer has been wronged.",
     "audio_file": "en\\dwarf_male\\dwarf_male_6.ogg"
   },
   {
@@ -374,7 +374,7 @@
     "gender": "female",
     "race": "dwarf",
     "original_file": "0A0085AC.ogg",
-    "text": "Our crafters could well use your aid.",
+    "text": "The Lumi-väki could use your assistance.",
     "audio_file": "en\\dwarf_female\\dwarf_female_1.ogg"
   },
   {
@@ -383,7 +383,7 @@
     "gender": "female",
     "race": "dwarf",
     "original_file": "0A0085B2.ogg",
-    "text": "Let us not waste the day.",
+    "text": "I do not think we should waste the day.",
     "audio_file": "en\\dwarf_female\\dwarf_female_2.ogg"
   },
   {
@@ -401,7 +401,7 @@
     "gender": "female",
     "race": "dwarf",
     "original_file": "0A021020.ogg",
-    "text": "You think the heart of the mountain has been stolen from my brother's tomb?",
+    "text": "You think the Heart of the Mountain has been stolen from my brother's tomb?",
     "audio_file": "en\\dwarf_female\\dwarf_female_4.ogg"
   },
   {
@@ -473,7 +473,7 @@
     "gender": "neutral",
     "race": "ent",
     "original_file": "0A0085A7.ogg",
-    "text": "Ominous voices whisper in the wind of the old forest.",
+    "text": "There are fell voices on the wind.",
     "audio_file": "en\\ent\\ent_1.ogg"
   },
   {
@@ -482,7 +482,7 @@
     "gender": "neutral",
     "race": "ent",
     "original_file": "0A01001E.ogg",
-    "text": "Evil things wander through the deep night.",
+    "text": "Evil things stir in the night.",
     "audio_file": "en\\ent\\ent_2.ogg"
   },
   {
@@ -491,7 +491,7 @@
     "gender": "neutral",
     "race": "dead",
     "original_file": "0A00EE86.ogg",
-    "text": "So many tasty morsels, where does one begin?",
+    "text": "So many tender morsels, where to start?",
     "audio_file": "en\\dead\\dead_1.ogg"
   },
   {
@@ -500,7 +500,7 @@
     "gender": "neutral",
     "race": "dead",
     "original_file": "0A012C40.ogg",
-    "text": "Your life will now come to an end! But at least you may join my army in death!",
+    "text": "Your life will end now, but at least you will join my army in death. Take solace.",
     "audio_file": "en\\dead\\dead_2.ogg"
   },
   {
@@ -518,7 +518,7 @@
     "gender": "neutral",
     "race": "dead",
     "original_file": "0A012BA8.ogg",
-    "text": "Return to the shadows!",
+    "text": "Go back to the shadow!",
     "audio_file": "en\\dead\\dead_4.ogg"
   },
   {
@@ -527,7 +527,7 @@
     "gender": "neutral",
     "race": "narrator",
     "original_file": "0A0085A0.ogg",
-    "text": "This day is well suited for telling tales.",
+    "text": "This day is good for the telling of tales.",
     "audio_file": "en\\narrator\\narrator_1.ogg"
   },
   {
@@ -554,7 +554,7 @@
     "gender": "neutral",
     "race": "narrator",
     "original_file": "0A0085A5.ogg",
-    "text": "Angmar casts its dark shadow across the land.",
+    "text": "Shadows fall upon us out of Angmar.",
     "audio_file": "en\\narrator\\narrator_4.ogg"
   },
   {
@@ -563,7 +563,7 @@
     "gender": "neutral",
     "race": "narrator",
     "original_file": "0A0085A7.ogg",
-    "text": "Ominous voices whisper in the twilight wind.",
+    "text": "There are fell voices on the wind.",
     "audio_file": "en\\narrator\\narrator_5.ogg"
   },
   {
@@ -572,7 +572,7 @@
     "gender": "neutral",
     "race": "narrator",
     "original_file": "0A01001E.ogg",
-    "text": "Evil things wander through the dark of night.",
+    "text": "Evil things stir in the night.",
     "audio_file": "en\\narrator\\narrator_6.ogg"
   }
 ]

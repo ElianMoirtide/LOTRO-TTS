@@ -50,7 +50,7 @@
     "gender": "female",
     "race": "elf",
     "original_file": "0A020DD5.ogg",
-    "text": "Nein, dieser Pfad führt ins Verderben.",
+    "text": "Nein, es ist sinnlos.",
     "audio_file": "de\\elf_female\\elf_female_6.ogg"
   },
   {
@@ -76,8 +76,8 @@
     "category": "elf_male",
     "gender": "male",
     "race": "elf",
-    "original_file": "0A01B895.ogg",
-    "text": "Könnt Ihr irgendwas aus dem Wirrwarr der Fußabdrücke schließen?",
+    "original_file": "0A020DD7.ogg",
+    "text": "Wie hat Euch die Erkundung der Hallen meines Vaters gefallen?",
     "audio_file": "de\\elf_male\\elf_male_3.ogg"
   },
   {
@@ -85,8 +85,8 @@
     "category": "elf_male",
     "gender": "male",
     "race": "elf",
-    "original_file": "0A014BB6.ogg",
-    "text": "Wenn man nur Mut aufbringen müsste, um den Kampf gegen Zauberer zu bestehen, hätten wir schon gewonnen.",
+    "original_file": "0A020DD2.ogg",
+    "text": "Willkommen in den Hallen von Felegoth und im Wald Eryn Lasgalen.",
     "audio_file": "de\\elf_male\\elf_male_4.ogg"
   },
   {
@@ -94,8 +94,8 @@
     "category": "elf_male",
     "gender": "male",
     "race": "elf",
-    "original_file": "0A01B965.ogg",
-    "text": "Die vom Ostwall fliehenden Feinde sind vielleicht in der Nähe vorbeigekommen.",
+    "original_file": "0A020DFD.ogg",
+    "text": "Hinter diesem düsteren Raum kann sich alles Mögliche verbergen. Bleibt wachsam!",
     "audio_file": "de\\elf_male\\elf_male_5.ogg"
   },
   {
@@ -103,8 +103,8 @@
     "category": "elf_male",
     "gender": "male",
     "race": "elf",
-    "original_file": "0A015242.ogg",
-    "text": "Ihr erledigt Aufträge für Leute, die seit langem Feinde meines Volkes sind.",
+    "original_file": "0A01B628.ogg",
+    "text": "Seid gegrüßt, Freund, würdet Ihr mir einen Augenblick Eurer Zeit widmen?",
     "audio_file": "de\\elf_male\\elf_male_6.ogg"
   },
   {
@@ -175,8 +175,8 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "original_file": "0A000BC9.ogg",
-    "text": "Hättet Ihr die Güte, einen Augenblick mit mir zu sprechen?",
+    "original_file": "0A014BB6.ogg",
+    "text": "Wenn man nur Mut aufbringen müsste, um den Kampf gegen Zauberer zu bestehen, hätten wir schon gewonnen.",
     "audio_file": "de\\man_male\\man_male_2.ogg"
   },
   {
@@ -239,7 +239,7 @@
     "gender": "female",
     "race": "hobbit",
     "original_file": "0A0085AA.ogg",
-    "text": "Die Lumi-Werke könnten Eure Hilfe gebrauchen.",
+    "text": "Die Lumi-väki könnten Eure Hilfe gebrauchen.",
     "audio_file": "de\\hobbit_female\\hobbit_female_3.ogg"
   },
   {
@@ -320,7 +320,7 @@
     "gender": "male",
     "race": "dwarf",
     "original_file": "0A000394.ogg",
-    "text": "Mein Volk hat den Kampf gegen die Angmarim nicht aufgegeben.",
+    "text": "Wir wissen nicht, wer unser Freund ist. Bist du ein Freund?",
     "audio_file": "de\\dwarf_male\\dwarf_male_1.ogg"
   },
   {
@@ -365,7 +365,7 @@
     "gender": "male",
     "race": "dwarf",
     "original_file": "0A00DFF8.ogg",
-    "text": "Ihr müsst die Feinde schlagen, damit dem Grauen Einhalt geboten wird.",
+    "text": "Ihr müsst einen Ork in jeder Region töten, in der einem Grauhammer Unrecht zugefügt wurde.",
     "audio_file": "de\\dwarf_male\\dwarf_male_6.ogg"
   },
   {
@@ -374,7 +374,7 @@
     "gender": "female",
     "race": "dwarf",
     "original_file": "0A0085AC.ogg",
-    "text": "Unsere Werker könnten Eure Hilfe wohl gebrauchen.",
+    "text": "Die Lumi-väki könnten Eure Hilfe gebrauchen.",
     "audio_file": "de\\dwarf_female\\dwarf_female_1.ogg"
   },
   {
@@ -473,7 +473,7 @@
     "gender": "neutral",
     "race": "ent",
     "original_file": "0A0085A7.ogg",
-    "text": "Unheilvolle Stimmen flüstern im Wind der alten Wälder.",
+    "text": "Unheilvolle Stimmen flüstern im Wind.",
     "audio_file": "de\\ent\\ent_1.ogg"
   },
   {
@@ -482,7 +482,7 @@
     "gender": "neutral",
     "race": "ent",
     "original_file": "0A01001E.ogg",
-    "text": "Böse Dinge wandern durch die tiefe Nacht.",
+    "text": "Böse Dinge wandern durch die Nacht.",
     "audio_file": "de\\ent\\ent_2.ogg"
   },
   {
@@ -554,7 +554,7 @@
     "gender": "neutral",
     "race": "narrator",
     "original_file": "0A0085A5.ogg",
-    "text": "Angmar wirft seine finsteren Schatten über das Land.",
+    "text": "Angmar wirft seine Schatten über uns.",
     "audio_file": "de\\narrator\\narrator_4.ogg"
   },
   {
@@ -563,7 +563,7 @@
     "gender": "neutral",
     "race": "narrator",
     "original_file": "0A0085A7.ogg",
-    "text": "Unheilvolle Stimmen flüstern im Wind der Dämmerung.",
+    "text": "Unheilvolle Stimmen flüstern im Wind.",
     "audio_file": "de\\narrator\\narrator_5.ogg"
   },
   {
@@ -572,7 +572,7 @@
     "gender": "neutral",
     "race": "narrator",
     "original_file": "0A01001E.ogg",
-    "text": "Böse Dinge wandern durch die finstere Nacht.",
+    "text": "Böse Dinge wandern durch die Nacht.",
     "audio_file": "de\\narrator\\narrator_6.ogg"
   }
 ]
