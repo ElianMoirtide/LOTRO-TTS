@@ -38,6 +38,8 @@ namespace LotroTtsLauncher
         private ComboBox cmbClientLang;
         private ComboBox cmbTtsLang;
         private ComboBox cmbComputeMode;
+        private TrackBar tbVolume;
+        private Label lblVolumeTitle;
         private CheckBox chkMiddleMouse;
         private Button btnStartStop;
         private Button btnSetupAi;
@@ -203,13 +205,14 @@ namespace LotroTtsLauncher
             TableLayoutPanel configLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 4,
+                ColumnCount = 5,
                 RowCount = 2
             };
+            configLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 22f));
             configLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
-            configLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 28f));
-            configLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 21f));
-            configLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 26f));
+            configLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 17f));
+            configLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 18f));
+            configLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 18f));
             configLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 62f));
             configLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 38f));
 
@@ -253,7 +256,14 @@ namespace LotroTtsLauncher
                 dpi
             );
 
-            // Main Start/Stop Button spanning 2 rows in col 3
+            // Volume Slider in Col 3
+            tbVolume = CreateLabeledSlider(
+                configLayout, 3,
+                "TTS Volume: 80%",
+                dpi
+            );
+
+            // Main Start/Stop Button spanning 2 rows in col 4
             btnStartStop = new Button
             {
                 Text = "▶  START LOTRO-TTS",
@@ -268,7 +278,7 @@ namespace LotroTtsLauncher
             };
             btnStartStop.FlatAppearance.BorderSize = 0;
             btnStartStop.Click += OnStartStopClicked;
-            configLayout.Controls.Add(btnStartStop, 3, 0);
+            configLayout.Controls.Add(btnStartStop, 4, 0);
             configLayout.SetRowSpan(btnStartStop, 2);
 
             // Row 1: Middle Mouse Checkbox
@@ -283,7 +293,7 @@ namespace LotroTtsLauncher
                 Margin = new Padding((int)(2 * dpi), (int)(4 * dpi), 0, 0)
             };
             configLayout.Controls.Add(chkMiddleMouse, 0, 1);
-            configLayout.SetColumnSpan(chkMiddleMouse, 3);
+            configLayout.SetColumnSpan(chkMiddleMouse, 4);
 
             configCard.Controls.Add(configLayout);
             root.Controls.Add(configCard, 0, 2);
@@ -376,6 +386,51 @@ namespace LotroTtsLauncher
             return cmb;
         }
 
+        private TrackBar CreateLabeledSlider(TableLayoutPanel parent, int col, string labelText, float dpi)
+        {
+            Panel cell = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Margin = new Padding(0, 0, (int)(10 * dpi), 0)
+            };
+            lblVolumeTitle = new Label
+            {
+                Text = labelText,
+                ForeColor = textMuted,
+                Font = new Font("Segoe UI", 8.75f, FontStyle.Regular),
+                AutoSize = true,
+                UseMnemonic = false,
+                Location = new Point(0, 0)
+            };
+            TrackBar tb = new TrackBar
+            {
+                Minimum = 0,
+                Maximum = 100,
+                Value = 80,
+                TickStyle = TickStyle.None,
+                BackColor = bgCard,
+                Location = new Point(0, (int)(22 * dpi)),
+                Height = (int)(24 * dpi),
+                Width = Math.Max(60, cell.ClientSize.Width),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+            };
+            tb.Scroll += (s, e) =>
+            {
+                lblVolumeTitle.Text = string.Format("TTS Volume: {0}%", tb.Value);
+                SaveConfig();
+                ApplyWindowsProcessVolume(tb.Value);
+            };
+            cell.Controls.Add(lblVolumeTitle);
+            cell.Controls.Add(tb);
+            cell.Layout += (s, e) =>
+            {
+                tb.Top = lblVolumeTitle.Bottom + (int)(2 * dpi);
+                tb.Width = Math.Max(60, cell.ClientSize.Width - 2);
+            };
+            parent.Controls.Add(cell, col, 0);
+            return tb;
+        }
+
         private Label CreateStatusCard(TableLayoutPanel parent, int col, string title, float dpi)
         {
             int gap = (int)(4 * dpi);
@@ -464,8 +519,19 @@ namespace LotroTtsLauncher
                     string json = File.ReadAllText(configPath, Encoding.UTF8);
                     Match mGame = Regex.Match(json, "\"game_lang\"\\s*:\\s*\"([a-zA-Z]+)\"");
                     Match mTts = Regex.Match(json, "\"tts_lang\"\\s*:\\s*\"([a-zA-Z]+)\"");
+                    Match mVol = Regex.Match(json, "\"volume\"\\s*:\\s*([0-9]+)");
                     if (mGame.Success) SelectByPrefix(cmbClientLang, mGame.Groups[1].Value.ToLowerInvariant());
                     if (mTts.Success) SelectByPrefix(cmbTtsLang, mTts.Groups[1].Value.ToLowerInvariant());
+                    if (mVol.Success && tbVolume != null)
+                    {
+                        int v;
+                        if (int.TryParse(mVol.Groups[1].Value, out v) && v >= 0 && v <= 100)
+                        {
+                            tbVolume.Value = v;
+                            if (lblVolumeTitle != null)
+                                lblVolumeTitle.Text = string.Format("TTS Volume: {0}%", v);
+                        }
+                    }
                 }
             }
             catch { }
@@ -477,7 +543,8 @@ namespace LotroTtsLauncher
             {
                 string gameLang = GetSelectedCode(cmbClientLang, "de");
                 string ttsLang = GetSelectedCode(cmbTtsLang, "de");
-                string json = "{\n  \"game_lang\": \"" + gameLang + "\",\n  \"tts_lang\": \"" + ttsLang + "\"\n}\n";
+                int volume = tbVolume != null ? tbVolume.Value : 80;
+                string json = "{\n  \"game_lang\": \"" + gameLang + "\",\n  \"tts_lang\": \"" + ttsLang + "\",\n  \"volume\": " + volume + "\n}\n";
                 File.WriteAllText(configPath, json, new UTF8Encoding(false));
             }
             catch { }
@@ -793,6 +860,7 @@ namespace LotroTtsLauncher
             string clientLang = GetSelectedCode(cmbClientLang, "de");
             string ttsLang = GetSelectedCode(cmbTtsLang, "de");
             string mode = GetSelectedCode(cmbComputeMode, "auto");
+            int volume = tbVolume != null ? tbVolume.Value : 80;
             bool useMouse = chkMiddleMouse.Checked;
 
             string args = string.Format(
@@ -804,8 +872,8 @@ namespace LotroTtsLauncher
             );
 
             AppendLog("\n======================================================================", goldAccent);
-            AppendLog(string.Format("Starting LOTRO-TTS Service [Client: {0} | TTS: {1} | Mode: {2}]...",
-                clientLang.ToUpperInvariant(), ttsLang.ToUpperInvariant(), mode.ToUpperInvariant()), goldAccent);
+            AppendLog(string.Format("Starting LOTRO-TTS Service [Client: {0} | TTS: {1} | Mode: {2} | Vol: {3}%]...",
+                clientLang.ToUpperInvariant(), ttsLang.ToUpperInvariant(), mode.ToUpperInvariant(), volume), goldAccent);
             AppendLog("======================================================================", goldAccent);
 
             try
@@ -843,6 +911,16 @@ namespace LotroTtsLauncher
                 activeProcess.Start();
                 activeProcess.BeginOutputReadLine();
                 activeProcess.BeginErrorReadLine();
+
+                System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    for (int r = 0; r < 6; r++)
+                    {
+                        System.Threading.Thread.Sleep(1500);
+                        if (activeProcess == null || activeProcess.HasExited) break;
+                        try { this.BeginInvoke(new Action(() => { if (tbVolume != null) ApplyWindowsProcessVolume(tbVolume.Value); })); } catch { }
+                    }
+                });
 
                 isServiceRunning = true;
                 btnStartStop.Text = "⏹  STOP LOTRO-TTS";
@@ -977,6 +1055,7 @@ namespace LotroTtsLauncher
         private void OnTestSpeechClicked(object sender, EventArgs e)
         {
             string ttsLang = GetSelectedCode(cmbTtsLang, "de");
+            int volume = tbVolume != null ? tbVolume.Value : 80;
             string sampleText = "Die Welt ist im Wandel. Ich spüre es im Wasser, ich spüre es in der Erde.";
             if (ttsLang == "en") sampleText = "The world is changed. I feel it in the water, I feel it in the earth.";
             else if (ttsLang == "fr") sampleText = "Le monde a changé. Je le sens dans l'eau, je le sens dans la terre.";
@@ -984,7 +1063,84 @@ namespace LotroTtsLauncher
             else if (ttsLang == "it") sampleText = "Il mondo è cambiato. Lo sento nell'acqua, lo sento nella terra.";
 
             string args = string.Format("-u \"scripts\\tts_speaker.py\" --npc \"Galadriel\" --lang {0} --text \"{1}\"", ttsLang, sampleText);
-            RunBackgroundToolTask("Testing TTS Voice Output (Galadriel / " + ttsLang.ToUpperInvariant() + ")", args);
+            RunBackgroundToolTask("Testing TTS Voice Output (Galadriel / " + ttsLang.ToUpperInvariant() + " / Vol: " + volume + "%)", args);
+
+            System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+            {
+                for (int r = 0; r < 5; r++)
+                {
+                    System.Threading.Thread.Sleep(500);
+                    try { this.BeginInvoke(new Action(() => { if (tbVolume != null) ApplyWindowsProcessVolume(tbVolume.Value); })); } catch { }
+                }
+            });
+        }
+
+        private void ApplyWindowsProcessVolume(int volumePercent)
+        {
+            try
+            {
+                int targetPid = -1;
+                if (activeProcess != null && !activeProcess.HasExited)
+                {
+                    targetPid = activeProcess.Id;
+                }
+
+                var enumerator = (IMMDeviceEnumerator)new MMDeviceEnumeratorComObject();
+                IMMDevice speakers;
+                if (enumerator.GetDefaultAudioEndpoint(0, 0, out speakers) != 0 || speakers == null)
+                    return;
+
+                Guid iidMgr2 = typeof(IAudioSessionManager2).GUID;
+                IntPtr ptr = IntPtr.Zero;
+                if (speakers.Activate(ref iidMgr2, 1, IntPtr.Zero, out ptr) != 0 || ptr == IntPtr.Zero)
+                    return;
+
+                var mgr = (IAudioSessionManager2)Marshal.GetObjectForIUnknown(ptr);
+                IAudioSessionEnumerator sessionEnum;
+                if (mgr.GetSessionEnumerator(out sessionEnum) != 0 || sessionEnum == null)
+                    return;
+
+                int count;
+                sessionEnum.GetCount(out count);
+                float normVol = Math.Max(0.0f, Math.Min(1.0f, volumePercent / 100.0f));
+                Guid emptyGuid = Guid.Empty;
+
+                for (int i = 0; i < count; i++)
+                {
+                    IAudioSessionControl ctl;
+                    if (sessionEnum.GetSession(i, out ctl) == 0 && ctl != null)
+                    {
+                        var ctl2 = ctl as IAudioSessionControl2;
+                        var vol = ctl as ISimpleAudioVolume;
+                        if (ctl2 != null && vol != null)
+                        {
+                            uint pid;
+                            ctl2.GetProcessId(out pid);
+                            bool match = false;
+                            if (targetPid > 0 && pid == (uint)targetPid)
+                            {
+                                match = true;
+                            }
+                            else if (pid > 0)
+                            {
+                                try
+                                {
+                                    string pName = Process.GetProcessById((int)pid).ProcessName.ToLowerInvariant();
+                                    if (pName == "python" || pName == "pythonw")
+                                        match = true;
+                                }
+                                catch { }
+                            }
+
+                            if (match)
+                            {
+                                vol.SetMasterVolume(normVol, ref emptyGuid);
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
         }
 
         private void OnMainFormClosing(object sender, FormClosingEventArgs e)
@@ -1001,5 +1157,154 @@ namespace LotroTtsLauncher
             Application.Run(new MainForm());
         }
     }
+
+    #region Windows WASAPI Audio COM Interfaces
+    [ComImport]
+    [Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")]
+    internal class MMDeviceEnumeratorComObject { }
+
+    [ComImport]
+    [Guid("A95664D2-9614-4F35-A746-DE8DB63617E6")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface IMMDeviceEnumerator
+    {
+        [PreserveSig]
+        int EnumAudioEndpoints(int dataFlow, int stateMask, out IntPtr devices);
+        [PreserveSig]
+        int GetDefaultAudioEndpoint(int dataFlow, int role, out IMMDevice endpoint);
+        [PreserveSig]
+        int GetDevice(string id, out IMMDevice device);
+        [PreserveSig]
+        int RegisterEndpointNotificationCallback(IntPtr client);
+        [PreserveSig]
+        int UnregisterEndpointNotificationCallback(IntPtr client);
+    }
+
+    [ComImport]
+    [Guid("D666063F-1587-4E43-81F1-B948E807363F")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface IMMDevice
+    {
+        [PreserveSig]
+        int Activate(
+            [In] ref Guid iid,
+            [In] uint dwClsCtx,
+            [In] IntPtr pActivationParams,
+            [Out] out IntPtr ppInterface);
+        [PreserveSig]
+        int OpenPropertyStore(int stgmAccess, out IntPtr properties);
+        [PreserveSig]
+        int GetId(out IntPtr strId);
+        [PreserveSig]
+        int GetState(out int state);
+    }
+
+    [ComImport]
+    [Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface IAudioSessionManager2
+    {
+        [PreserveSig]
+        int GetAudioSessionControl(ref Guid audioSessionGuid, int streamFlags, out IntPtr sessionControl);
+        [PreserveSig]
+        int GetSimpleAudioVolume(ref Guid audioSessionGuid, int streamFlags, out IntPtr audioVolume);
+        [PreserveSig]
+        int GetSessionEnumerator(out IAudioSessionEnumerator SessionEnum);
+        [PreserveSig]
+        int RegisterSessionNotification(IntPtr newSessionNotification);
+        [PreserveSig]
+        int UnregisterSessionNotification(IntPtr newSessionNotification);
+        [PreserveSig]
+        int RegisterDuckNotification(string sessionID, IntPtr duckNotification);
+        [PreserveSig]
+        int UnregisterDuckNotification(IntPtr duckNotification);
+    }
+
+    [ComImport]
+    [Guid("E2F5BB11-0570-40CA-ACDD-3AA01277DEE8")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface IAudioSessionEnumerator
+    {
+        [PreserveSig]
+        int GetCount(out int SessionCount);
+        [PreserveSig]
+        int GetSession(int SessionIndex, out IAudioSessionControl session);
+    }
+
+    [ComImport]
+    [Guid("F4B1A599-7266-4319-A8CA-E70ACB11E8CD")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface IAudioSessionControl
+    {
+        [PreserveSig]
+        int GetState(out int state);
+        [PreserveSig]
+        int GetDisplayName(out IntPtr name);
+        [PreserveSig]
+        int SetDisplayName(string value, ref Guid eventContext);
+        [PreserveSig]
+        int GetIconPath(out IntPtr path);
+        [PreserveSig]
+        int SetIconPath(string value, ref Guid eventContext);
+        [PreserveSig]
+        int GetGroupingParam(out Guid groupingParam);
+        [PreserveSig]
+        int SetGroupingParam(ref Guid groupingParam, ref Guid eventContext);
+        [PreserveSig]
+        int RegisterAudioSessionNotification(IntPtr newNotifications);
+        [PreserveSig]
+        int UnregisterAudioSessionNotification(IntPtr newNotifications);
+    }
+
+    [ComImport]
+    [Guid("bfb7ff88-7239-4fc9-8fa2-07c950be9c6d")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface IAudioSessionControl2 : IAudioSessionControl
+    {
+        [PreserveSig]
+        new int GetState(out int state);
+        [PreserveSig]
+        new int GetDisplayName(out IntPtr name);
+        [PreserveSig]
+        new int SetDisplayName(string value, ref Guid eventContext);
+        [PreserveSig]
+        new int GetIconPath(out IntPtr path);
+        [PreserveSig]
+        new int SetIconPath(string value, ref Guid eventContext);
+        [PreserveSig]
+        new int GetGroupingParam(out Guid groupingParam);
+        [PreserveSig]
+        new int SetGroupingParam(ref Guid groupingParam, ref Guid eventContext);
+        [PreserveSig]
+        new int RegisterAudioSessionNotification(IntPtr newNotifications);
+        [PreserveSig]
+        new int UnregisterAudioSessionNotification(IntPtr newNotifications);
+        [PreserveSig]
+        int GetSessionIdentifier(out IntPtr retVal);
+        [PreserveSig]
+        int GetSessionInstanceIdentifier(out IntPtr retVal);
+        [PreserveSig]
+        int GetProcessId(out uint retVal);
+        [PreserveSig]
+        int IsSystemSoundsSession();
+        [PreserveSig]
+        int SetDuckingPreference(bool optOut);
+    }
+
+    [ComImport]
+    [Guid("87CE5498-68D6-44E5-9215-6DA47EF883D8")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface ISimpleAudioVolume
+    {
+        [PreserveSig]
+        int SetMasterVolume(float fLevelNorm, ref Guid eventContext);
+        [PreserveSig]
+        int GetMasterVolume(out float pfLevelNorm);
+        [PreserveSig]
+        int SetMute(bool bMute, ref Guid eventContext);
+        [PreserveSig]
+        int GetMute(out bool pbMute);
+    }
+    #endregion
 }
 
