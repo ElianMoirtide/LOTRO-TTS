@@ -74,17 +74,17 @@ def install_packages(mode: str):
     print(f"========================================================")
 
     if mode == "gpu":
-        print(f"Using CUDA index: {PYTORCH_CUDA_INDEX}")
+        print(f"Using CUDA index: {PYTORCH_CUDA_INDEX}", flush=True)
         cmd_torch = [
             str(PYTHON_EXE), "-m", "pip", "install",
-            "--upgrade", "--no-warn-script-location",
+            "--upgrade", "--no-input", "--disable-pip-version-check", "--no-warn-script-location",
             "torch", "torchaudio",
             "--index-url", PYTORCH_CUDA_INDEX
         ]
     else:
         cmd_torch = [
             str(PYTHON_EXE), "-m", "pip", "install",
-            "--upgrade", "--no-warn-script-location",
+            "--upgrade", "--no-input", "--disable-pip-version-check", "--no-warn-script-location",
             "torch", "torchaudio"
         ]
 
@@ -106,11 +106,14 @@ def install_packages(mode: str):
         "pynput",
         "Pillow",
     ]
-    print(f"\n========================================================")
-    print(f"Installing Voice Cloning, Screenreader & Dependencies:")
-    print(f"  {', '.join(extra_packages)}")
-    print(f"========================================================")
-    cmd_extra = [str(PYTHON_EXE), "-m", "pip", "install", "--upgrade", "--no-warn-script-location"] + extra_packages
+    print(f"\n========================================================", flush=True)
+    print(f"Installing Voice Cloning, Screenreader & Dependencies:", flush=True)
+    print(f"  {', '.join(extra_packages)}", flush=True)
+    print(f"========================================================", flush=True)
+    cmd_extra = [
+        str(PYTHON_EXE), "-m", "pip", "install",
+        "--upgrade", "--no-input", "--disable-pip-version-check", "--no-warn-script-location"
+    ] + extra_packages
     subprocess.run(cmd_extra, check=True)
 
     if mode == "gpu":
@@ -118,7 +121,8 @@ def install_packages(mode: str):
         # so CPU onnxruntime does not shadow CUDAExecutionProvider
         cmd_ort_gpu = [
             str(PYTHON_EXE), "-m", "pip", "install",
-            "onnxruntime-gpu==1.20.0", "--force-reinstall", "--no-deps", "--no-warn-script-location"
+            "onnxruntime-gpu==1.20.0", "--force-reinstall", "--no-deps",
+            "--no-input", "--disable-pip-version-check", "--no-warn-script-location"
         ]
         subprocess.run(cmd_ort_gpu, check=True)
 
@@ -129,10 +133,10 @@ def install_packages(mode: str):
         "print(f'PyTorch: {torch.__version__} | CUDA available: {torch.cuda.is_available()} | Device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"CPU\"}'); "
         "print('OmniVoice & Whisper: Successfully loaded!')"
     ]
-    print("\n========================================================")
-    print("Verifying Installation:")
-    print("========================================================")
-    subprocess.run(verify_cmd)
+    print("\n========================================================", flush=True)
+    print("Verifying Installation:", flush=True)
+    print("========================================================", flush=True)
+    subprocess.run(verify_cmd, check=True)
 
 
 def main():

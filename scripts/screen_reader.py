@@ -501,7 +501,7 @@ class LotroScreenReader:
 
                         is_inst = bool(re.search(r"^(INSTANZ|INSTANCE)\b", clean_t, re.IGNORECASE))
                         if self.db_path.exists() and (has_level_meta or is_inst or dark_header_bg):
-                            q_id, db_title, db_text = self._match_title_in_db(clean_t, target_npc=target_npc, lang=lang)
+                            q_id, db_title, db_text, q_npc_id = self._match_title_in_db_with_npc(clean_t, target_npc=target_npc, lang=lang)
                             if db_text:
                                 final_title = db_title or clean_t
                                 print(f"[LotroScreenReader] Fast-path DB hit on cached title: '{final_title}' ({lang.upper()})")
@@ -512,6 +512,7 @@ class LotroScreenReader:
                                     "db_text": db_text,
                                     "final_text": db_text,
                                     "quest_id": q_id,
+                                    "npc_id": q_npc_id,
                                     "window_box": self.cached_window_box,
                                 }
 
@@ -763,9 +764,9 @@ class LotroScreenReader:
             score -= intervening * 60.0
 
             clean_t = re.sub(r"^[^\w\s]+|[^\w\s]+$", "", b["text"]).strip()
-            q_id, db_title, db_text = (None, None, None)
+            q_id, db_title, db_text, q_npc_id = (None, None, None, None)
             if self.db_path.exists():
-                q_id, db_title, db_text = self._match_title_in_db(clean_t, target_npc=target_npc, lang=lang)
+                q_id, db_title, db_text, q_npc_id = self._match_title_in_db_with_npc(clean_t, target_npc=target_npc, lang=lang)
                 if db_text:
                     score += 160.0
 
@@ -779,12 +780,12 @@ class LotroScreenReader:
 
             if score > best_score:
                 best_score = score
-                best_candidate = (b, clean_t, local_levels, local_objs, local_btns, body_lines, q_id, db_title, db_text)
+                best_candidate = (b, clean_t, local_levels, local_objs, local_btns, body_lines, q_id, db_title, db_text, q_npc_id)
 
         if best_candidate is None:
             return empty_res
 
-        title_box, clean_title, local_levels, local_objs, local_btns, body_lines, q_id, db_title, db_text = best_candidate
+        title_box, clean_title, local_levels, local_objs, local_btns, body_lines, q_id, db_title, db_text, q_npc_id = best_candidate
         final_title = db_title or clean_title
         is_instance = bool(re.search(r"^(INSTANZ|INSTANCE)\b", final_title, re.IGNORECASE))
         window_type = "instance" if is_instance else "quest"
@@ -831,6 +832,7 @@ class LotroScreenReader:
             "db_text": db_text,
             "final_text": final_text,
             "quest_id": q_id,
+            "npc_id": q_npc_id,
             "window_box": window_box,
             "_title_strip": title_strip,
         }
@@ -838,18 +840,24 @@ class LotroScreenReader:
     def _match_title_in_db(
         self, title: str, target_npc: str = "", lang: str = "de"
     ) -> Tuple[Optional[int], Optional[str], Optional[str]]:
+        q_id, db_title, db_text, _ = self._match_title_in_db_with_npc(title, target_npc=target_npc, lang=lang)
+        return q_id, db_title, db_text
+
+    def _match_title_in_db_with_npc(
+        self, title: str, target_npc: str = "", lang: str = "de"
+    ) -> Tuple[Optional[int], Optional[str], Optional[str], Optional[int]]:
         """
         Matches a candidate title against the in-memory quest index (~0.1ms)
-        and fetches full quest dialogue text from lotro.db (~1ms).
-        Returns (quest_id, matched_db_title, quest_text).
+        and fetches full quest dialogue text + associated npc_id from lotro.db (~1ms).
+        Returns (quest_id, matched_db_title, quest_text, npc_id).
         """
         if not self.db_path.exists():
-            return None, None, None
+            return None, None, None, None
 
         self._init_quest_index()
         norm_query = normalize_text_for_matching(title)
         if not norm_query or len(norm_query) < 3:
-            return None, None, None
+            return None, None, None, None
 
         lang_clean = lang.lower().strip()
         if lang_clean not in ("en", "de", "fr", "es"):
@@ -906,7 +914,7 @@ class LotroScreenReader:
                     break
 
         if not candidate_matches:
-            return None, None, None
+            return None, None, None, None
 
         # Resolve quest text (preferring the quest ID associated with target_npc when duplicate titles exist)
         try:
@@ -918,7 +926,7 @@ class LotroScreenReader:
                 for qid, raw_t in candidate_matches:
                     cur.execute(
                         f"""
-                        SELECT qt.{text_col}, qt.text_en
+                        SELECT qt.{text_col}, qt.text_en, qt.npc_id
                         FROM Quest_Texts qt
                         JOIN NPCs n ON qt.npc_id = n.id
                         WHERE qt.quest_id = ? AND (
@@ -934,12 +942,12 @@ class LotroScreenReader:
                     npc_row = cur.fetchone()
                     if npc_row and (npc_row[0] or npc_row[1]):
                         conn.close()
-                        return qid, raw_t, self._format_player_placeholders(npc_row[0] or npc_row[1], lang_clean)
+                        return qid, raw_t, self._format_player_placeholders(npc_row[0] or npc_row[1], lang_clean), npc_row[2]
 
             for qid, raw_t in candidate_matches:
                 cur.execute(
                     f"""
-                    SELECT {text_col}, text_en FROM Quest_Texts
+                    SELECT {text_col}, text_en, npc_id FROM Quest_Texts
                     WHERE quest_id = ? AND text_type IN ('bestower', 'dialog', 'description')
                     ORDER BY CASE text_type
                         WHEN 'bestower' THEN 1
@@ -951,14 +959,23 @@ class LotroScreenReader:
                 )
                 text_row = cur.fetchone()
                 if text_row and (text_row[0] or text_row[1]):
+                    matched_npc_id = text_row[2]
+                    if matched_npc_id is None:
+                        cur.execute(
+                            "SELECT npc_id FROM Quest_Texts WHERE quest_id = ? AND npc_id IS NOT NULL LIMIT 1",
+                            (qid,),
+                        )
+                        r_npc = cur.fetchone()
+                        if r_npc:
+                            matched_npc_id = r_npc[0]
                     conn.close()
-                    return qid, raw_t, self._format_player_placeholders(text_row[0] or text_row[1], lang_clean)
+                    return qid, raw_t, self._format_player_placeholders(text_row[0] or text_row[1], lang_clean), matched_npc_id
 
             conn.close()
         except Exception as e:
             print(f"[LotroScreenReader] DB lookup error: {e}", file=sys.stderr)
 
-        return None, None, None
+        return None, None, None, None
 
     def get_quest_text_by_id(self, quest_id: int, target_npc: str = "", lang: str = "en") -> Optional[str]:
         """Fetches quest dialogue directly by quest_id for cross-language native DB lookups."""

@@ -185,14 +185,18 @@ class LotroSpeaker:
         voice_map = self.by_voice_id.get(ref_lang, {})
         npc_map = self.by_npc_name.get(ref_lang, {})
 
-        # 1. Direct voice_id match from lotro.db (verified voice actor or deterministic category voice)
+        # 1. Fixed narrator voice (man_male_1) for inanimate objects & untargeted narrator texts
+        if category == "narrator" and not preferred_voice_id:
+            preferred_voice_id = "man_male_1"
+
+        # 2. Direct voice_id match from lotro.db (verified voice actor or deterministic category voice)
         if preferred_voice_id and preferred_voice_id in voice_map:
             cand = voice_map[preferred_voice_id]
             cand_path = self.voices_dir / cand["audio_file"]
             if cand_path.exists():
                 return cand["voice_id"], cand_path, cand["text"], ref_lang
 
-        # 2. Direct verified NPC name match (covers diacritic variants like Gloin -> Glóin)
+        # 3. Direct verified NPC name match (covers diacritic variants like Gloin -> Glóin)
         if seed_key:
             norm_seed = _norm_npc_key(seed_key)
             if norm_seed in npc_map:
@@ -201,7 +205,7 @@ class LotroSpeaker:
                 if cand_path.exists():
                     return cand["voice_id"], cand_path, cand["text"], ref_lang
 
-        # 3. Category pool lookup
+        # 4. Category pool lookup
         cat_matches = [it for it in lang_items if it["category"] == category]
 
         if not cat_matches:
@@ -215,7 +219,8 @@ class LotroSpeaker:
             raise FileNotFoundError(f"No voice templates found for category '{category}' and language '{lang}'")
 
         if seed_key:
-            idx = abs(hash(str(seed_key))) % len(cat_matches)
+            import zlib
+            idx = zlib.crc32(str(seed_key).encode("utf-8")) % len(cat_matches)
             selected = cat_matches[idx]
         else:
             selected = random.choice(cat_matches)

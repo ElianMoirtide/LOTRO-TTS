@@ -1,18 +1,18 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 
 echo ========================================================
-echo LOTRO-TTS Source XML Updater
+echo LOTRO-TTS NPC Race Scraper (lotro-wiki.com)
 echo ========================================================
 echo.
 
 set "PYTHON_EXE="
-if exist "%~dp0python\win64\python.exe" (
-    set "PYTHON_EXE=%~dp0python\win64\python.exe"
+if exist "python\win64\python.exe" (
+    set "PYTHON_EXE=python\win64\python.exe"
 )
-if not defined PYTHON_EXE if exist "%~dp0python\win32\python.exe" (
-    set "PYTHON_EXE=%~dp0python\win32\python.exe"
+if not defined PYTHON_EXE if exist "python\win32\python.exe" (
+    set "PYTHON_EXE=python\win32\python.exe"
 )
 if not defined PYTHON_EXE (
     where python >nul 2>nul
@@ -27,10 +27,11 @@ if not defined PYTHON_EXE (
 
 echo Python: "%PYTHON_EXE%"
 echo.
-echo Aktualisiere Quell-Dateien von GitHub...
+echo Starte scrape_npc_races.py...
+echo [HINWEIS] Abbruch jederzeit mit Strg+C moeglich.
 echo.
 
-"%PYTHON_EXE%" "%~dp0scripts\update_sources.py" --generate-db %*
+"%PYTHON_EXE%" "scripts\scrape_npc_races.py" %*
 
 echo.
 pause

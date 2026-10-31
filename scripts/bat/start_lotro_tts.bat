@@ -1,9 +1,9 @@
 @echo off
 setlocal
 chcp 65001 >nul
+cd /d "%~dp0..\.."
 
-set "BASE_DIR=%~dp0"
-set "PYTHON_EXE=%BASE_DIR%python\win64\python.exe"
+set "PYTHON_EXE=python\win64\python.exe"
 
 if not exist "%PYTHON_EXE%" (
     echo [ERROR] Embedded Python not found at: %PYTHON_EXE%
@@ -19,8 +19,7 @@ echo Trigger speech in-game via Plugin or Middle Mouse Button (Mouse 3)!
 echo Tip: Run with --config to change your language settings.
 echo ========================================================
 
-cd /d "%BASE_DIR%"
-"%PYTHON_EXE%" "%BASE_DIR%scripts\lotro_service.py" %*
+"%PYTHON_EXE%" "scripts\lotro_service.py" %*
 
 pause
 

@@ -340,7 +340,8 @@ class LotroPipelineService:
                 else self.game_lang
             )
             active_tts_lang = self.tts_lang
-            if not target_name:
+            explicit_target = bool(target_name and target_name.strip())
+            if not explicit_target:
                 target_name = self.last_detected_target or ""
 
             logger.info(
@@ -377,6 +378,19 @@ class LotroPipelineService:
             else:
                 logger.info("Using OCR-extracted text from window.")
 
+            # Resolve speaker target:
+            # - If triggered via In-Game Button with an explicit target NPC, use that target NPC.
+            # - If triggered via Middle Mouse Button (or without explicit target) and the quest in lotro.db
+            #   has an associated Quest-giver npc_id, use that exact npc_id!
+            matched_npc_id = scan_result.get("npc_id")
+            if explicit_target:
+                speaker_target = target_name
+            elif matched_npc_id:
+                speaker_target = str(matched_npc_id)
+                logger.info(f"Resolved Quest NPC ID [{matched_npc_id}] directly from lotro.db!")
+            else:
+                speaker_target = target_name or "narrator"
+
             # 3. Cross-language native DB lookup (e.g. EN client -> ES/DE/FR native text by quest_id)
             matched_qid = scan_result.get("quest_id")
             if matched_qid and active_tts_lang in ("de", "en", "fr", "es") and active_tts_lang != active_client_lang:
@@ -393,9 +407,9 @@ class LotroPipelineService:
 
             # 5. Speak through TTS
             logger.info(
-                f"Speaking text ({len(final_text)} chars) for NPC '{target_name}' in '{active_tts_lang}'..."
+                f"Speaking text ({len(final_text)} chars) for NPC '{speaker_target}' in '{active_tts_lang}'..."
             )
-            self.speaker.speak(final_text, target_name, lang=active_tts_lang)
+            self.speaker.speak(final_text, speaker_target, lang=active_tts_lang)
         finally:
             with self._lock:
                 self._is_processing = False

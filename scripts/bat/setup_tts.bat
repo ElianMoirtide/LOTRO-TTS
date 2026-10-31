@@ -1,12 +1,12 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 
 echo ========================================================
 echo LOTRO-TTS Audio ^& AI Environment Setup
 echo ========================================================
 
-set "PY_EXE=%~dp0python\win64\python.exe"
+set "PY_EXE=python\win64\python.exe"
 
 if not exist "%PY_EXE%" (
     echo [ERROR] Embedded Python not found at: %PY_EXE%
@@ -31,7 +31,7 @@ if "%CHOICE%"=="2" (
 echo.
 echo Ausgewaehlter Modus: %MODE%
 echo ========================================================
-"%PY_EXE%" "%~dp0scripts\setup_tts.py" --mode %MODE%
+"%PY_EXE%" "scripts\setup_tts.py" --mode %MODE%
 
 echo.
 echo ========================================================
