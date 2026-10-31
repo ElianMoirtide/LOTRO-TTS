@@ -151,7 +151,7 @@ LOTRO-TTS/
 │       ├── de/               # German reference audio profiles & voice_index.json
 │       ├── en/               # English reference audio profiles & voice_index.json
 │       └── fr/               # French reference audio profiles & voice_index.json
-├── python/win64/             # Embedded portable Python 3.12 runtime
+├── python/win64/             # Embedded portable Python 3.13 runtime
 ├── scripts/
 │   ├── lotro_service.py      # Core service (log watcher, DWM window capture, pipeline)
 │   ├── screen_reader.py      # Screen reader, CUDA RapidOCR & window geometry cache
