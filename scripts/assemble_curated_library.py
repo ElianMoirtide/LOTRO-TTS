@@ -3,17 +3,7 @@
 Production LOTRO Voice Library Assembler (Master Audio-Calibrated & Whisper-Verified Edition)
 ---------------------------------------------------------------------------------------------
 Assembles authentic LOTRO reference audio and 100% Whisper-verified transcripts
-across DE, EN, and FR from D:\\temp\\lotro-voices\\{de,en,fr}.
-
-Key Improvements:
-1. Fixed all 40/64 English and 24/64 German transcript mismatches so OmniVoice's
-   duration estimator never miscalculates reference speaking rate.
-2. Replaced rushed 1.98s `man_male_2` (`0A000BC9.ogg`) with calm, database-verified
-   `0A014BB6.ogg` (Penrod, Man Male, 4.58s EN / 5.52s DE).
-3. Replaced the 4 human Rohirrim/Gondorian voices previously in `elf_male` with true
-   database-verified Male Elves (Thranduil `0A020DD8.ogg`, Legolas `0A020DD7.ogg`,
-   Felegoth Lord `0A020DD2.ogg`, Mirkwood Warden `0A020DFD.ogg`, `0A015DBD.ogg`, `0A01B628.ogg`).
-4. Added full French (`fr`) native voice index support.
+across DE, EN, and FR from original sound files from the game.
 """
 import os
 import shutil

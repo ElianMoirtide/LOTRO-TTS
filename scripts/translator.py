@@ -3,12 +3,6 @@
 LOTRO-TTS Translation Module
 Translates English quest and dialogue text into target languages (e.g. Italian 'it')
 using HuggingFace MarianMT (Helsinki-NLP/opus-mt-en-*).
-
-Features:
-- Completely offline once downloaded.
-- GPU accelerated if CUDA is available, otherwise runs on CPU (AMD / Intel).
-- Persistent SQLite cache in data/translation_cache.db (never touches lotro.db).
-- Lazy loading: The translation model is only loaded into memory when requested.
 """
 
 import hashlib

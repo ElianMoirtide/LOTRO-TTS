@@ -3,18 +3,6 @@
 """
 LOTRO-TTS NPC Race Scraper
 Scrapes NPC race and wiki URLs from lotro-wiki.com.
-Features:
-- Solves bot-sentry Proof-of-Work anti-bot challenge automatically.
-- Strips leading/trailing quotes (e.g. 'Frodo Baggins' -> Frodo Baggins).
-- Robust HTML parsing for race tags (including linked headers like Ashrokil).
-- Category-based race extraction when table has no explicit Race row (e.g. Achardis -> Umbarrim -> Man).
-- OpenSearch candidate resolution for multi-location NPCs (e.g. Sindri, Reykur),
-  distinguishing friendly Quest NPCs from hostile creatures.
-- Epithet and title stripping for lookup (e.g. Angbor the Fearless -> Angbor).
-- Automatically exports all remaining unresolved NPCs to src/npc/unresolved_npcs.txt
-  with a pre-formatted prompt ready to copy & paste into any AI (ChatGPT, Claude, Gemini, etc.).
-- Import function (--import-file) to easily import AI responses back into cache and database.
-- Persistent JSON cache in src/npc/npc_races.json, only re-querying entries with NULL race or URL.
 """
 
 import argparse
