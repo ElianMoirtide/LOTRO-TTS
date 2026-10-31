@@ -238,7 +238,7 @@ def generate_database(src_dir: Path, output_db: Path):
                 race_info = (cached_races.get(clean_name) or cached_races.get(name_en) or {}) if name_en else {}
                 race = elem.attrib.get("race") or race_info.get("race")
                 url = elem.attrib.get("url") or race_info.get("url")
-                voice_id = get_deterministic_voice_id(nid, gender, race, voice_pools, default_narrator)
+                voice_id = get_deterministic_voice_id(nid, gender, race, voice_pools, default_narrator, name_en=name_en)
                 npcs_dict[nid] = (nid, name_en, name_de, name_fr, name_es, gender, race, url, voice_id)
         elem.clear()
 
@@ -453,7 +453,7 @@ def generate_database(src_dir: Path, output_db: Path):
         if nid not in npcs_dict:
             clean_name = name_en.strip("'\"` \t\r\n") if name_en else ""
             race_info = (cached_races.get(clean_name) or cached_races.get(name_en) or {}) if name_en else {}
-            voice_id = get_deterministic_voice_id(nid, None, race_info.get("race"), voice_pools, default_narrator)
+            voice_id = get_deterministic_voice_id(nid, None, race_info.get("race"), voice_pools, default_narrator, name_en=name_en)
             npcs_dict[nid] = (
                 nid,
                 name_en,

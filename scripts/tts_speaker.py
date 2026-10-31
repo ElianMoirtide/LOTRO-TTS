@@ -10,6 +10,7 @@ import json
 import sqlite3
 import argparse
 import random
+import unicodedata
 from pathlib import Path
 import numpy as np
 import soundfile as sf
@@ -22,7 +23,15 @@ except ImportError:
     sys.exit(1)
 
 # Version tag included in audio cache keys so outdated cached clips are invalidated
-SPEAKER_ENGINE_VERSION = "v3"
+SPEAKER_ENGINE_VERSION = "v4"
+
+
+def _norm_npc_key(name: str | None) -> str:
+    if not name:
+        return ""
+    s = str(name).strip().strip("'\"` \t\r\n").lower()
+    s = unicodedata.normalize("NFKD", s)
+    return "".join(c for c in s if not unicodedata.combining(c))
 
 
 class LotroSpeaker:
@@ -45,13 +54,30 @@ class LotroSpeaker:
 
         # Load voice indexes for all supported native voice libraries (de, en, fr)
         self.indices = {}
+        self.by_voice_id = {}
+        self.by_npc_name = {}
         for lang in ["de", "en", "fr"]:
             idx_file = self.voices_dir / lang / "voice_index.json"
             if idx_file.exists():
                 with open(idx_file, "r", encoding="utf-8") as f:
-                    self.indices[lang] = json.load(f)
+                    items = json.load(f)
+                self.indices[lang] = items
+                self.by_voice_id[lang] = {it["voice_id"]: it for it in items}
+                name_map = {}
+                for it in items:
+                    if it.get("npc_name"):
+                        k = _norm_npc_key(it["npc_name"])
+                        if k:
+                            name_map[k] = it
+                    for nname in it.get("verified_npc_names", []):
+                        k = _norm_npc_key(nname)
+                        if k and k not in name_map:
+                            name_map[k] = it
+                self.by_npc_name[lang] = name_map
             else:
                 self.indices[lang] = []
+                self.by_voice_id[lang] = {}
+                self.by_npc_name[lang] = {}
 
         # Warm up OmniVoice with a silent 1-word generation to initialize CUDA kernels & VRAM allocations
         self._warmup_engine()
@@ -61,8 +87,9 @@ class LotroSpeaker:
         try:
             ref_item = None
             for l in ["en", "de", "fr"]:
-                if self.indices.get(l):
-                    ref_item = self.indices[l][0]
+                items = self.indices.get(l, [])
+                if items:
+                    ref_item = next((it for it in items if not it.get("voice_id", "").startswith("npc_")), items[0])
                     break
 
             if ref_item:
@@ -81,9 +108,9 @@ class LotroSpeaker:
             print(f"TTS warm-up notice: {e}")
 
     def get_npc_info(self, npc_name_or_id):
-        """Looks up NPC race and gender from data/lotro.db."""
+        """Looks up NPC race, gender, and assigned voice_id from data/lotro.db."""
         if not self.db_path.exists():
-            return "narrator", "narrator", "male"
+            return "narrator", "narrator", "male", None
 
         conn = sqlite3.connect(str(self.db_path))
         c = conn.cursor()
@@ -96,14 +123,16 @@ class LotroSpeaker:
             name_query = str(npc_name_or_id).strip()
             c.execute(
                 "SELECT name_en, race, gender, voice_id FROM NPCs "
-                "WHERE name_en = ? OR name_de = ? OR name_fr = ? OR name_es = ? LIMIT 1",
+                "WHERE name_en = ? OR name_de = ? OR name_fr = ? OR name_es = ? "
+                "ORDER BY CASE WHEN race IS NOT NULL AND length(race) > 0 THEN 0 ELSE 1 END, id ASC LIMIT 1",
                 (name_query, name_query, name_query, name_query)
             )
             row = c.fetchone()
             if not row:
                 c.execute(
                     "SELECT name_en, race, gender, voice_id FROM NPCs "
-                    "WHERE name_en LIKE ? OR name_de LIKE ? OR name_fr LIKE ? OR name_es LIKE ? LIMIT 1",
+                    "WHERE name_en LIKE ? OR name_de LIKE ? OR name_fr LIKE ? OR name_es LIKE ? "
+                    "ORDER BY CASE WHEN race IS NOT NULL AND length(race) > 0 THEN 0 ELSE 1 END, id ASC LIMIT 1",
                     (f"%{name_query}%", f"%{name_query}%", f"%{name_query}%", f"%{name_query}%")
                 )
                 row = c.fetchone()
@@ -116,38 +145,71 @@ class LotroSpeaker:
             gender_str = (gender or "male").lower()
 
             # Map race to category
-            if "elf" in race_str:
+            if "river-maid" in race_str:
+                return name, "elf_female", "female", voice_id
+            elif "elf" in race_str or "kinta" in race_str:
                 r = "elf"
-            elif "hobbit" in race_str or "river" in race_str:
+            elif "hobbit" in race_str or "halfling" in race_str or "stoor" in race_str or "river" in race_str:
                 r = "hobbit"
-            elif "dwarf" in race_str or "stout" in race_str:
+            elif "dwarf" in race_str or "stout" in race_str or "zhélruka" in race_str or "zhelruka" in race_str or "temámir" in race_str or "temamir" in race_str:
                 r = "dwarf"
-            elif "orc" in race_str or "uruk" in race_str or "goblin" in race_str:
-                return name, "orc", "male"
-            elif "troll" in race_str:
-                return name, "troll", "male"
+            elif "orc" in race_str or "uruk" in race_str or "goblin" in race_str or "ordâkhai" in race_str or "ordakhai" in race_str:
+                return name, "orc", "male", voice_id
+            elif "troll" in race_str or "giant" in race_str or "rogmul" in race_str:
+                return name, "troll", "male", voice_id
             elif "ent" in race_str or "huorn" in race_str:
-                return name, "ent", "neutral"
-            elif "dead" in race_str or "shade" in race_str:
-                return name, "dead", "neutral"
+                return name, "ent", "neutral", voice_id
+            elif "dead" in race_str or "shade" in race_str or "wraith" in race_str or "nazgûl" in race_str or "nazgul" in race_str:
+                return name, "dead", "neutral", voice_id
             else:
                 r = "man"
 
             g = "female" if gender_str == "female" else "male"
-            return name, f"{r}_{g}", g
+            return name, f"{r}_{g}", g, voice_id
 
-        return str(npc_name_or_id), "narrator", "male"
+        # Diacritic-insensitive fallback via pre-indexed verified NPC names (e.g. 'Gloin' -> 'Glóin', 'Eowyn' -> 'Éowyn')
+        norm_q = _norm_npc_key(npc_name_or_id)
+        for l in ("en", "de", "fr"):
+            if norm_q in self.by_npc_name.get(l, {}):
+                it = self.by_npc_name[l][norm_q]
+                return str(npc_name_or_id), it.get("category", "man_male"), it.get("gender", "male"), it["voice_id"]
 
-    def select_voice_template(self, category, lang="de", seed_key=None):
-        """Selects reference audio and sidecar transcript for cloning."""
-        # For languages without authentic LOTRO audio samples (e.g. Italian 'it'),
+        return str(npc_name_or_id), "narrator", "male", None
+
+    def select_voice_template(self, category, lang="de", seed_key=None, preferred_voice_id=None):
+        """Selects reference audio and sidecar transcript for cloning (prioritizing 1:1 NPC voice when available)."""
+        # For languages without authentic LOTRO audio samples (e.g. Spanish 'es', Italian 'it'),
         # use the authentic English reference audio pool for cross-lingual zero-shot cloning.
         ref_lang = lang if lang in self.indices and self.indices[lang] else "en"
         lang_items = self.indices.get(ref_lang, [])
+        voice_map = self.by_voice_id.get(ref_lang, {})
+        npc_map = self.by_npc_name.get(ref_lang, {})
+
+        # 1. Direct voice_id match from lotro.db (verified voice actor or deterministic category voice)
+        if preferred_voice_id and preferred_voice_id in voice_map:
+            cand = voice_map[preferred_voice_id]
+            cand_path = self.voices_dir / cand["audio_file"]
+            if cand_path.exists():
+                return cand["voice_id"], cand_path, cand["text"], ref_lang
+
+        # 2. Direct verified NPC name match (covers diacritic variants like Gloin -> Glóin)
+        if seed_key:
+            norm_seed = _norm_npc_key(seed_key)
+            if norm_seed in npc_map:
+                cand = npc_map[norm_seed]
+                cand_path = self.voices_dir / cand["audio_file"]
+                if cand_path.exists():
+                    return cand["voice_id"], cand_path, cand["text"], ref_lang
+
+        # 3. Category pool lookup
         cat_matches = [it for it in lang_items if it["category"] == category]
 
         if not cat_matches:
-            cat_matches = [it for it in lang_items if it["category"] == "narrator"] or lang_items
+            cat_matches = (
+                [it for it in lang_items if it["category"] == "narrator"]
+                or [it for it in lang_items if it["category"] == "man_male"]
+                or lang_items
+            )
 
         if not cat_matches:
             raise FileNotFoundError(f"No voice templates found for category '{category}' and language '{lang}'")
@@ -273,6 +335,7 @@ class LotroSpeaker:
             return None
 
         # Determine category & NPC info
+        preferred_voice_id = None
         if npc_name_or_category in [
             "elf_female", "elf_male", "man_female", "man_male",
             "hobbit_female", "hobbit_male", "dwarf_female", "dwarf_male",
@@ -281,10 +344,10 @@ class LotroSpeaker:
             category = npc_name_or_category
             npc_name = category
         else:
-            npc_name, category, _ = self.get_npc_info(npc_name_or_category)
+            npc_name, category, _, preferred_voice_id = self.get_npc_info(npc_name_or_category)
 
         voice_id, ref_audio, ref_text, ref_lang = self.select_voice_template(
-            category, lang=lang, seed_key=npc_name
+            category, lang=lang, seed_key=npc_name, preferred_voice_id=preferred_voice_id
         )
 
         # 1. AUDIO CACHE CHECK
