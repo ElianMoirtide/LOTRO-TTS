@@ -23,7 +23,7 @@ except ImportError:
     sys.exit(1)
 
 # Version tag included in audio cache keys so outdated cached clips are invalidated
-SPEAKER_ENGINE_VERSION = "v4"
+SPEAKER_ENGINE_VERSION = "v5"
 
 
 def _norm_npc_key(name: str | None) -> str:
@@ -185,9 +185,14 @@ class LotroSpeaker:
         voice_map = self.by_voice_id.get(ref_lang, {})
         npc_map = self.by_npc_name.get(ref_lang, {})
 
-        # 1. Fixed narrator voice (man_male_1) for inanimate objects & untargeted narrator texts
+        # 1. Fixed narrator voice for inanimate objects & untargeted narrator texts
+        # In French, man_male_15 (Athelward: "Bienvenue à Cleaving, ami venu de loin.") is used
+        # to ensure a calm, welcoming storyteller voice and avoid Horn's distressed/melodramatic delivery.
         if category == "narrator" and not preferred_voice_id:
-            preferred_voice_id = "man_male_1"
+            if lang == "fr":
+                preferred_voice_id = "man_male_15"
+            else:
+                preferred_voice_id = "man_male_1"
 
         # 2. Direct voice_id match from lotro.db (verified voice actor or deterministic category voice)
         if preferred_voice_id and preferred_voice_id in voice_map:
@@ -327,6 +332,82 @@ class LotroSpeaker:
         )
         return self._clean_generated_chunk(res[0], sample_rate=24000)
 
+    def _split_dialogue_chunks(self, text: str, lang: str = "de") -> list[str]:
+        """
+        Intelligently splits dialogue into natural speech chunks:
+        1. Never breaks on ellipses ('...' or '…') which represent internal hesitations.
+        2. Protects honorifics & abbreviations (M., Mme., Dr., etc., z.B., etc.).
+        3. Preserves trailing quotation marks with their preceding sentence.
+        4. Merges tiny fragments (< 4 words or < 18 chars) with their neighbor to eliminate
+           buffer-underrun stalls where playback stops in the middle of a sentence.
+        5. For the first chunk: if long (> 10 words & > 60 chars), splits at the first natural
+           clause boundary (comma, semicolon, dash) so speech playback starts in < 0.5s!
+        """
+        import re
+
+        text = text.strip()
+        if not text:
+            return []
+
+        # Normalize French non-breaking spaces and typography
+        text = text.replace("\u00a0", " ").replace("\u202f", " ")
+
+        # Protect ellipses so they are never split as sentence boundaries
+        protected = text.replace("...", "___ELLIPSIS___").replace("…", "___ELLIPSIS___")
+
+        # Protect common abbreviations across DE, EN, FR, ES, IT, NL
+        abbrs = [
+            "M.", "Mme.", "Mlle.", "Dr.", "Prof.", "etc.", "cf.", "env.", "p.ex.",
+            "z.B.", "d.h.", "u.a.", "bzw.", "ca.", "usw.",
+            "Mr.", "Mrs.", "Ms.", "e.g.", "i.e.", "vs.",
+            "Sr.", "Sra.", "bijv.", "d.w.z.", "t.a.v."
+        ]
+        for ab in abbrs:
+            protected = protected.replace(ab, ab.replace(".", "___DOT___"))
+
+        # Normalize spaces before closing quotes in French typography (e.g. "Oui ! »" -> "Oui !»")
+        protected = re.sub(r'([.!?])\s+([»”"\x27])', r'\1\2', protected)
+
+        # Split on sentence boundaries (. ! ?) followed by whitespace and an uppercase letter / quote.
+        # This keeps speech tags ("« Regardez ! » dit-il") together in one clause and prevents mid-sentence stops.
+        raw_splits = re.split(r'([.!?]+[\x27\x22\u00bb\u201d]*)\s+(?=[A-ZÀ-ÖØ-ß«“"\x27]|$)', protected)
+        parts = []
+        if len(raw_splits) == 1:
+            parts = [raw_splits[0]]
+        else:
+            for i in range(0, len(raw_splits) - 1, 2):
+                p = (raw_splits[i] + raw_splits[i + 1]).strip()
+                if p:
+                    parts.append(p)
+            if len(raw_splits) % 2 == 1 and raw_splits[-1].strip():
+                parts.append(raw_splits[-1].strip())
+
+        # Restore protected placeholders
+        restored = []
+        for p in parts:
+            p = p.replace("___ELLIPSIS___", "...").replace("___DOT___", ".").strip()
+            if p:
+                restored.append(p)
+
+        # Merge very short chunks into neighbors to prevent buffer starvation and dead-silence gaps
+        merged = []
+        for p in restored:
+            w_count = len(p.split())
+            if merged and (w_count < 4 or len(p) < 18):
+                merged[-1] = merged[-1] + " " + p
+            else:
+                merged.append(p)
+
+        # Fast-start optimization for Chunk 0:
+        # If the first sentence is long (> 10 words & > 60 chars), split at the first clause break
+        if merged and len(merged[0].split()) > 10 and len(merged[0]) > 60:
+            first_sent = merged[0]
+            m = re.search(r'^(.{18,80}?[,;:—])\s+(.+)$', first_sent)
+            if m and len(m.group(1).split()) >= 4 and len(m.group(2).split()) >= 3:
+                merged = [m.group(1), m.group(2)] + merged[1:]
+
+        return merged
+
     def speak(self, text, npc_name_or_category="narrator", lang="de", output_path=None, cache_key=None):
         """
         Synthesizes authentic speech for given NPC / category and text.
@@ -373,7 +454,7 @@ class LotroSpeaker:
         print(f"  Reference audio: {ref_audio.name}")
 
         # 2. STREAMING OR DIRECT SYNTHESIS
-        sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text) if s.strip()]
+        sentences = self._split_dialogue_chunks(text, lang=lang)
 
         # If short text (1 sentence and < 140 chars), generate directly
         if len(sentences) <= 1 and len(text) < 140:
@@ -400,20 +481,23 @@ class LotroSpeaker:
 
         def player_thread():
             import winsound
-            import tempfile
+            import io
+            import wave
 
             while not stop_event.is_set() or not audio_queue.empty():
                 try:
-                    chunk = audio_queue.get(timeout=0.2)
-                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-                        tmp_path = Path(tmp.name)
-                    sf.write(str(tmp_path), chunk, 24000)
+                    chunk = audio_queue.get(timeout=0.15)
+                    # Convert float32 chunk to 16-bit PCM in memory to eliminate disk I/O and device-lock stutter
+                    int16_data = (np.clip(chunk, -1.0, 1.0) * 32767.0).astype(np.int16)
+                    mem_wav = io.BytesIO()
+                    with wave.open(mem_wav, "wb") as wf:
+                        wf.setnchannels(1)
+                        wf.setsampwidth(2)
+                        wf.setframerate(24000)
+                        wf.writeframes(int16_data.tobytes())
+                    wav_bytes = mem_wav.getvalue()
                     try:
-                        winsound.PlaySound(str(tmp_path), winsound.SND_FILENAME)
-                    except Exception:
-                        pass
-                    try:
-                        tmp_path.unlink()
+                        winsound.PlaySound(wav_bytes, winsound.SND_MEMORY)
                     except Exception:
                         pass
                     audio_queue.task_done()
@@ -463,7 +547,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LOTRO-TTS Production Speaker")
     parser.add_argument("--text", type=str, required=True, help="Text to speak")
     parser.add_argument("--npc", type=str, default="narrator", help="NPC name (e.g. Galadriel, Lobelia) or category (elf_female, etc.)")
-    parser.add_argument("--lang", type=str, choices=["de", "en", "fr", "es", "it"], default="de", help="Language code")
+    parser.add_argument("--lang", type=str, choices=["de", "en", "fr", "es", "it", "nl"], default="de", help="Language code")
     parser.add_argument("--output", type=str, default=None, help="Output wav file path")
     parser.add_argument("--device", type=str, choices=["cuda", "cpu"], default=None, help="Compute device (default: auto-detect cuda/cpu)")
 

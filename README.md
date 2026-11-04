@@ -26,9 +26,9 @@ WIP:
   - One-click first-time setup (installs PyTorch with CUDA 12.6 or CPU, OmniVoice, RapidOCR, and dependencies into the embedded Python environment).
   - Automatically installs the in-game Lua plugin (`Plugins\TTS`) into your `Documents\The Lord of the Rings Online` folder.
   - Automatically builds the local SQLite database (`data/lotro.db`) and pre-warms OCR and TTS GPU kernels on startup.
-- **Multilingual Support (`DE` / `EN` / `FR` / `ES` / `IT`)**:
+- **Multilingual Support (`DE` / `EN` / `FR` / `ES` / `IT` / `NL`)**:
   - **Game Client Languages (OCR & Quest DB)**: **German (`DE`)**, **English (`EN`)**, and **French (`FR`)**.
-  - **Spoken TTS Output Languages**: Native LOTRO voice libraries for **German (`DE`)**, **English (`EN`)**, and **French (`FR`)**, plus cross-lingual zero-shot voice cloning for **Spanish (`ES`)** (native database quest texts) and **Italian (`IT`)** (local MarianMT AI translation).
+  - **Spoken TTS Output Languages**: Native LOTRO voice libraries for **German (`DE`)**, **English (`EN`)**, and **French (`FR`)**, plus cross-lingual zero-shot voice cloning for **Spanish (`ES`)** (native database quest texts) and **Italian (`IT`)** / **Dutch (`NL`)** (local MarianMT AI translation).
 - **190 Quest-Verified Authentic Voice Actors per Language (`570` Audio Profiles)**:
   - Extracted, transcribed, and verified 1:1 against the LOTRO Quest Database using neural speaker verification (`WavLM-SV`).
   - Covers `man_male` (50), `man_female` (39), `dwarf_male` (32), `elf_male` (21), `elf_female` (11), `hobbit_male` (9), `hobbit_female` (9), `dead` (6), `orc` (6), `dwarf_female` (5), `ent` (1), and `troll` (1).
@@ -57,7 +57,7 @@ Simply double-click **`LOTRO-TTS.exe`** in the root folder!
 
 ### First-Time Setup (Automated via GUI)
 1. Launch **`LOTRO-TTS.exe`**.
-2. Select your **Game Client Language** (`DE`, `EN`, `FR`) and your desired **Spoken TTS Voice Language** (`DE`, `EN`, `FR`, `ES`, `IT`).
+2. Select your **Game Client Language** (`DE`, `EN`, `FR`) and your desired **Spoken TTS Voice Language** (`DE`, `EN`, `FR`, `ES`, `IT`, `NL`).
 3. Click **`▶ START LOTRO-TTS`** (or **`⚙ Setup AI (GPU/CPU)`**):
    - **Step 1 (LOTRO Lua Plugin)**: If not yet installed, `LOTRO-TTS.exe` automatically copies the Lua plugin into `Documents\The Lord of the Rings Online\Plugins\TTS`.
    - **Step 2 (AI Environment)**: Prompts you to choose **GPU (NVIDIA CUDA 12.6)** *(Recommended)* or **CPU**, and installs PyTorch, OmniVoice, and RapidOCR into `python/win64`.
@@ -131,7 +131,7 @@ python\win64\python.exe scripts\lotro_service.py [OPTIONS]
 | Option | Default | Description |
 | :--- | :--- | :--- |
 | `--client-lang` | `config.json` | LOTRO game client language for OCR: `de`, `en`, or `fr`. |
-| `--tts-lang` | `config.json` | Spoken TTS voice output language: `de`, `en`, `fr`, `es`, or `it`. |
+| `--tts-lang` | `config.json` | Spoken TTS voice output language: `de`, `en`, `fr`, `es`, `it`, or `nl`. |
 | `--mode` | `auto` | Compute mode: `auto` (auto-detects CUDA/RTX GPU), `cuda`, or `cpu`. |
 | `--docs-dir` | *Auto* | Path to LOTRO user documents directory (auto-detected via Windows Registry). |
 | `--no-mouse` | *disabled* | Disables the global middle mouse button trigger (in-game button only). |
@@ -156,7 +156,7 @@ LOTRO-TTS/
 │   ├── lotro_service.py      # Core service (log watcher, DWM window capture, pipeline)
 │   ├── screen_reader.py      # Screen reader, CUDA RapidOCR & window geometry cache
 │   ├── tts_speaker.py        # OmniVoice Zero-Shot engine, cadence calibration & streaming
-│   ├── translator.py         # Local MarianMT neural translator (for Italian 'it' output)
+│   ├── translator.py         # Local MarianMT neural translator (for Italian 'it' and Dutch 'nl' output)
 │   ├── generate_db.py        # SQLite database generator from LotroCompanion XMLs
 │   ├── assign_voices.py      # Deterministic & 1:1 verified NPC voice assignment
 │   ├── update_sources.py     # Updater for LotroCompanion NPC/Quest XMLs

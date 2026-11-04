@@ -238,7 +238,8 @@ namespace LotroTtsLauncher
                     "en — English (Native Voices)",
                     "fr — Français (Native Voices)",
                     "es — Español (Voice Cloning)",
-                    "it — Italiano (AI Translation)"
+                    "it — Italiano (AI Translation)",
+                    "nl — Nederlands (AI Translation)"
                 },
                 dpi
             );

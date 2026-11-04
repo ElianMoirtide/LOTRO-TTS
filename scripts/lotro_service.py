@@ -82,8 +82,8 @@ class LotroPipelineService:
         logger.info(f"Initializing TTS Speaker on device [{device.upper()}] (Voices: {self.voices_dir})")
         self.speaker = LotroSpeaker(str(self.voices_dir), str(self.db_path), device=device)
         self.translator = LotroTranslator(device=device)
-        if self.tts_lang == "it":
-            self.translator.preload("it")
+        if self.tts_lang in ("it", "nl"):
+            self.translator.preload(self.tts_lang, src_lang=self.game_lang)
 
         self.last_log_pos = 0
         if self.script_log_path.exists():
@@ -401,9 +401,17 @@ class LotroPipelineService:
                     logger.info(f"Using native '{active_tts_lang.upper()}' quest text directly from lotro.db!")
                     final_text = direct_text
 
-            # 4. On-demand MarianMT Translation (e.g. for Italian 'it')
-            if active_tts_lang == "it":
-                final_text = self.translator.translate(final_text, src_lang=active_client_lang, target_lang="it")
+            # 4. On-demand MarianMT Translation (e.g. for Italian 'it' or Dutch 'nl')
+            if active_tts_lang in ("it", "nl"):
+                # When matched from lotro.db, English text is always available and yields optimal translation
+                if matched_qid:
+                    clean_en_text = self.screen_reader.get_quest_text_by_id(
+                        matched_qid, target_npc=target_name, lang="en"
+                    )
+                    if clean_en_text:
+                        final_text = clean_en_text
+                        active_client_lang = "en"
+                final_text = self.translator.translate(final_text, src_lang=active_client_lang, target_lang=active_tts_lang)
 
             # 5. Speak through TTS
             logger.info(
@@ -431,7 +439,7 @@ class LotroPipelineService:
         except Exception as e:
             logger.warning(f"Could not start global mouse listener: {e}")
 
-    def watch_script_log(self, poll_interval: float = 0.25):
+    def watch_script_log(self, poll_interval: float = 0.03):
         """Watches Script.log for new lines formatted as: TTS|<CLIENT_LANG>|<TARGET>."""
         logger.info(f"Watching '{self.script_log_path}' for plugin triggers...")
 
@@ -536,7 +544,7 @@ def load_or_prompt_config(base_dir: Path, force_prompt: bool = False) -> tuple[s
                 cfg = json.loads(config_file.read_text(encoding="utf-8"))
                 game_lang = str(cfg.get("game_lang", "")).lower().strip()
                 tts_lang = str(cfg.get("tts_lang", "")).lower().strip()
-                if game_lang in ("en", "de", "fr") and tts_lang in ("en", "de", "fr", "es", "it"):
+                if game_lang in ("en", "de", "fr") and tts_lang in ("en", "de", "fr", "es", "it", "nl"):
                     return game_lang, tts_lang
         except Exception as e:
             logger.warning(f"Invalid config.json ({e}), re-prompting configuration...")
@@ -559,7 +567,8 @@ def load_or_prompt_config(base_dir: Path, force_prompt: bool = False) -> tuple[s
     print("   [3] French (fr) - Native Voice")
     print("   [4] Spanish (es) - Native Quest Text via Voice Cloning")
     print("   [5] Italian (it) - AI Translated Quest Text via Voice Cloning")
-    choice_tts = input("Select (1-5) [Default 1]: ").strip().lower()
+    print("   [6] Dutch (nl) - AI Translated Quest Text via Voice Cloning")
+    choice_tts = input("Select (1-6) [Default 1]: ").strip().lower()
 
     tts_map = {
         "1": "en",
@@ -567,6 +576,8 @@ def load_or_prompt_config(base_dir: Path, force_prompt: bool = False) -> tuple[s
         "3": "fr",
         "4": "es",
         "5": "it",
+        "6": "nl",
+        "nl": "nl",
         "en": "en",
         "de": "de",
         "fr": "fr",
@@ -603,7 +614,7 @@ def main():
     )
     parser.add_argument("--no-mouse", action="store_true", help="Disable middle mouse button trigger")
     parser.add_argument("--client-lang", type=str, default=None, help="Force LOTRO game client language (en, de, fr)")
-    parser.add_argument("--tts-lang", type=str, default=None, help="Force TTS speech language (en, de, fr, es, it)")
+    parser.add_argument("--tts-lang", type=str, default=None, help="Force TTS speech language (en, de, fr, es, it, nl)")
     parser.add_argument("--config", action="store_true", help="Prompt for language configuration")
     args = parser.parse_args()
 

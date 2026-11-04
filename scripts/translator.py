@@ -16,6 +16,8 @@ logger = logging.getLogger("LOTRO-Translator")
 SUPPORTED_TRANSLATION_MODELS = {
     "it": "Helsinki-NLP/opus-mt-en-it",
     "es": "Helsinki-NLP/opus-mt-en-es",
+    "nl": "Helsinki-NLP/opus-mt-en-nl",
+    "de_nl": "Helsinki-NLP/opus-mt-de-nl",
 }
 
 
@@ -54,12 +56,14 @@ class LotroTranslator:
         conn.commit()
         conn.close()
 
-    def preload(self, target_lang: str):
+    def preload(self, target_lang: str, src_lang: str = "en"):
         """Pre-downloads, loads, and warms up the translation model at service startup."""
         target_lang = target_lang.lower().strip()
-        if target_lang not in SUPPORTED_TRANSLATION_MODELS:
+        src_lang = src_lang.lower().strip()
+        pair_key = f"{src_lang}_{target_lang}"
+        if target_lang not in SUPPORTED_TRANSLATION_MODELS and pair_key not in SUPPORTED_TRANSLATION_MODELS:
             return
-        model, tokenizer = self._get_model_and_tokenizer(target_lang)
+        model, tokenizer = self._get_model_and_tokenizer(target_lang, src_lang=src_lang)
         try:
             import torch
             device = "cuda" if self.device == "cuda" and torch.cuda.is_available() else "cpu"
@@ -70,15 +74,19 @@ class LotroTranslator:
         except Exception:
             pass
 
-    def _get_model_and_tokenizer(self, target_lang: str):
+    def _get_model_and_tokenizer(self, target_lang: str, src_lang: str = "en"):
         """Loads MarianMT model and tokenizer (uses local disk cache first without HTTP roundtrips)."""
         target_lang = target_lang.lower().strip()
-        if target_lang in self._pipelines:
-            return self._pipelines[target_lang]
+        src_lang = src_lang.lower().strip()
+        pair_key = f"{src_lang}_{target_lang}"
 
-        model_id = SUPPORTED_TRANSLATION_MODELS.get(target_lang)
+        lookup_key = pair_key if pair_key in SUPPORTED_TRANSLATION_MODELS else target_lang
+        if lookup_key in self._pipelines:
+            return self._pipelines[lookup_key]
+
+        model_id = SUPPORTED_TRANSLATION_MODELS.get(lookup_key)
         if not model_id:
-            raise ValueError(f"No translation model configured for target language '{target_lang}'.")
+            raise ValueError(f"No translation model configured for '{src_lang}' -> '{target_lang}'.")
 
         logger.info(f"Loading translation model '{model_id}' on device [{self.device.upper()}]...")
         import warnings
@@ -102,7 +110,7 @@ class LotroTranslator:
         if self.device == "cuda" and torch.cuda.is_available():
             model = model.to("cuda")
 
-        self._pipelines[target_lang] = (model, tokenizer)
+        self._pipelines[lookup_key] = (model, tokenizer)
         logger.info(f"Translation model '{model_id}' ready.")
         return model, tokenizer
 
@@ -139,7 +147,7 @@ class LotroTranslator:
 
         # 2. Run MarianMT Translation
         logger.info(f"Translating text ({len(text)} chars) from '{src_lang}' to '{target_lang}' via MarianMT...")
-        model, tokenizer = self._get_model_and_tokenizer(target_lang)
+        model, tokenizer = self._get_model_and_tokenizer(target_lang, src_lang=src_lang)
 
         import torch
         device = "cuda" if self.device == "cuda" and torch.cuda.is_available() else "cpu"
