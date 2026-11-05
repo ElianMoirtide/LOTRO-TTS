@@ -48,6 +48,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger("LOTRO-TTS-Service")
 
+# Suppress noisy HTTP, connection-pool, and HuggingFace background download logs
+for noisy in (
+    "httpx",
+    "httpcore",
+    "httpcore2",
+    "httpx2",
+    "urllib3",
+    "requests",
+    "huggingface_hub",
+    "transformers",
+):
+    logging.getLogger(noisy).setLevel(logging.WARNING)
+
 
 class LotroPipelineService:
     def __init__(

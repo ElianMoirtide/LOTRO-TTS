@@ -15,13 +15,15 @@ using Microsoft.Win32;
 [assembly: AssemblyDescription("Local AI Text-to-Speech & Voice Cloning for The Lord of the Rings Online")]
 [assembly: AssemblyCompany("LOTRO-TTS")]
 [assembly: AssemblyProduct("LOTRO-TTS")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]
 
 namespace LotroTtsLauncher
 {
     public class MainForm : Form
     {
+        public const string AppVersion = "v1.2";
+
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
 
@@ -75,7 +77,7 @@ namespace LotroTtsLauncher
             RefreshSystemStatus();
 
             AppendLog("======================================================================", goldAccent);
-            AppendLog("  LOTRO-TTS v1.0 — Local AI Voiceover System for Middle-earth", goldAccent);
+            AppendLog(string.Format("  LOTRO-TTS {0} — Local AI Voiceover System for Middle-earth", AppVersion), goldAccent);
             AppendLog("======================================================================", goldAccent);
             AppendLog("Ready. Click 'START LOTRO-TTS SERVICE' to launch.", textLight);
         }
@@ -136,7 +138,7 @@ namespace LotroTtsLauncher
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, (int)(48 * dpi))); // 3: Tools Bar
             root.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));             // 4: Live Log
 
-            // 1. Header Panel (Logo + flush bottom-aligned v1.0)
+            // 1. Header Panel (Logo + flush bottom-aligned version)
             Panel headerPanel = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -154,7 +156,7 @@ namespace LotroTtsLauncher
             };
             Label lblVersion = new Label
             {
-                Text = "v1.0",
+                Text = AppVersion,
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Regular),
                 ForeColor = textMuted,
                 AutoSize = true,
@@ -163,7 +165,7 @@ namespace LotroTtsLauncher
             headerPanel.Controls.Add(lblTitle);
             headerPanel.Controls.Add(lblVersion);
 
-            // Position v1.0 flush with the bottom baseline of LOTRO-TTS
+            // Position version tag flush with the bottom baseline of LOTRO-TTS
             EventHandler layoutHeader = (s, e) =>
             {
                 lblVersion.Location = new Point(

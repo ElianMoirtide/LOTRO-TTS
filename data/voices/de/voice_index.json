@@ -20,7 +20,7 @@
       "Vágari the Wanderer"
     ],
     "original_file": "0A023A45.ogg",
-    "text": "Mit seinem letzten Artenzug wetterte er gegen Gondor, brachte Schande über sein Volk.",
+    "text": "Mit seinem letzten Atemzug wetterte er gegen Gondor, brachte Schande über sein Volk.",
     "audio_file": "de\\dead\\dead_1.ogg"
   },
   {
@@ -38,7 +38,7 @@
       "Gothmog"
     ],
     "original_file": "0A023995.ogg",
-    "text": "Ich allein bin der Geheimnisse Turingmaats, würd ich.",
+    "text": "Ich allein bin der Geheimnisse Thuringwaths würdig.",
     "audio_file": "de\\dead\\dead_2.ogg"
   },
   {
@@ -92,7 +92,7 @@
       "Black Rider"
     ],
     "original_file": "0A02CDD6.ogg",
-    "text": "Ha ha! Ihr werdet meinen Zahn spüren!",
+    "text": "Ha ha! Ihr werdet meinen Zorn spüren!",
     "audio_file": "de\\dead\\dead_5.ogg"
   },
   {
@@ -189,7 +189,7 @@
       "Múta"
     ],
     "original_file": "0A02863D.ogg",
-    "text": "Wir müssen denn die Verhöhren. Und das geht nur, wenn er am Leben bleibt.",
+    "text": "Wir müssen den Dieb verhören. Und das geht nur, wenn er am Leben bleibt.",
     "audio_file": "de\\dwarf_female\\dwarf_female_3.ogg"
   },
   {
@@ -285,7 +285,7 @@
       "Byrski Hardprow"
     ],
     "original_file": "0A024687.ogg",
-    "text": "Ich will weder König Torin noch seinen Sonentäuschen. Ich hoffe, das werde ich auch nicht.",
+    "text": "Ich will weder König Thorin noch seinen Sohn enttäuschen. Ich hoffe, das werde ich auch nicht.",
     "audio_file": "de\\dwarf_male\\dwarf_male_1.ogg"
   },
   {
@@ -408,7 +408,7 @@
       "Náin the Slakeless"
     ],
     "original_file": "0A0288CE.ogg",
-    "text": "Die Buchstücke geben eine Karte, die Zockwelle der Christalle führt.",
+    "text": "Die Bruchstücke ergeben eine Karte, die zur Quelle der Kristalle führt.",
     "audio_file": "de\\dwarf_male\\dwarf_male_5.ogg"
   },
   {
@@ -970,7 +970,7 @@
       "Gangur Farwend"
     ],
     "original_file": "0A028879.ogg",
-    "text": "Und folgen Blücke aus einem Fischdecker aus.",
+    "text": "Uns folgen Blicke aus einem Versteck heraus.",
     "audio_file": "de\\dwarf_male\\dwarf_male_21.ogg"
   },
   {
@@ -1001,7 +1001,7 @@
       "Sékhel"
     ],
     "original_file": "0A022F3F.ogg",
-    "text": "Ach, der Dauferin freund. Und sagt dafür, dass er sich nicht lächerlich macht.",
+    "text": "Achtet darauf, Herr und Freund, und sorgt dafür, dass er sich nicht lächerlich macht.",
     "audio_file": "de\\dwarf_male\\dwarf_male_22.ogg"
   },
   {
@@ -1093,7 +1093,7 @@
       "Spalvi Stout-heart"
     ],
     "original_file": "0A01EC0F.ogg",
-    "text": "Der Anblick der Stufen ist Atem berauend.",
+    "text": "Der Anblick der Stufen ist atemberaubend.",
     "audio_file": "de\\dwarf_male\\dwarf_male_25.ogg"
   },
   {
@@ -1154,7 +1154,7 @@
       "Prince Durin"
     ],
     "original_file": "0A0202B8.ogg",
-    "text": "Ich habe gehört, dass König Torin eine Aufgabe vorhört.",
+    "text": "Ich habe gehört, dass König Thorin eine Aufgabe vorbereitet.",
     "audio_file": "de\\dwarf_male\\dwarf_male_27.ogg"
   },
   {
@@ -1196,7 +1196,7 @@
       "Gêzheg"
     ],
     "original_file": "0A02B79E.ogg",
-    "text": "Als ich behug zum letzten Mal gesehen habe, hat er sich gerade das schwarze Brett angeschaut. Vielleicht ist ihm da ja etwas ins Auge gesprungen.",
+    "text": "Als ich Bori zum letzten Mal gesehen habe, hat er sich gerade das schwarze Brett angeschaut. Vielleicht ist ihm da ja etwas ins Auge gesprungen.",
     "audio_file": "de\\dwarf_male\\dwarf_male_29.ogg"
   },
   {
@@ -1216,7 +1216,7 @@
       "Khôltekh"
     ],
     "original_file": "0A020E0A.ogg",
-    "text": "der Mörder. Muss einer der anwesenden sein.",
+    "text": "Der Mörder muss einer der Anwesenden sein.",
     "audio_file": "de\\dwarf_male\\dwarf_male_30.ogg"
   },
   {
@@ -1278,7 +1278,7 @@
       "Nimrodel"
     ],
     "original_file": "0A016678.ogg",
-    "text": "findet und erschlagt Orcs entlang des Flusses. Tut es für jene, die wir verloren haben.",
+    "text": "Findet und erschlagt Orks entlang des Flusses. Tut es für jene, die wir verloren haben.",
     "audio_file": "de\\elf_female\\elf_female_1.ogg"
   },
   {
@@ -1367,7 +1367,7 @@
       "Erymbes"
     ],
     "original_file": "0A00E0AE.ogg",
-    "text": "Ma Sorg wird schon bald für all seine Schandtaten zur Rechenschaft gezogen werden.",
+    "text": "Mazog wird schon bald für all seine Schandtaten zur Rechenschaft gezogen werden.",
     "audio_file": "de\\elf_female\\elf_female_4.ogg"
   },
   {
@@ -1399,7 +1399,7 @@
       "Irsinith"
     ],
     "original_file": "0A02CD88.ogg",
-    "text": "Nun, ich weiß nicht, was das bedeutet, aber es stinkt zuständig.",
+    "text": "Nun, ich weiß nicht, was das bedeutet, aber es stinkt fürchterlich.",
     "audio_file": "de\\elf_female\\elf_female_5.ogg"
   },
   {
@@ -1525,7 +1525,7 @@
       "Avadhril"
     ],
     "original_file": "0A029789.ogg",
-    "text": "Ihr habt bei einem der Urokhei ein Bericht gefunden? Was stand darin?",
+    "text": "Ihr habt bei einem der Uruk-hai einen Bericht gefunden? Was stand darin?",
     "audio_file": "de\\elf_female\\elf_female_8.ogg"
   },
   {
@@ -1547,7 +1547,7 @@
       "Sigileth"
     ],
     "original_file": "0A00F363.ogg",
-    "text": "sucht im Krabbel, im Krabbeltal.",
+    "text": "Sucht im Krabbeltal.",
     "audio_file": "de\\elf_female\\elf_female_9.ogg"
   },
   {
@@ -1813,7 +1813,7 @@
       "Elladan"
     ],
     "original_file": "0A020E5B.ogg",
-    "text": "findet das Geheimnis des düsteren Flügels heraus und kommt dann zurück.",
+    "text": "Findet das Geheimnis des düsteren Flügels heraus und kommt dann zurück.",
     "audio_file": "de\\elf_male\\elf_male_6.ogg"
   },
   {
@@ -1859,7 +1859,7 @@
       "Orophin"
     ],
     "original_file": "0A0201E3.ogg",
-    "text": "kommt. Ich bringe euch in den Garten zu Herren.",
+    "text": "Kommt. Ich bringe euch in den Garten zum Herrn.",
     "audio_file": "de\\elf_male\\elf_male_8.ogg"
   },
   {
@@ -2163,7 +2163,7 @@
       "Mellanion"
     ],
     "original_file": "0A020E12.ogg",
-    "text": "keine Angst. Ich werde euch in die tiefen des Weides begleiten.",
+    "text": "Keine Angst. Ich werde euch in die Tiefen des Waldes begleiten.",
     "audio_file": "de\\elf_male\\elf_male_20.ogg"
   },
   {
@@ -2213,7 +2213,7 @@
       "Leafshade"
     ],
     "original_file": "0A01DFC9.ogg",
-    "text": "seid ihr bereit für meine Geschichte? Witzling?",
+    "text": "Seid ihr bereit für meine Geschichte, Winzling?",
     "audio_file": "de\\ent\\ent_1.ogg"
   },
   {
@@ -2292,7 +2292,7 @@
       "Leri Grudd"
     ],
     "original_file": "0A029810.ogg",
-    "text": "Ihr tragt da ein interessantes Artefakt! Es hat sich ja eine tolle Geschichte!",
+    "text": "Ihr tragt da ein interessantes Artefakt! Es hat sicher eine tolle Geschichte!",
     "audio_file": "de\\hobbit_female\\hobbit_female_4.ogg"
   },
   {
@@ -2525,7 +2525,7 @@
       "Clothar Sandheaver"
     ],
     "original_file": "0A01EA48.ogg",
-    "text": "Ich habe Geschichten über Gestaltwandel gehört, hätte aber nie gedacht, je einzugesicht zu bekommen.",
+    "text": "Ich habe Geschichten über Gestaltwandler gehört, hätte aber nie gedacht, je einen zu Gesicht zu bekommen.",
     "audio_file": "de\\hobbit_male\\hobbit_male_3.ogg"
   },
   {
@@ -2834,7 +2834,7 @@
       "Anírwen"
     ],
     "original_file": "0A01D16E.ogg",
-    "text": "Er war immer nett zu mir. Ich mochte sein bussigen roten Bart.",
+    "text": "Er war immer nett zu mir. Ich mochte seinen buschigen roten Bart.",
     "audio_file": "de\\man_female\\man_female_5.ogg"
   },
   {
@@ -2988,7 +2988,7 @@
       "Mêj-dhug-Mêj"
     ],
     "original_file": "0A02CA09.ogg",
-    "text": "seid gegrüßt. Ich brauche weitere Proben, um sie ins Hajana zu studieren.",
+    "text": "Seid gegrüßt. Ich brauche weitere Proben, um sie in Harad zu studieren.",
     "audio_file": "de\\man_female\\man_female_9.ogg"
   },
   {
@@ -3452,7 +3452,7 @@
       "Brútha the Wayward"
     ],
     "original_file": "0A02AEDC.ogg",
-    "text": "einen Augenblick. Wenn diese Markierung stimmt, dann haben wir vielleicht das Wack der Ekteldur gefunden.",
+    "text": "Einen Augenblick. Wenn diese Markierung stimmt, dann haben wir vielleicht das Wrack der Echidiel gefunden.",
     "audio_file": "de\\man_female\\man_female_23.ogg"
   },
   {
@@ -3518,7 +3518,7 @@
       "Dhên-maka-Kwêl"
     ],
     "original_file": "0A01E296.ogg",
-    "text": "Im Rahil ist dem Falk sehr beliebt, aber seine Tochter Lotiriel konnte sich noch nicht als Anführerin bewähren.",
+    "text": "Imrahil ist beim Volk sehr beliebt, aber seine Tochter Lothíriel konnte sich noch nicht als Anführerin bewähren.",
     "audio_file": "de\\man_female\\man_female_25.ogg"
   },
   {
@@ -3540,7 +3540,7 @@
       "Lastriel"
     ],
     "original_file": "0A02A7FF.ogg",
-    "text": "Ha! Ich hoffe, sie haben Spaß dabei, durch den Match zu stapfen.",
+    "text": "Ha! Ich hoffe, sie haben Spaß dabei, durch den Matsch zu stapfen.",
     "audio_file": "de\\man_female\\man_female_26.ogg"
   },
   {
@@ -3571,7 +3571,7 @@
       "Unusâli"
     ],
     "original_file": "0A02C9A8.ogg",
-    "text": "Gute Scherer ist ein Geschenk, das geteilt gehört. Ach was? Gute Scherer! Der beste Scherer!",
+    "text": "Guter Scherz ist ein Geschenk, das geteilt gehört. Ach was, guter Scherz! Der beste Scherz!",
     "audio_file": "de\\man_female\\man_female_27.ogg"
   },
   {
@@ -3715,7 +3715,7 @@
       "Golwen"
     ],
     "original_file": "0A02B48A.ogg",
-    "text": "und wieder steht ihr vor mir.",
+    "text": "Und wieder steht ihr vor mir.",
     "audio_file": "de\\man_female\\man_female_33.ogg"
   },
   {
@@ -3733,7 +3733,7 @@
       "Jâdira"
     ],
     "original_file": "0A02B480.ogg",
-    "text": "was ich von den Verwandten der Münzen halte. Das ist schwer zu beantworten.",
+    "text": "Was ich von den Verwandten der Menschen halte? Das ist schwer zu beantworten.",
     "audio_file": "de\\man_female\\man_female_34.ogg"
   },
   {
@@ -3784,7 +3784,7 @@
       "Rahâzi"
     ],
     "original_file": "0A02AEAA.ogg",
-    "text": "Danke, legt die Eier dort hin. Wenn ihr mich nun entschuldigen würdet, ich muss ein paar Ziegen füttern. Sobald ich herausgefunden habe, wo sie abgeblieben sind. Oh, je!",
+    "text": "Danke, legt die Eier dorthin. Wenn ihr mich nun entschuldigen würdet, ich muss ein paar Ziegen füttern, sobald ich herausgefunden habe, wo sie abgeblieben sind. Oh je!",
     "audio_file": "de\\man_female\\man_female_36.ogg"
   },
   {
@@ -3828,7 +3828,7 @@
       "Bracha"
     ],
     "original_file": "0A01CD66.ogg",
-    "text": "habt ihr etwas Zeit für eine alte Frau Botschaftenbringer?",
+    "text": "Habt ihr etwas Zeit für eine alte Frau, Botschaftenbringer?",
     "audio_file": "de\\man_female\\man_female_38.ogg"
   },
   {
@@ -4064,7 +4064,7 @@
       "Toghan"
     ],
     "original_file": "0A02DA7D.ogg",
-    "text": "Bargatou lebt! Ich bin froh, dass meine Krieger bald zurückkehren werden.",
+    "text": "Barathur lebt! Ich bin froh, dass meine Krieger bald zurückkehren werden.",
     "audio_file": "de\\man_male\\man_male_2.ogg"
   },
   {
@@ -4190,7 +4190,7 @@
       "Khutor"
     ],
     "original_file": "0A02C7F9.ogg",
-    "text": "Die Leute haben gefordert, dass ich den Kart im Geh dabei trete. Als Hafenmeister konnte ich mich nicht weigern.",
+    "text": "Die Leute haben gefordert, dass ich den Gardisten beitrete. Als Hafenmeister konnte ich mich nicht weigern.",
     "audio_file": "de\\man_male\\man_male_4.ogg"
   },
   {
@@ -4311,7 +4311,7 @@
       "Hrûd-buri-Khêsh"
     ],
     "original_file": "0A02B1F1.ogg",
-    "text": "Ein Mann aus Kondor hat ein neuen Marktstand im Siegelhafen eröffnet.",
+    "text": "Ein Mann aus Gondor hat einen neuen Marktstand im Segelhafen eröffnet.",
     "audio_file": "de\\man_male\\man_male_7.ogg"
   },
   {
@@ -4414,7 +4414,7 @@
       "Thrymm Red-beard"
     ],
     "original_file": "0A01EE81.ogg",
-    "text": "Hinter diesem Tour liegt der Drittering, der Handwerkering.",
+    "text": "Hinter diesem Tor liegt der dritte Ring, der Handwerkerring.",
     "audio_file": "de\\man_male\\man_male_9.ogg"
   },
   {
@@ -4568,7 +4568,7 @@
       "Hadorion"
     ],
     "original_file": "0A01FAF5.ogg",
-    "text": "Wirdet ihr du ihn hier fragen, ob er bereit dazu ist, seine Söhne zu identifizieren?",
+    "text": "Würdet ihr Duinhir fragen, ob er bereit dazu ist, seine Söhne zu identifizieren?",
     "audio_file": "de\\man_male\\man_male_10.ogg"
   },
   {
@@ -4840,7 +4840,7 @@
       "Ghôl-buri-Prân"
     ],
     "original_file": "0A01E6AA.ogg",
-    "text": "Grimbeern fordert euch auf eure beste Ausrüstung einzusetzen.",
+    "text": "Grimbeorn fordert euch auf, eure beste Ausrüstung einzusetzen.",
     "audio_file": "de\\man_male\\man_male_18.ogg"
   },
   {
@@ -5032,7 +5032,7 @@
       "Rovalang"
     ],
     "original_file": "0A01F06D.ogg",
-    "text": "Der Fünftering ist der gelehrten Ring und er ist ein Ort des Lernens.",
+    "text": "Der fünfte Ring ist der Gelehrtenring, und er ist ein Ort des Lernens.",
     "audio_file": "de\\man_male\\man_male_22.ogg"
   },
   {
@@ -5246,7 +5246,7 @@
       "Celonor"
     ],
     "original_file": "0A01CB28.ogg",
-    "text": "Jeder diese Gegenstände war ein Geschenk.",
+    "text": "Jeder dieser Gegenstände war ein Geschenk.",
     "audio_file": "de\\man_male\\man_male_26.ogg"
   },
   {
@@ -5367,7 +5367,7 @@
       "Azatikh"
     ],
     "original_file": "0A01F059.ogg",
-    "text": "Echer dann hat euch gebeten mit Partner dann zu sprechen. Das ist eine gute Idee.",
+    "text": "Echadon hat euch gebeten mit Barfindon zu sprechen? Das ist eine gute Idee.",
     "audio_file": "de\\man_male\\man_male_29.ogg"
   },
   {
@@ -5408,7 +5408,7 @@
       "Thurindol"
     ],
     "original_file": "0A0296A6.ogg",
-    "text": "Ich muss zugeben, ich hatte nicht erwartet, dass wir zurückkehrt. So schnell mein ich.",
+    "text": "Ich muss zugeben, ich hatte nicht erwartet, dass ihr zurückkehrt. So schnell, meine ich.",
     "audio_file": "de\\man_male\\man_male_30.ogg"
   },
   {
@@ -5516,7 +5516,7 @@
       "Driftwood"
     ],
     "original_file": "0A02A75E.ogg",
-    "text": "könnt ihr mir vielleicht einen gefallen tun? Bringt dieses Leucht, Feueröl zu halben, damit sie es sicher verwaren kann.",
+    "text": "Könnt ihr mir vielleicht einen Gefallen tun? Bringt dieses Leuchtfeueröl zu Haewen, damit sie es sicher verwahren kann.",
     "audio_file": "de\\man_male\\man_male_33.ogg"
   },
   {
@@ -5549,7 +5549,7 @@
       "Sirgon"
     ],
     "original_file": "0A029788.ogg",
-    "text": "Was könnten solche kreaturen hier in Herne wollen?",
+    "text": "Was könnten solche entsetzlichen Kreaturen hier in Herne wollen?",
     "audio_file": "de\\man_male\\man_male_34.ogg"
   },
   {
@@ -5595,7 +5595,7 @@
       "Meldir"
     ],
     "original_file": "0A010455.ogg",
-    "text": "Ich habe Sererdanz fährt mit einem neuen Hufersorgz. Jetzt wird es keine Probleme mehr haben.",
+    "text": "Ich habe Saeradans Pferd mit einem neuen Hufverschluss versorgt. Jetzt wird es keine Probleme mehr haben.",
     "audio_file": "de\\man_male\\man_male_35.ogg"
   },
   {
@@ -5654,7 +5654,7 @@
       "Sêk-pulo-Têg"
     ],
     "original_file": "0A01FEE6.ogg",
-    "text": "Nutzt die Kleidung, die ich euch gegeben habe, um U-Grokoer und anderen wie ihm ein Ende zu bereiten.",
+    "text": "Nutzt die Kleidung, die ich euch gegeben habe, um Ugrukhor und anderen wie ihm ein Ende zu bereiten.",
     "audio_file": "de\\man_male\\man_male_37.ogg"
   },
   {
@@ -5684,7 +5684,7 @@
       "Gerwyn"
     ],
     "original_file": "0A0126C0.ogg",
-    "text": "bis zum Ende stark zu bleiben, bringt rum mit sich. Selbst wenn dieses Ende trübse nicht ist.",
+    "text": "Bis zum Ende stark zu bleiben, bringt Ruhm mit sich, selbst wenn dieses Ende trübsinnig ist.",
     "audio_file": "de\\man_male\\man_male_38.ogg"
   },
   {
@@ -6047,7 +6047,7 @@
       "Radagast"
     ],
     "original_file": "0A020F9D.ogg",
-    "text": "wenden wir uns wieder der Heilung dieses Valtes zu.",
+    "text": "Wenden wir uns wieder der Heilung dieses Waldes zu.",
     "audio_file": "de\\man_male\\man_male_46.ogg"
   },
   {
@@ -6170,7 +6170,7 @@
       "Arshûk"
     ],
     "original_file": "0A029783.ogg",
-    "text": "Aber derartige Überlegungen müssen warten, denn der Winternat und der Herbst verwalt nicht.",
+    "text": "Aber derartige Überlegungen müssen warten, denn der Winter naht und der Herbst verweilt nicht.",
     "audio_file": "de\\man_male\\man_male_50.ogg"
   },
   {
@@ -6249,7 +6249,7 @@
       "Zerlúk"
     ],
     "original_file": "0A01B8B0.ogg",
-    "text": "Bringt mir eine Groc Blase oder ich erzähle euch gar nichts.",
+    "text": "Bringt mir eine Grogblase oder ich erzähle euch gar nichts!",
     "audio_file": "de\\orc\\orc_3.ogg"
   },
   {
@@ -6289,7 +6289,7 @@
       "Ashaug"
     ],
     "original_file": "0A023712.ogg",
-    "text": "Nie. Könnte ich mich noch rühren. Wird dir längst tot.",
+    "text": "Nee... Könnte ich mich noch rühren, wärt ihr längst tot!",
     "audio_file": "de\\orc\\orc_5.ogg"
   },
   {
@@ -6307,7 +6307,7 @@
       "Mauznákh the Ruined"
     ],
     "original_file": "0A0203B8.ogg",
-    "text": "Ihr! Ihr werdet das Werkzeug meiner Rache sein. Kommt mehr! Ich werde euch alles erzählen.",
+    "text": "Ihr! Ihr werdet das Werkzeug meiner Rache sein. Kommt näher! Ich werde euch alles erzählen.",
     "audio_file": "de\\orc\\orc_6.ogg"
   },
   {

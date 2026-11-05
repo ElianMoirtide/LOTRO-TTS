@@ -11,6 +11,7 @@ import sqlite3
 import argparse
 import random
 import unicodedata
+import threading
 from pathlib import Path
 import numpy as np
 import soundfile as sf
@@ -23,7 +24,7 @@ except ImportError:
     sys.exit(1)
 
 # Version tag included in audio cache keys so outdated cached clips are invalidated
-SPEAKER_ENGINE_VERSION = "v5"
+SPEAKER_ENGINE_VERSION = "v6"
 
 
 def _norm_npc_key(name: str | None) -> str:
@@ -43,10 +44,11 @@ class LotroSpeaker:
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Initializing LOTRO-TTS Speaker Engine on [{self.device}]...")
 
-        # Load OmniVoice model once
-        self.model = OmniVoice.from_pretrained("k2-fsa/OmniVoice")
+        # Load OmniVoice model once (FP16 half-precision on CUDA for 2x faster Tensor Core inference)
+        model_dtype = torch.float16 if self.device == "cuda" else torch.float32
+        self.model = OmniVoice.from_pretrained("k2-fsa/OmniVoice", torch_dtype=model_dtype)
         self.model = self.model.to(self.device)
-        print("OmniVoice model loaded successfully!")
+        print(f"OmniVoice model loaded successfully (dtype: {model_dtype})!")
 
         # Cache of pre-encoded VoiceClonePrompt objects & reference audio durations
         self._prompt_cache = {}
@@ -79,31 +81,29 @@ class LotroSpeaker:
                 self.by_voice_id[lang] = {}
                 self.by_npc_name[lang] = {}
 
-        # Warm up OmniVoice with a silent 1-word generation to initialize CUDA kernels & VRAM allocations
+        # Warm up OmniVoice with a silent mini-generation to initialize CUDA kernels & VRAM allocations,
+        # and pre-cache default narrator voice prompts so quest dialogues start with 0ms prompt latency.
         self._warmup_engine()
 
     def _warmup_engine(self):
-        """Performs a silent mini-generation to pre-warm CUDA kernels and avoid first-sentence latency."""
+        """Performs a silent mini-generation to pre-warm CUDA kernels and pre-caches narrator voice prompts."""
         try:
-            ref_item = None
-            for l in ["en", "de", "fr"]:
-                items = self.indices.get(l, [])
-                if items:
-                    ref_item = next((it for it in items if not it.get("voice_id", "").startswith("npc_")), items[0])
-                    break
-
-            if ref_item:
-                ref_audio_path = self.voices_dir / ref_item["audio_file"]
-                if ref_audio_path.exists():
-                    print(f"Pre-warming TTS engine kernels on [{self.device}]...")
-                    _ = self.model.generate(
-                        text="Greetings.",
-                        ref_audio=str(ref_audio_path),
-                        ref_text=ref_item.get("text", "Greetings."),
-                        language="en",
-                        postprocess_output=False
-                    )
-                    print("TTS engine pre-warmed and ready for instant playback!")
+            print(f"Pre-warming TTS engine kernels on [{self.device}]...")
+            _ = self.model.generate(
+                text="Greetings.",
+                language="en",
+                num_step=16,
+                postprocess_output=False
+            )
+            # Pre-cache narrator voice prompts so narrator/object quests have 0ms prompt encoding delay
+            for l, narr_id in [("de", "man_male_1"), ("en", "man_male_1"), ("fr", "man_male_15")]:
+                if l in self.indices and narr_id in self.by_voice_id.get(l, {}):
+                    cand = self.by_voice_id[l][narr_id]
+                    p_path = self.voices_dir / cand["audio_file"]
+                    if p_path.exists():
+                        ref_l = "fr" if (l == "fr" and cand.get("is_native_french", True)) else ("en" if l != "de" else "de")
+                        self._get_voice_prompt_and_duration(narr_id, ref_l, p_path, cand["text"])
+            print("TTS engine pre-warmed and narrator voices ready for instant playback!")
         except Exception as e:
             print(f"TTS warm-up notice: {e}")
 
@@ -178,7 +178,7 @@ class LotroSpeaker:
 
     def select_voice_template(self, category, lang="de", seed_key=None, preferred_voice_id=None):
         """Selects reference audio and sidecar transcript for cloning (prioritizing 1:1 NPC voice when available)."""
-        # For languages without authentic LOTRO audio samples (e.g. Spanish 'es', Italian 'it'),
+        # For languages without authentic LOTRO audio samples (e.g. Spanish 'es', Italian 'it', Dutch 'nl'),
         # use the authentic English reference audio pool for cross-lingual zero-shot cloning.
         ref_lang = lang if lang in self.indices and self.indices[lang] else "en"
         lang_items = self.indices.get(ref_lang, [])
@@ -186,8 +186,8 @@ class LotroSpeaker:
         npc_map = self.by_npc_name.get(ref_lang, {})
 
         # 1. Fixed narrator voice for inanimate objects & untargeted narrator texts
-        # In French, man_male_15 (Athelward: "Bienvenue à Cleaving, ami venu de loin.") is used
-        # to ensure a calm, welcoming storyteller voice and avoid Horn's distressed/melodramatic delivery.
+        # In French, man_male_15 (Athelward: "Bienvenue à Cléving, ami venu de loin.") is used
+        # to ensure a calm, welcoming storyteller voice and avoid Horn's distressed delivery.
         if category == "narrator" and not preferred_voice_id:
             if lang == "fr":
                 preferred_voice_id = "man_male_15"
@@ -199,7 +199,8 @@ class LotroSpeaker:
             cand = voice_map[preferred_voice_id]
             cand_path = self.voices_dir / cand["audio_file"]
             if cand_path.exists():
-                return cand["voice_id"], cand_path, cand["text"], ref_lang
+                c_lang = "en" if cand.get("is_native_french") is False else ref_lang
+                return cand["voice_id"], cand_path, cand["text"], c_lang
 
         # 3. Direct verified NPC name match (covers diacritic variants like Gloin -> Glóin)
         if seed_key:
@@ -208,7 +209,8 @@ class LotroSpeaker:
                 cand = npc_map[norm_seed]
                 cand_path = self.voices_dir / cand["audio_file"]
                 if cand_path.exists():
-                    return cand["voice_id"], cand_path, cand["text"], ref_lang
+                    c_lang = "en" if cand.get("is_native_french") is False else ref_lang
+                    return cand["voice_id"], cand_path, cand["text"], c_lang
 
         # 4. Category pool lookup
         cat_matches = [it for it in lang_items if it["category"] == category]
@@ -223,6 +225,12 @@ class LotroSpeaker:
         if not cat_matches:
             raise FileNotFoundError(f"No voice templates found for category '{category}' and language '{lang}'")
 
+        # For French, prioritize authentic French LOTRO voice recordings when available in the pool
+        if lang == "fr":
+            native_matches = [it for it in cat_matches if it.get("is_native_french")]
+            if native_matches:
+                cat_matches = native_matches
+
         if seed_key:
             import zlib
             idx = zlib.crc32(str(seed_key).encode("utf-8")) % len(cat_matches)
@@ -232,8 +240,9 @@ class LotroSpeaker:
 
         ref_audio_path = self.voices_dir / selected["audio_file"]
         ref_text = selected["text"]
+        selected_ref_lang = "en" if selected.get("is_native_french") is False else ref_lang
 
-        return selected["voice_id"], ref_audio_path, ref_text, ref_lang
+        return selected["voice_id"], ref_audio_path, ref_text, selected_ref_lang
 
     def _get_voice_prompt_and_duration(self, voice_id, ref_lang, ref_audio_path, ref_text):
         """
@@ -318,8 +327,9 @@ class LotroSpeaker:
         pad = np.zeros(int(0.08 * sample_rate), dtype=np.float32)
         return np.concatenate([wav, pad])
 
-    def _synthesize_chunk(self, text_chunk, voice_id, ref_lang, ref_audio, ref_text, lang, category):
-        """Synthesizes a single sentence/chunk with calibrated duration and intact word endings."""
+    @torch.inference_mode()
+    def _synthesize_chunk(self, text_chunk, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=24):
+        """Synthesizes a single sentence/chunk with calibrated duration, intact word endings, and tuned diffusion steps."""
         prompt, ref_dur = self._get_voice_prompt_and_duration(voice_id, ref_lang, ref_audio, ref_text)
         target_dur = self._estimate_natural_duration(text_chunk, ref_text, ref_dur, category=category)
 
@@ -328,20 +338,19 @@ class LotroSpeaker:
             voice_clone_prompt=prompt,
             language=lang,
             duration=target_dur,
+            num_step=num_step,
             postprocess_output=False
         )
         return self._clean_generated_chunk(res[0], sample_rate=24000)
 
     def _split_dialogue_chunks(self, text: str, lang: str = "de") -> list[str]:
         """
-        Intelligently splits dialogue into natural speech chunks:
-        1. Never breaks on ellipses ('...' or '…') which represent internal hesitations.
-        2. Protects honorifics & abbreviations (M., Mme., Dr., etc., z.B., etc.).
-        3. Preserves trailing quotation marks with their preceding sentence.
-        4. Merges tiny fragments (< 4 words or < 18 chars) with their neighbor to eliminate
-           buffer-underrun stalls where playback stops in the middle of a sentence.
-        5. For the first chunk: if long (> 10 words & > 60 chars), splits at the first natural
-           clause boundary (comma, semicolon, dash) so speech playback starts in < 0.5s!
+        Intelligently splits dialogue purely on complete, grammatical sentence boundaries:
+        1. Never splits inside sentences at commas or subclauses (preserves natural intonation & prosody).
+        2. Never breaks on ellipses ('...' or '…') which represent internal dramatic pauses/hesitations.
+        3. Protects honorifics & abbreviations (M., Mme., Dr., etc., z.B., etc.).
+        4. Preserves speech tags ("« Regardez ! » dit-il") with their preceding quote.
+        5. Merges tiny fragments (< 4 words or < 18 chars) so isolated words do not create audio buffer stalls.
         """
         import re
 
@@ -368,8 +377,7 @@ class LotroSpeaker:
         # Normalize spaces before closing quotes in French typography (e.g. "Oui ! »" -> "Oui !»")
         protected = re.sub(r'([.!?])\s+([»”"\x27])', r'\1\2', protected)
 
-        # Split on sentence boundaries (. ! ?) followed by whitespace and an uppercase letter / quote.
-        # This keeps speech tags ("« Regardez ! » dit-il") together in one clause and prevents mid-sentence stops.
+        # Split on sentence boundaries (. ! ?) followed by whitespace and an uppercase letter / quote / end.
         raw_splits = re.split(r'([.!?]+[\x27\x22\u00bb\u201d]*)\s+(?=[A-ZÀ-ÖØ-ß«“"\x27]|$)', protected)
         parts = []
         if len(raw_splits) == 1:
@@ -389,7 +397,7 @@ class LotroSpeaker:
             if p:
                 restored.append(p)
 
-        # Merge very short chunks into neighbors to prevent buffer starvation and dead-silence gaps
+        # Merge very short chunks into neighbors so isolated words don't create audio buffer underruns
         merged = []
         for p in restored:
             w_count = len(p.split())
@@ -398,13 +406,11 @@ class LotroSpeaker:
             else:
                 merged.append(p)
 
-        # Fast-start optimization for Chunk 0:
-        # If the first sentence is long (> 10 words & > 60 chars), split at the first clause break
-        if merged and len(merged[0].split()) > 10 and len(merged[0]) > 60:
-            first_sent = merged[0]
-            m = re.search(r'^(.{18,80}?[,;:—])\s+(.+)$', first_sent)
-            if m and len(m.group(1).split()) >= 4 and len(m.group(2).split()) >= 3:
-                merged = [m.group(1), m.group(2)] + merged[1:]
+        # If the very first sentence is tiny (< 4 words or < 18 chars) and more sentences follow,
+        # merge it with the second sentence for natural opening prosody and buffer safety
+        if len(merged) > 1 and (len(merged[0].split()) < 4 or len(merged[0]) < 18):
+            merged[1] = merged[0] + " " + merged[1]
+            merged.pop(0)
 
         return merged
 
@@ -414,7 +420,6 @@ class LotroSpeaker:
         Includes persistent disk cache and sentence-level streaming for instant playback.
         """
         import hashlib
-        import re
 
         text = text.strip()
         if not text:
@@ -456,24 +461,31 @@ class LotroSpeaker:
         # 2. STREAMING OR DIRECT SYNTHESIS
         sentences = self._split_dialogue_chunks(text, lang=lang)
 
-        # If short text (1 sentence and < 140 chars), generate directly
+        # If short text (1 sentence and < 140 chars), generate directly and play from RAM immediately
         if len(sentences) <= 1 and len(text) < 140:
             audio_data = self._synthesize_chunk(
-                text, voice_id, ref_lang, ref_audio, ref_text, lang, category
+                text, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=24
             )
-            sf.write(str(cached_wav), audio_data, 24000)
-            self.play_audio(cached_wav)
+            # Immediate in-memory playback with 0ms disk delay
+            self.play_memory_audio(audio_data, sample_rate=24000)
+            # Asynchronously write to persistent cache in background daemon thread
+            if not output_path:
+                threading.Thread(
+                    target=sf.write,
+                    args=(str(cached_wav), audio_data, 24000),
+                    daemon=True
+                ).start()
+            else:
+                sf.write(str(cached_wav), audio_data, 24000)
             return cached_wav
 
         # For multi-sentence texts, generate and stream sentence by sentence
-        # (Generating sentence-by-sentence also prevents diffusion attention drift on long paragraphs!)
         self._stream_speech(sentences, voice_id, ref_lang, ref_audio, ref_text, lang, category, cached_wav)
         return cached_wav
 
     def _stream_speech(self, sentences, voice_id, ref_lang, ref_audio, ref_text, lang, category, final_cached_wav):
         """Generates and plays sentences sequentially with zero wait-time between chunks."""
         import queue
-        import threading
 
         audio_queue = queue.Queue()
         stop_event = threading.Event()
@@ -509,8 +521,10 @@ class LotroSpeaker:
 
         try:
             for i, sent in enumerate(sentences):
+                # First sentence uses num_step=22 for rapid time-to-first-sound; subsequent use 24
+                step_count = 22 if i == 0 else 24
                 chunk = self._synthesize_chunk(
-                    sent, voice_id, ref_lang, ref_audio, ref_text, lang, category
+                    sent, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=step_count
                 )
                 all_chunks.append(chunk)
                 audio_queue.put(chunk)
@@ -520,9 +534,42 @@ class LotroSpeaker:
             stop_event.set()
             play_t.join()
 
+        # Write final full dialogue to persistent cache in background thread
         if all_chunks:
             full_audio = np.concatenate(all_chunks)
-            sf.write(str(final_cached_wav), full_audio, 24000)
+            threading.Thread(
+                target=sf.write,
+                args=(str(final_cached_wav), full_audio, 24000),
+                daemon=True
+            ).start()
+
+    def play_memory_audio(self, audio_data, sample_rate=24000):
+        """Plays float32 audio array directly from memory without touching the hard drive."""
+        try:
+            import winsound
+            import io
+            import wave
+
+            int16_data = (np.clip(audio_data, -1.0, 1.0) * 32767.0).astype(np.int16)
+            mem_wav = io.BytesIO()
+            with wave.open(mem_wav, "wb") as wf:
+                wf.setnchannels(1)
+                wf.setsampwidth(2)
+                wf.setframerate(sample_rate)
+                wf.writeframes(int16_data.tobytes())
+            winsound.PlaySound(mem_wav.getvalue(), winsound.SND_MEMORY | winsound.SND_ASYNC)
+            return
+        except Exception:
+            pass
+
+        # Fallback for systems without winsound
+        import tempfile
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                sf.write(tmp.name, audio_data, sample_rate)
+                self.play_audio(Path(tmp.name))
+        except Exception:
+            pass
 
     def play_audio(self, audio_file):
         """Plays a WAV file asynchronously or via standard system sound."""

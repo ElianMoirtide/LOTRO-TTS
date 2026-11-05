@@ -49,14 +49,21 @@ LEVEL_META_PREFIXES = (
     "questlevel",
     "aufgabenstufe",
     "niveaudequete",
+    "niveau",
+    "nivead",
     "typesolo",
     "typsolo",
     "typefellowship",
     "typgefahrten",
     "typesmallfellowship",
     "typeraid",
+    "typepetitecommunaute",
+    "typecommunaute",
+    "type",
+    "tyti",
     "repeatable",
     "wiederholbar",
+    "repetable",
 )
 
 # Normalized headers for the right-hand Objectives / Rewards column inside LOTRO Quest & Instance dialogs
@@ -67,6 +74,9 @@ OBJECTIVE_HEADERS = (
     "nachstesziel",
     "aktuellesziel",
     "ziele",
+    "prochainobjectif",
+    "prochainsobjectifs",
+    "prochain",
     "objectifsuivant",
     "objectifactuel",
     "objectifs",
@@ -267,11 +277,11 @@ class LotroScreenReader:
         n = b["norm"]
         if any(n.startswith(p) for p in LEVEL_META_PREFIXES):
             return True
-        if re.search(r"^(qu[ei]stlevel|aufgabenstufe|niveaudequ|ty[pf]esolo|ty[pf]efellowship)", n):
+        if re.search(r"^(qu[ei]stlevel|aufgabenstufe|niveaude?qu|nivea[ud]\b|ty[pf]esolo|ty[pf]efellowship|ty[pf]e|tyti)", n):
             return True
         return bool(
             re.search(
-                r"\b(QU[EI]ST\s*LEVEL|AUFGABENSTUFE|NIVEAU\s*DE\s*QU|TY[PF]E?\s*[:;])\b",
+                r"\b(QU[EI]ST\s*LEVEL|AUFGABENSTUFE|NIVEAU\s*DE\s*QU|NIVEA[UD]\s*[:;0-9]|TY[PF]E?\s*[:;])\b",
                 b["text"],
                 re.IGNORECASE,
             )
@@ -802,6 +812,13 @@ class LotroScreenReader:
             cleaned_dialog_lines.append(t)
 
         dialog_text = "\n\n".join(cleaned_dialog_lines)
+        if not db_text and target_npc:
+            fb_qid, fb_title, fb_text, fb_npc_id = self._match_title_in_db_with_npc(
+                clean_title, target_npc=target_npc, lang=lang, dialog_text=dialog_text
+            )
+            if fb_text:
+                q_id, db_title, db_text, q_npc_id = fb_qid, fb_title, fb_text, fb_npc_id
+                final_title = db_title
         final_text = db_text if db_text else dialog_text
 
         # Compute tight dialog window bounding box strictly from THIS dialog's constituent boxes
@@ -844,7 +861,7 @@ class LotroScreenReader:
         return q_id, db_title, db_text
 
     def _match_title_in_db_with_npc(
-        self, title: str, target_npc: str = "", lang: str = "de"
+        self, title: str, target_npc: str = "", lang: str = "de", dialog_text: str = ""
     ) -> Tuple[Optional[int], Optional[str], Optional[str], Optional[int]]:
         """
         Matches a candidate title against the in-memory quest index (~0.1ms)
@@ -912,6 +929,57 @@ class LotroScreenReader:
                         candidate_matches.append((qid, raw_t))
                 if candidate_matches:
                     break
+
+        if not candidate_matches and target_npc:
+            try:
+                conn = sqlite3.connect(str(self.db_path))
+                cur = conn.cursor()
+                text_col = f"text_{lang_clean}"
+                cur.execute(
+                    f"""
+                    SELECT q.id, q.title_{lang_clean}, q.title_en, qt.{text_col}, qt.text_en, qt.npc_id
+                    FROM Quests q
+                    JOIN Quest_Texts qt ON q.id = qt.quest_id
+                    JOIN NPCs n ON qt.npc_id = n.id
+                    WHERE (
+                        LOWER(COALESCE(n.name_de, '')) = LOWER(?) OR
+                        LOWER(COALESCE(n.name_en, '')) = LOWER(?) OR
+                        LOWER(COALESCE(n.name_fr, '')) = LOWER(?) OR
+                        LOWER(COALESCE(n.name_es, '')) = LOWER(?)
+                    ) AND qt.text_type IN ('bestower', 'dialog', 'description')
+                    """,
+                    (target_npc, target_npc, target_npc, target_npc),
+                )
+                rows = cur.fetchall()
+                conn.close()
+
+                norm_title_query = normalize_text_for_matching(title)
+                norm_diag_query = normalize_text_for_matching(dialog_text[:80])
+
+                best_q = None
+                best_score = 0.0
+                for qid, q_title, q_title_en, q_text, q_text_en, q_npc_id in rows:
+                    raw_t = q_title or q_title_en
+                    norm_t = normalize_text_for_matching(raw_t)
+                    t_sim = SequenceMatcher(None, norm_title_query, norm_t).ratio()
+
+                    norm_q_text = normalize_text_for_matching((q_text or q_text_en or "")[:80])
+                    d_sim = (
+                        SequenceMatcher(None, norm_diag_query[:40], norm_q_text[:40]).ratio()
+                        if norm_diag_query and norm_q_text
+                        else 0.0
+                    )
+
+                    score = t_sim * 0.4 + d_sim * 0.6
+                    if (d_sim >= 0.55 or t_sim >= 0.60) and score > best_score:
+                        best_score = score
+                        matched_text = self._format_player_placeholders(q_text or q_text_en, lang_clean)
+                        best_q = (qid, raw_t, matched_text, q_npc_id)
+
+                if best_q:
+                    return best_q
+            except Exception as e:
+                print(f"[LotroScreenReader] NPC fallback error: {e}", file=sys.stderr)
 
         if not candidate_matches:
             return None, None, None, None

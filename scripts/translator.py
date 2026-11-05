@@ -12,6 +12,19 @@ from pathlib import Path
 
 logger = logging.getLogger("LOTRO-Translator")
 
+# Suppress noisy HTTP, connection-pool, and HuggingFace background download logs
+for noisy in (
+    "httpx",
+    "httpcore",
+    "httpcore2",
+    "httpx2",
+    "urllib3",
+    "requests",
+    "huggingface_hub",
+    "transformers",
+):
+    logging.getLogger(noisy).setLevel(logging.WARNING)
+
 # Supported language pairs and corresponding HuggingFace model IDs
 SUPPORTED_TRANSLATION_MODELS = {
     "it": "Helsinki-NLP/opus-mt-en-it",
@@ -63,6 +76,15 @@ class LotroTranslator:
         pair_key = f"{src_lang}_{target_lang}"
         if target_lang not in SUPPORTED_TRANSLATION_MODELS and pair_key not in SUPPORTED_TRANSLATION_MODELS:
             return
+
+        # When client is German or French, lotro.db quest matching uses clean English text
+        # for translation (producing vastly superior Dutch/Italian text); preload English pair too!
+        if src_lang != "en" and target_lang in ("nl", "it"):
+            try:
+                self._get_model_and_tokenizer(target_lang, src_lang="en")
+            except Exception:
+                pass
+
         model, tokenizer = self._get_model_and_tokenizer(target_lang, src_lang=src_lang)
         try:
             import torch
@@ -70,7 +92,8 @@ class LotroTranslator:
             inputs = tokenizer("Greetings.", return_tensors="pt", padding=True, truncation=True)
             if device == "cuda":
                 inputs = {k: v.to("cuda") for k, v in inputs.items()}
-            _ = model.generate(**inputs, max_length=16)
+            with torch.inference_mode():
+                _ = model.generate(**inputs, max_length=16)
         except Exception:
             pass
 
@@ -93,8 +116,17 @@ class LotroTranslator:
         from transformers import MarianMTModel, MarianTokenizer
         import torch
 
-        logging.getLogger("httpx").setLevel(logging.WARNING)
-        logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+        for noisy in (
+            "httpx",
+            "httpcore",
+            "httpcore2",
+            "httpx2",
+            "urllib3",
+            "requests",
+            "huggingface_hub",
+            "transformers",
+        ):
+            logging.getLogger(noisy).setLevel(logging.WARNING)
 
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message=".*sacremoses.*")

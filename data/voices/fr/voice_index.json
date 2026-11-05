@@ -20,8 +20,9 @@
       "Vágari the Wanderer"
     ],
     "original_file": "0A023A45.ogg",
-    "text": "Même avec ses derniers bruits, ils rèdent contre Gondor et s'achètent les gens.",
-    "audio_file": "fr\\dead\\dead_1.ogg"
+    "text": "Even with his last breath, he raged against Gondor and shamed his people.",
+    "audio_file": "fr\\dead\\dead_1.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dead_2",
@@ -38,8 +39,9 @@
       "Gothmog"
     ],
     "original_file": "0A023995.ogg",
-    "text": "Only are I am worthy to possess, Thuring was secrets.",
-    "audio_file": "fr\\dead\\dead_2.ogg"
+    "text": "Only I am worthy to possess, Thuring Wath's secrets.",
+    "audio_file": "fr\\dead\\dead_2.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dead_3",
@@ -56,8 +58,9 @@
       "The Witch-king of Angmar"
     ],
     "original_file": "0A0298CF.ogg",
-    "text": "Après des froux d'hours, les armes de la guerre sont lesquelles il ne faut pas avoir de temps à recouverter.",
-    "audio_file": "fr\\dead\\dead_3.ogg"
+    "text": "After few hours, most recent defeat, the armies of the Witch King required time to recover.",
+    "audio_file": "fr\\dead\\dead_3.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dead_4",
@@ -74,8 +77,9 @@
       "The Grey Fear"
     ],
     "original_file": "0A02960E.ogg",
-    "text": "A la fois, on finit rétout l'air niil. Prince Austie, qui était un chien de roi.",
-    "audio_file": "fr\\dead\\dead_4.ogg"
+    "text": "At the time he finally reached Dolan Hill, Prince Orstyr's keep was a ruined shell.",
+    "audio_file": "fr\\dead\\dead_4.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dead_5",
@@ -92,8 +96,9 @@
       "Black Rider"
     ],
     "original_file": "0A02CDD6.ogg",
-    "text": "Ha ha! YOLLE FEEL MY ROCK!",
-    "audio_file": "fr\\dead\\dead_5.ogg"
+    "text": "Ha ha! You will feel my wrath!",
+    "audio_file": "fr\\dead\\dead_5.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dead_6",
@@ -111,8 +116,9 @@
       "Arvedui"
     ],
     "original_file": "0A0247B5.ogg",
-    "text": "Je sens mes dénonces à cette vie, mais je ne peux pas faire ça.",
-    "audio_file": "fr\\dead\\dead_6.ogg"
+    "text": "I feel my connection to this world fading, but I cannot yet move on.",
+    "audio_file": "fr\\dead\\dead_6.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_female_1",
@@ -139,8 +145,9 @@
       "Kyrstig"
     ],
     "original_file": "0A028A59.ogg",
-    "text": "Tu ne peux pas faire une chose ? Il n'y a pas de temps pour toujours être là-bas.",
-    "audio_file": "fr\\dwarf_female\\dwarf_female_1.ogg"
+    "text": "Did you fight in the war? It does seem to still be going on.",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_1.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_female_2",
@@ -159,8 +166,9 @@
       "Guard Amarêkh"
     ],
     "original_file": "0A02B661.ogg",
-    "text": "Qu'est-ce que j'ai à la fois de votre temps ? Et vous êtes des problèmes.",
-    "audio_file": "fr\\dwarf_female\\dwarf_female_2.ogg"
+    "text": "Could I have a moment of your time? Have a beautiful problem.",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_2.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_female_3",
@@ -189,8 +197,9 @@
       "Múta"
     ],
     "original_file": "0A02863D.ogg",
-    "text": "Vous avez besoin de la question du Thief et c'est-à-dire de la faire de la vie.",
-    "audio_file": "fr\\dwarf_female\\dwarf_female_3.ogg"
+    "text": "You need to question the thief. And that means keeping him alive.",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_3.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_female_4",
@@ -219,8 +228,9 @@
       "Châmelek Gêta"
     ],
     "original_file": "0A02CEB3.ogg",
-    "text": "Mon son profite est très magnifique de vous.",
-    "audio_file": "fr\\dwarf_female\\dwarf_female_4.ogg"
+    "text": "My grandson speaks very highly of you.",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_4.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_female_5",
@@ -241,8 +251,9 @@
       "Kholnedák"
     ],
     "original_file": "0A02A8A1.ogg",
-    "text": "C'est la création de la situation. Vous êtes timelé, comme je suis venu de s'envoyer, que nous avons une colère de pâche de la chaleuse.",
-    "audio_file": "fr\\dwarf_female\\dwarf_female_5.ogg"
+    "text": "creating stranger. You are timely as I was ready to send word that we had a partial wall collapse here.",
+    "audio_file": "fr\\dwarf_female\\dwarf_female_5.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_1",
@@ -285,8 +296,9 @@
       "Byrski Hardprow"
     ],
     "original_file": "0A024687.ogg",
-    "text": "Je ne veux pas qu'un décembre de King Thorin et son son ! Je n'espère que je ne vais pas.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_1.ogg"
+    "text": "I do not want to disappoint King Thorin or his son. I hope I will not.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_1.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_2",
@@ -319,8 +331,9 @@
       "Sâdikiz the Sky-hungry"
     ],
     "original_file": "0A02B6E5.ogg",
-    "text": "Vous trouvez plus impressive par tes dents. Mincez-moi sur vous, depuis maintenant.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_2.ogg"
+    "text": "You grow more impressive by the day. Must I keep an eye upon you from now on?",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_2.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_3",
@@ -341,8 +354,9 @@
       "Eskil Bloodthumb"
     ],
     "original_file": "0A01ECF0.ogg",
-    "text": "Non de ces suggestions sont bien émettus.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_3.ogg"
+    "text": "None of the suggestions seem to fit me very well.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_3.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_4",
@@ -365,8 +379,9 @@
       "Thromur"
     ],
     "original_file": "0A00FC0F.ogg",
-    "text": "Il y a des trésors partout dans ces ruines. Nous ne pouvons les laisser aux auroucs.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_4.ogg"
+    "text": "Il y a des trésors partout dans ces ruines. Nous ne pouvons les laisser aux Orques.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_4.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "dwarf_male_5",
@@ -408,8 +423,9 @@
       "Náin the Slakeless"
     ],
     "original_file": "0A0288CE.ogg",
-    "text": "Le fragment ne fait pas être un mappement, pour le grand de la Christel.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_5.ogg"
+    "text": "The fragments turned out to be a map leading to the origin of the crystals.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_5.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_6",
@@ -426,8 +442,9 @@
       "Vaski"
     ],
     "original_file": "0A0235F5.ogg",
-    "text": "Je ne sais pas comment vous pouvez avoir. Même le râtre fait mieux.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_6.ogg"
+    "text": "I don't know how you can eat that. Even the rats taste better.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_6.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_7",
@@ -447,8 +464,9 @@
       "Hálsi"
     ],
     "original_file": "0A020258.ogg",
-    "text": "Le Thordon a été traité ! Noté m'alône ! Tous les durences, les durences, ont été insultés !",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_7.ogg"
+    "text": "King Thorin has been betrayed. Not him alone. All of Durin's folk have been insulted.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_7.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_8",
@@ -503,8 +521,9 @@
       "Birûk"
     ],
     "original_file": "0A023E17.ogg",
-    "text": "Merci pour votre assistance à notre service.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_8.ogg"
+    "text": "Thank you for your assistance on our survey mission.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_8.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_9",
@@ -547,8 +566,9 @@
       "Féli"
     ],
     "original_file": "0A024C31.ogg",
-    "text": "longs si j'ai besoin de faire des archers et de ces briches",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_9.ogg"
+    "text": "Long have I desired to stand under those arches and on those bridges.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_9.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_10",
@@ -595,8 +615,9 @@
       "Birási"
     ],
     "original_file": "0A023E3D.ogg",
-    "text": "Nous ne devons pas attendre trop longtemps ici dans l'évolution.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_10.ogg"
+    "text": "We should not spend too long here in idleness!",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_10.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_11",
@@ -648,8 +669,9 @@
       "Gangur Farwend"
     ],
     "original_file": "0A01FFFE.ogg",
-    "text": "On va prendre mon business la première et puis continuer à aller à yours.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_11.ogg"
+    "text": "We will handle my business first, and then continue on to yours.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_11.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_12",
@@ -692,8 +714,9 @@
       "Gangur Farwend"
     ],
     "original_file": "0A024715.ogg",
-    "text": "Oh, ce map est très bien fait ! Dans notre artiste et de l'image !",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_12.ogg"
+    "text": "Oh, this map is quite well done. In both artistry and knowledge.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_12.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_13",
@@ -730,8 +753,9 @@
       "Prince Durin"
     ],
     "original_file": "0A022D71.ogg",
-    "text": "Dorent et s'il vous plaît, les traitors sont tous par lui, et il peut être une danger.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_13.ogg"
+    "text": "Durin followed those traitors all by himself, and he might be in danger.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_13.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_14",
@@ -755,8 +779,9 @@
       "Náin the Slakeless"
     ],
     "original_file": "0A022E14.ogg",
-    "text": "Quels évols peuvent être faits dans ces malles ?",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_14.ogg"
+    "text": "What evils might have been worked within these walls?",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_14.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_15",
@@ -778,8 +803,9 @@
       "Dáin Ironfoot"
     ],
     "original_file": "0A0248E4.ogg",
-    "text": "mon coeur est un friend très bon. Je me sens qu'il n'y a pas de cela.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_15.ogg"
+    "text": "My heart is heavy friend. I wish it hadn't come to this.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_15.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_16",
@@ -810,8 +836,9 @@
       "Khôltekh"
     ],
     "original_file": "0A02B79D.ogg",
-    "text": "Je suis Grit Hul. Si les expériences sont plus grosses, ils peuvent se retenir en gammet.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_16.ogg"
+    "text": "I am grateful. If the spiders got any closer, they might overrun our enguptet.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_16.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_17",
@@ -828,8 +855,9 @@
       "Dráttur"
     ],
     "original_file": "0A024A4F.ogg",
-    "text": "La traînée de la traînée se déclenche à la guerre.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_17.ogg"
+    "text": "The enemy trembles when they approach our walls.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_17.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_18",
@@ -890,8 +918,9 @@
       "Skardí Bendblade"
     ],
     "original_file": "0A023DB7.ogg",
-    "text": "Cette chambre doit être réellement dans un stade de la sécurité de la vie.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_18.ogg"
+    "text": "This chamber must be related to the secret stone in some way.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_18.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_19",
@@ -918,8 +947,9 @@
       "Hermáth Stormhammer"
     ],
     "original_file": "0A02035A.ogg",
-    "text": "Je ne peux pas voir pourquoi Rohgreen est comme ça comme ça.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_19.ogg"
+    "text": "I can't see why Rogreen would strike out at his fellows like that.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_19.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_20",
@@ -938,8 +968,9 @@
       "Mêshaget"
     ],
     "original_file": "0A02C7C3.ogg",
-    "text": "C'est vrai que je suis très responsable pour les opinions de les dorses, comme ça.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_20.ogg"
+    "text": "It is true that I am largely responsible for the opening of the doors, such as it is.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_20.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_21",
@@ -971,7 +1002,8 @@
     ],
     "original_file": "0A028879.ogg",
     "text": "Cowardly eyes are upon us, watching us from some hiding place.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_21.ogg"
+    "audio_file": "fr\\dwarf_male\\dwarf_male_21.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_22",
@@ -1001,8 +1033,9 @@
       "Sékhel"
     ],
     "original_file": "0A022F3F.ogg",
-    "text": "Keep an eye, et votre friend ! Et assure que il ne s'emballe pas.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_22.ogg"
+    "text": "Keep an eye on your friend and ensure he does not embarrass himself.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_22.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_23",
@@ -1047,8 +1080,9 @@
       "Gunvald"
     ],
     "original_file": "0A028C4A.ogg",
-    "text": "On doit aller à l'aise de l'entente et de l'aise de les délicieux.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_23.ogg"
+    "text": "We must follow the cultists inside and teach them they are not welcome.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_23.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_24",
@@ -1075,8 +1109,9 @@
       "Khôltekh"
     ],
     "original_file": "0A023E35.ogg",
-    "text": "Il y a quelque chose qui me parle de Gaublins dans son undergrad.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_24.ogg"
+    "text": "Something bothers me about the goblins in Sundargrad.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_24.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_25",
@@ -1093,8 +1128,9 @@
       "Spalvi Stout-heart"
     ],
     "original_file": "0A01EC0F.ogg",
-    "text": "Le site, ces steps, délicieux de mon brétheur !",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_25.ogg"
+    "text": "The sight of these steps takes my breath away.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_25.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_26",
@@ -1117,8 +1153,9 @@
       "Stáli the Hewer"
     ],
     "original_file": "0A024026.ogg",
-    "text": "Le propriétaire doit provier de ce qu'il faut pour le faire.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_26.ogg"
+    "text": "The proprietor must provide some of this ale for the wedding feast.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_26.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_27",
@@ -1154,8 +1191,9 @@
       "Prince Durin"
     ],
     "original_file": "0A0202B8.ogg",
-    "text": "Je suis sûr que King Thorin a un task pour vous.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_27.ogg"
+    "text": "I heard that King Thorin has a task for you.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_27.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_28",
@@ -1174,8 +1212,9 @@
       "Bósi"
     ],
     "original_file": "0A00E018.ogg",
-    "text": "Mais fraassais son aventurer dans les maracas de Boanoïe, et non sans jamais revenir.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_28.ogg"
+    "text": "Mes frères sont allés s’aventurer dans les marais de Bonnoie, et ne sont jamais revenus.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_28.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "dwarf_male_29",
@@ -1196,8 +1235,9 @@
       "Gêzheg"
     ],
     "original_file": "0A02B79E.ogg",
-    "text": "Laisse je vous présenter la bouche, qu'il était étudiant dans le noticeboard. Mais peut-être quelque chose qui est à la fin.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_29.ogg"
+    "text": "We last noticed Biruk he was studying the notice board. But have something there caught his eye.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_29.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_30",
@@ -1216,8 +1256,9 @@
       "Khôltekh"
     ],
     "original_file": "0A020E0A.ogg",
-    "text": "Le murder a besoin d'une personne présente.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_30.ogg"
+    "text": "The murderer must be someone present.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_30.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_31",
@@ -1236,8 +1277,9 @@
       "Náin the Slakeless"
     ],
     "original_file": "0A028BD3.ogg",
-    "text": "Ah, je suis finie de mon translation. Je suis très content de vous faire le faire sur ce que j'ai fait dans ces pages.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_31.ogg"
+    "text": "I finished my translation. If I am none too happy about what I found in these pages.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_31.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "dwarf_male_32",
@@ -1254,8 +1296,9 @@
       "Búkk"
     ],
     "original_file": "0A02855B.ogg",
-    "text": "many dead, so many wounded.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_32.ogg"
+    "text": "So many dead, so many wounded.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_32.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_female_1",
@@ -1278,8 +1321,9 @@
       "Nimrodel"
     ],
     "original_file": "0A016678.ogg",
-    "text": "trouvez et éliminer des orques le long du fleuve. Faites-le au nom de ce que nous avons perdu.",
-    "audio_file": "fr\\elf_female\\elf_female_1.ogg"
+    "text": "Trouvez et éliminez les Orques le long du fleuve. Faites-le au nom de ceux que nous avons perdus.",
+    "audio_file": "fr\\elf_female\\elf_female_1.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "elf_female_2",
@@ -1297,7 +1341,8 @@
     ],
     "original_file": "0A000BF0.ogg",
     "text": "Bienvenue ! Vous arrivez au bon moment !",
-    "audio_file": "fr\\elf_female\\elf_female_2.ogg"
+    "audio_file": "fr\\elf_female\\elf_female_2.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "elf_female_3",
@@ -1343,8 +1388,9 @@
       "Silirtas"
     ],
     "original_file": "0A0297BA.ogg",
-    "text": "Vous avez fait bien. Cette drogue doit être bien pour éviter la corruption pour maintenant.",
-    "audio_file": "fr\\elf_female\\elf_female_3.ogg"
+    "text": "You have done well. This draw should be enough to stave off the corruption for now.",
+    "audio_file": "fr\\elf_female\\elf_female_3.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_female_4",
@@ -1367,8 +1413,9 @@
       "Erymbes"
     ],
     "original_file": "0A00E0AE.ogg",
-    "text": "Mazog répondra de toutes les offenses réelles ou imaginaires.",
-    "audio_file": "fr\\elf_female\\elf_female_4.ogg"
+    "text": "Mazog répondra de toutes ses offenses, réelles ou imaginaires.",
+    "audio_file": "fr\\elf_female\\elf_female_4.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "elf_female_5",
@@ -1399,8 +1446,9 @@
       "Irsinith"
     ],
     "original_file": "0A02CD88.ogg",
-    "text": "Bien, je sais pas ce que ça veut, mais ça me semble terrible.",
-    "audio_file": "fr\\elf_female\\elf_female_5.ogg"
+    "text": "Well then, I know not what it means, but it smells terrible.",
+    "audio_file": "fr\\elf_female\\elf_female_5.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_female_6",
@@ -1429,8 +1477,9 @@
       "Harthalín"
     ],
     "original_file": "0A02D5EC.ogg",
-    "text": "Le crevice, qui nous avons ici, de Gaugraph, a été créé de la création de recentes.",
-    "audio_file": "fr\\elf_female\\elf_female_6.ogg"
+    "text": "The crevice through which we came here from Gorgroth seems of recent creation.",
+    "audio_file": "fr\\elf_female\\elf_female_6.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_female_7",
@@ -1498,8 +1547,9 @@
       "Baráil"
     ],
     "original_file": "0A020008.ogg",
-    "text": "Les gens de la ville ont été bien égés, si j'ai regardé.",
-    "audio_file": "fr\\elf_female\\elf_female_7.ogg"
+    "text": "The people of this city have been welcoming, if guarded.",
+    "audio_file": "fr\\elf_female\\elf_female_7.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_female_8",
@@ -1525,8 +1575,9 @@
       "Avadhril"
     ],
     "original_file": "0A029789.ogg",
-    "text": "Vous collectez le report de l'un des ouruks ? Qu'est-ce que vous dites ?",
-    "audio_file": "fr\\elf_female\\elf_female_8.ogg"
+    "text": "You collected a report from one of the Uruks. What did you say?",
+    "audio_file": "fr\\elf_female\\elf_female_8.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_female_9",
@@ -1547,8 +1598,9 @@
       "Sigileth"
     ],
     "original_file": "0A00F363.ogg",
-    "text": "chercher dans les valises obscures.",
-    "audio_file": "fr\\elf_female\\elf_female_9.ogg"
+    "text": "Cherchez dans les vallées obscures.",
+    "audio_file": "fr\\elf_female\\elf_female_9.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "elf_female_10",
@@ -1572,8 +1624,9 @@
       "Megoril"
     ],
     "original_file": "0A02017E.ogg",
-    "text": "Aide-de-oucet dans le monde et nous nous ajouons que les alliances se sont arrivés pour se faire de la force de l'envers.",
-    "audio_file": "fr\\elf_female\\elf_female_10.ogg"
+    "text": "the wounded in the field and let us hope that the alliance shall arrive to drive off the enemy's forces.",
+    "audio_file": "fr\\elf_female\\elf_female_10.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_female_11",
@@ -1590,8 +1643,9 @@
       "Tangwen"
     ],
     "original_file": "0A02991E.ogg",
-    "text": "Welcome back ! Ah, that smells incredible !",
-    "audio_file": "fr\\elf_female\\elf_female_11.ogg"
+    "text": "Welcome back! That smells incredible!",
+    "audio_file": "fr\\elf_female\\elf_female_11.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_1",
@@ -1654,8 +1708,9 @@
       "Corudan"
     ],
     "original_file": "0A023773.ogg",
-    "text": "Je suis très content de ces rapports, mais ne peux pas dire pourquoi.",
-    "audio_file": "fr\\elf_male\\elf_male_1.ogg"
+    "text": "I am troubled by these reports, but cannot say precisely why.",
+    "audio_file": "fr\\elf_male\\elf_male_1.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_2",
@@ -1708,8 +1763,9 @@
       "Thárnar"
     ],
     "original_file": "0A02CE77.ogg",
-    "text": "Nous ne devons pas avoir cette façon sans aller à l'intérieur.",
-    "audio_file": "fr\\elf_male\\elf_male_2.ogg"
+    "text": "We should not go this way without allies beside us.",
+    "audio_file": "fr\\elf_male\\elf_male_2.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_3",
@@ -1734,8 +1790,9 @@
       "Haereldir"
     ],
     "original_file": "0A02D946.ogg",
-    "text": "ce que vous êtes dit, c'est que vous me sens avec une grande hope pour la future.",
-    "audio_file": "fr\\elf_male\\elf_male_3.ogg"
+    "text": "What you are saying fills me with great hope for the future.",
+    "audio_file": "fr\\elf_male\\elf_male_3.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_4",
@@ -1769,8 +1826,9 @@
       "Emmathron"
     ],
     "original_file": "0A02D388.ogg",
-    "text": "Merci, pas seulement pour ça, mais pour tout ce que vous avez.",
-    "audio_file": "fr\\elf_male\\elf_male_4.ogg"
+    "text": "Thank you. Not only for this, but for everything.",
+    "audio_file": "fr\\elf_male\\elf_male_4.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_5",
@@ -1787,8 +1845,9 @@
       "Gorndir"
     ],
     "original_file": "0A02D8AC.ogg",
-    "text": "Ah, là vous êtes. Je n'ai pas d'une date sur la situation avec Élegault.",
-    "audio_file": "fr\\elf_male\\elf_male_5.ogg"
+    "text": "Ah, there you are. I have an update on the situation with Eligor.",
+    "audio_file": "fr\\elf_male\\elf_male_5.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_6",
@@ -1813,8 +1872,9 @@
       "Elladan"
     ],
     "original_file": "0A020E5B.ogg",
-    "text": "Seignez le secret de la chaleur de Wien et puis retourne.",
-    "audio_file": "fr\\elf_male\\elf_male_6.ogg"
+    "text": "Seek out the secret of the shadowy wing and then return.",
+    "audio_file": "fr\\elf_male\\elf_male_6.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_7",
@@ -1840,7 +1900,8 @@
     ],
     "original_file": "0A00E2E6.ogg",
     "text": "Cela fait bien longtemps que nous n'avons rien fait d'autre que veiller sur nos frontières. Bien trop longtemps.",
-    "audio_file": "fr\\elf_male\\elf_male_7.ogg"
+    "audio_file": "fr\\elf_male\\elf_male_7.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "elf_male_8",
@@ -1859,8 +1920,9 @@
       "Orophin"
     ],
     "original_file": "0A0201E3.ogg",
-    "text": "Come, je serai à la femme dans un garden.",
-    "audio_file": "fr\\elf_male\\elf_male_8.ogg"
+    "text": "Come, I will lead you to the Lady in her garden.",
+    "audio_file": "fr\\elf_male\\elf_male_8.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_9",
@@ -1914,8 +1976,9 @@
       "Glorfindel"
     ],
     "original_file": "0A020161.ogg",
-    "text": "Je n'ai pas de temps pour vous. Come, j'ai des événements dans le monde.",
-    "audio_file": "fr\\elf_male\\elf_male_9.ogg"
+    "text": "I have set aside some time for you. Come. Tell me of events in the East.",
+    "audio_file": "fr\\elf_male\\elf_male_9.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_10",
@@ -1935,7 +1998,8 @@
     ],
     "original_file": "0A00F8C7.ogg",
     "text": "Nous nous rencontrons en période de grande nécessité. C'est un plaisir de vous voir.",
-    "audio_file": "fr\\elf_male\\elf_male_10.ogg"
+    "audio_file": "fr\\elf_male\\elf_male_10.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "elf_male_11",
@@ -1959,8 +2023,9 @@
       "Elrohir"
     ],
     "original_file": "0A02ADBE.ogg",
-    "text": "J'ai été en certes des cours et j'ai trouvé les goblins,",
-    "audio_file": "fr\\elf_male\\elf_male_11.ogg"
+    "text": "I went in search of Corsairs and found goblins instead.",
+    "audio_file": "fr\\elf_male\\elf_male_11.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_12",
@@ -1977,8 +2042,9 @@
       "Lathlorn"
     ],
     "original_file": "0A01E242.ogg",
-    "text": "Si vos intentions sont amicales, votre présence à m'écouter est la bienvenue.",
-    "audio_file": "fr\\elf_male\\elf_male_12.ogg"
+    "text": "Si vos intentions sont amicales, votre présence à mes côtés est la bienvenue.",
+    "audio_file": "fr\\elf_male\\elf_male_12.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "elf_male_13",
@@ -2001,8 +2067,9 @@
       "Thorlind"
     ],
     "original_file": "0A021057.ogg",
-    "text": "Orcs spies y'ave stirred de l'autre créature de l'affaire avec une trampe de leurs bouts filtrés.",
-    "audio_file": "fr\\elf_male\\elf_male_13.ogg"
+    "text": "or spies have stirred other creatures to wakefulness with a tramp of their filthy boots.",
+    "audio_file": "fr\\elf_male\\elf_male_13.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_14",
@@ -2021,8 +2088,9 @@
       "Corudan"
     ],
     "original_file": "0A02A784.ogg",
-    "text": "Lady Calabros' lockbox. Elle ne veut pas te dire ce que c'était pour ça, tu vois ?",
-    "audio_file": "fr\\elf_male\\elf_male_14.ogg"
+    "text": "Lady Calabros' lock box. She did not tell you what this was for, did she?",
+    "audio_file": "fr\\elf_male\\elf_male_14.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_15",
@@ -2039,8 +2107,9 @@
       "Mirudal"
     ],
     "original_file": "0A01EEB4.ogg",
-    "text": "Il fait de la façon dont moi, que l'attente de la couverture de la gorge.",
-    "audio_file": "fr\\elf_male\\elf_male_15.ogg"
+    "text": "It makes sense to me that rats might covet our goods.",
+    "audio_file": "fr\\elf_male\\elf_male_15.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_16",
@@ -2061,8 +2130,9 @@
       "Celeborn"
     ],
     "original_file": "0A00E3DE.ogg",
-    "text": "D'un angloir et d'autre. Espérons que les meurs revient de rond pas.",
-    "audio_file": "fr\\elf_male\\elf_male_16.ogg"
+    "text": "D'un endroit à l'autre... Espérons que les meurtriers ne reviendront pas.",
+    "audio_file": "fr\\elf_male\\elf_male_16.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "elf_male_17",
@@ -2083,8 +2153,9 @@
       "Thranduil"
     ],
     "original_file": "0A020E43.ogg",
-    "text": "Le horreur de Weeping est dit à moi. Il est un hemat de drague, l'hôpital et le cruel.",
-    "audio_file": "fr\\elf_male\\elf_male_17.ogg"
+    "text": "The weeping warrior is known to me. He is a dragon-tamer, sly and cruel.",
+    "audio_file": "fr\\elf_male\\elf_male_17.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_18",
@@ -2103,8 +2174,9 @@
       "Baranoth"
     ],
     "original_file": "0A02A354.ogg",
-    "text": "Welcome back. I can see by the smoke that lingers about you that you have been... Successful.",
-    "audio_file": "fr\\elf_male\\elf_male_18.ogg"
+    "text": "Welcome back. I can see by the smoke that lingers about you that you have been successful.",
+    "audio_file": "fr\\elf_male\\elf_male_18.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_19",
@@ -2142,7 +2214,8 @@
     ],
     "original_file": "0A00E446.ogg",
     "text": "La bataille est terminée, mais certaines histoires n'ont pas encore connu leur dénouement.",
-    "audio_file": "fr\\elf_male\\elf_male_19.ogg"
+    "audio_file": "fr\\elf_male\\elf_male_19.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "elf_male_20",
@@ -2163,8 +2236,9 @@
       "Mellanion"
     ],
     "original_file": "0A020E12.ogg",
-    "text": "Je ne fais pas, je vais accompagner vous dans les députés de la Forrest.",
-    "audio_file": "fr\\elf_male\\elf_male_20.ogg"
+    "text": "Do not fear, I will accompany you into the depths of the forest.",
+    "audio_file": "fr\\elf_male\\elf_male_20.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "elf_male_21",
@@ -2193,8 +2267,9 @@
       "Corudan"
     ],
     "original_file": "0A0297B5.ogg",
-    "text": "Nous avons été en train de la situation avec les Orcs, et, plus recentement, le reste est fait.",
-    "audio_file": "fr\\elf_male\\elf_male_21.ogg"
+    "text": "We have been looking into the situation with the Orcs and, more recently, the Restless Dead.",
+    "audio_file": "fr\\elf_male\\elf_male_21.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "ent_1",
@@ -2213,8 +2288,9 @@
       "Leafshade"
     ],
     "original_file": "0A01DFC9.ogg",
-    "text": "Soitez-vous et coûtez mon récit, petit être.",
-    "audio_file": "fr\\ent\\ent_1.ogg"
+    "text": "Asseyez-vous et écoutez mon récit, petit être.",
+    "audio_file": "fr\\ent\\ent_1.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "hobbit_female_1",
@@ -2232,8 +2308,9 @@
       "Myrtle Boggs"
     ],
     "original_file": "0A01F539.ogg",
-    "text": "Est-ce que c'est un truc ? Bingo ! Wishes to invite us, to a dinner party !",
-    "audio_file": "fr\\hobbit_female\\hobbit_female_1.ogg"
+    "text": "Is this a trick? Bingo wishes to invite us to a dinner party.",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_1.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_female_2",
@@ -2250,8 +2327,9 @@
       "Opal Goodbody"
     ],
     "original_file": "0A014F02.ogg",
-    "text": "Qu'est-ce que tu as tant les bras balons ?",
-    "audio_file": "fr\\hobbit_female\\hobbit_female_2.ogg"
+    "text": "Qu'est-ce que tu as à rester les bras ballants ?",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_2.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "hobbit_female_3",
@@ -2268,8 +2346,9 @@
       "Jêsamin"
     ],
     "original_file": "0A02CD3C.ogg",
-    "text": "After you have played your part- You can then sneak away, to search the keep!",
-    "audio_file": "fr\\hobbit_female\\hobbit_female_3.ogg"
+    "text": "After you have played your part, you can then sneak away to search the keep.",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_3.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_female_4",
@@ -2292,8 +2371,9 @@
       "Leri Grudd"
     ],
     "original_file": "0A029810.ogg",
-    "text": "C'est un intérêt de l'interprète, carré. Il doit avoir un historien, je n'en ai pas.",
-    "audio_file": "fr\\hobbit_female\\hobbit_female_4.ogg"
+    "text": "That is an interesting artifact you carry. It must have quite a story, I imagine.",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_4.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_female_5",
@@ -2312,8 +2392,9 @@
       "Drudwen"
     ],
     "original_file": "0A0298FB.ogg",
-    "text": "Goodness, you are soaked ! But you did not drown ! Good work !",
-    "audio_file": "fr\\hobbit_female\\hobbit_female_5.ogg"
+    "text": "Goodness you are soaked! But you did not drown! Good work!",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_5.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_female_6",
@@ -2334,8 +2415,9 @@
       "Melynis Bragreg"
     ],
     "original_file": "0A023D10.ogg",
-    "text": "Bon, regardez ça ! Vous avez mes bords à me faire de la foule de la foule !",
-    "audio_file": "fr\\hobbit_female\\hobbit_female_6.ogg"
+    "text": "Well look at that! You got my birds back to me all safe and sound!",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_6.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_female_7",
@@ -2352,8 +2434,9 @@
       "Sioned"
     ],
     "original_file": "0A029850.ogg",
-    "text": "Excuse-moi, m'as-tu vu ma mère ?",
-    "audio_file": "fr\\hobbit_female\\hobbit_female_7.ogg"
+    "text": "Excuse me. Have you seen my father?",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_7.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_female_8",
@@ -2380,8 +2463,9 @@
       "Rosentyl Flutch"
     ],
     "original_file": "0A0297EC.ogg",
-    "text": "Qui vous laisse faire un moment ? Un train de château de lingo dans le monde !",
-    "audio_file": "fr\\hobbit_female\\hobbit_female_8.ogg"
+    "text": "Could you spare a moment? A strange shadow lingers in the wild.",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_8.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_female_9",
@@ -2400,8 +2484,9 @@
       "Myrtle Boggs"
     ],
     "original_file": "0A01F427.ogg",
-    "text": "Vous avez retourné et avec un petit coup de bouc !",
-    "audio_file": "fr\\hobbit_female\\hobbit_female_9.ogg"
+    "text": "You have returned and with a missing cookbook.",
+    "audio_file": "fr\\hobbit_female\\hobbit_female_9.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_male_1",
@@ -2484,8 +2569,9 @@
       "Haldo Rushbank"
     ],
     "original_file": "0A01FD2F.ogg",
-    "text": "C'est le monde de Mordor. N'est-ce qu'une personne peut se dire pour quelque chose?",
-    "audio_file": "fr\\hobbit_male\\hobbit_male_1.ogg"
+    "text": "This is the road to Mordor. No one could mistake it for anything else.",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_1.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_male_2",
@@ -2507,8 +2593,9 @@
       "Meriadoc Brandybuck"
     ],
     "original_file": "0A02401E.ogg",
-    "text": "Si vous me demandez, je suis sûr que les deux ont une moque et la fin est la mission.",
-    "audio_file": "fr\\hobbit_male\\hobbit_male_2.ogg"
+    "text": "If you ask me, I'd wager those two are having a smoke and laughing at their mischief.",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_2.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_male_3",
@@ -2525,8 +2612,9 @@
       "Clothar Sandheaver"
     ],
     "original_file": "0A01EA48.ogg",
-    "text": "J'ai entendu des récits faisant état de changeur de peau, mais je ne pensais pas en rencontrer un jour.",
-    "audio_file": "fr\\hobbit_male\\hobbit_male_3.ogg"
+    "text": "J'ai entendu des récits faisant état de changeurs de peau, mais je ne pensais pas en rencontrer un jour.",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_3.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "hobbit_male_4",
@@ -2553,8 +2641,9 @@
       "Valaric Túcca"
     ],
     "original_file": "0A023E08.ogg",
-    "text": "Est-ce que vous avez un favorit ? Oui, c'est difficile de le faire.",
-    "audio_file": "fr\\hobbit_male\\hobbit_male_4.ogg"
+    "text": "Did you have a favorite? Yes, it is hard to decide.",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_4.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_male_5",
@@ -2574,8 +2663,9 @@
       "Frodo Baggins"
     ],
     "original_file": "0A02006C.ogg",
-    "text": "Je suis très content de faire un reste et à l'endroit de l'adventurant.",
-    "audio_file": "fr\\hobbit_male\\hobbit_male_5.ogg"
+    "text": "I am ready to have a rest, and an end to adventuring.",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_5.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_male_6",
@@ -2602,8 +2692,9 @@
       "Cranog Dambryn"
     ],
     "original_file": "0A00F62E.ogg",
-    "text": "Sur redor, s'apprête à quitter la comptée. Très intéressant.",
-    "audio_file": "fr\\hobbit_male\\hobbit_male_6.ogg"
+    "text": "Ce rôdeur s'apprête à quitter la Comté. Très intéressant.",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_6.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "hobbit_male_7",
@@ -2622,8 +2713,9 @@
       "Meriadoc Brandybuck"
     ],
     "original_file": "0A02402A.ogg",
-    "text": "Je sais juste ce que c'est de l'aider à l'aventir cette banquette",
-    "audio_file": "fr\\hobbit_male\\hobbit_male_7.ogg"
+    "text": "I know just the thing to liven up this banquet.",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_7.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_male_8",
@@ -2640,8 +2732,9 @@
       "Old Mugwort"
     ],
     "original_file": "0A022DDB.ogg",
-    "text": "Garde la dingue, t'es dit.",
-    "audio_file": "fr\\hobbit_male\\hobbit_male_8.ogg"
+    "text": "Now that didn't work, did it?",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_8.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "hobbit_male_9",
@@ -2660,8 +2753,9 @@
       "Haldo Rushbank"
     ],
     "original_file": "0A013380.ogg",
-    "text": "Si quelqu'un peut connaître la signification des derniers mots prononcés par ce t'ador, c'est bien lui.",
-    "audio_file": "fr\\hobbit_male\\hobbit_male_9.ogg"
+    "text": "Si quelqu'un peut connaître la signification des derniers mots prononcés par cet adorateur, c'est bien lui.",
+    "audio_file": "fr\\hobbit_male\\hobbit_male_9.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_female_1",
@@ -2729,8 +2823,9 @@
       "Pêk-dhug-Bhôd"
     ],
     "original_file": "0A02D05E.ogg",
-    "text": "Nous sommes donc là-bas de mon friend. Je peux t'aider l'exact de ce que je suis là-bas.",
-    "audio_file": "fr\\man_female\\man_female_1.ogg"
+    "text": "We are so close my friend. I can taste victory from where I stand.",
+    "audio_file": "fr\\man_female\\man_female_1.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_2",
@@ -2755,8 +2850,9 @@
       "Agiti"
     ],
     "original_file": "0A02BE10.ogg",
-    "text": "Dogs ? Non, non, non, non. On a juste deux dogs, et puis ils sont juste... ...vénés.",
-    "audio_file": "fr\\man_female\\man_female_2.ogg"
+    "text": "Dogs? Nah, no dogs here. We used to have dogs and then they all just... Finished.",
+    "audio_file": "fr\\man_female\\man_female_2.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_3",
@@ -2779,8 +2875,9 @@
       "Brútha the Wayward"
     ],
     "original_file": "0A02A852.ogg",
-    "text": "mon âge est très basse à la fois mais tu peux me parler à moi",
-    "audio_file": "fr\\man_female\\man_female_3.ogg"
+    "text": "My husband is rather busy at the moment, but you may talk to me.",
+    "audio_file": "fr\\man_female\\man_female_3.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_4",
@@ -2810,8 +2907,9 @@
       "Satagêra"
     ],
     "original_file": "0A02AFC4.ogg",
-    "text": "Then let us begin stranger.",
-    "audio_file": "fr\\man_female\\man_female_4.ogg"
+    "text": "Then let us begin stranger. We will bring you with us into the Citadel.",
+    "audio_file": "fr\\man_female\\man_female_4.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_5",
@@ -2834,8 +2932,9 @@
       "Anírwen"
     ],
     "original_file": "0A01D16E.ogg",
-    "text": "Oh, ikbal, datoujure était gentil avec moi. J'aimais bien sa part be rouge tout fut.",
-    "audio_file": "fr\\man_female\\man_female_5.ogg"
+    "text": "Oh, Iqbal a toujours été gentil avec moi. J'aimais bien sa barbe rouge touffue.",
+    "audio_file": "fr\\man_female\\man_female_5.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_female_6",
@@ -2854,8 +2953,9 @@
       "Melia Goatsbeard"
     ],
     "original_file": "0A02962D.ogg",
-    "text": "Je suis tellement agréable que notre trit de tharbode a été roué par les oufles orcs.",
-    "audio_file": "fr\\man_female\\man_female_6.ogg"
+    "text": "I am so angry that our trip to Tharbad has been ruined by those awful orcs.",
+    "audio_file": "fr\\man_female\\man_female_6.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_7",
@@ -2937,8 +3037,9 @@
       "Golwen"
     ],
     "original_file": "0A01F45C.ogg",
-    "text": "Je suis obligé d'un jour et les bingles doivent être les mêmes.",
-    "audio_file": "fr\\man_female\\man_female_7.ogg"
+    "text": "I stopped eating days ago, and Bingo should have done the same.",
+    "audio_file": "fr\\man_female\\man_female_7.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_8",
@@ -2955,8 +3056,9 @@
       "Wynflad"
     ],
     "original_file": "0A02D720.ogg",
-    "text": "Il y a beaucoup d'angénie et beaucoup d'opportunités pour un warrior pour le montrer son worth.",
-    "audio_file": "fr\\man_female\\man_female_8.ogg"
+    "text": "There is much danger in Anagole and much opportunity for a warrior to show her worth.",
+    "audio_file": "fr\\man_female\\man_female_8.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_9",
@@ -2988,8 +3090,9 @@
       "Mêj-dhug-Mêj"
     ],
     "original_file": "0A02CA09.ogg",
-    "text": "Grittings. Je dois avoir plus de samples pour se faire pour la salle de la journée pour le study.",
-    "audio_file": "fr\\man_female\\man_female_9.ogg"
+    "text": "Greetings! I need more samples to bring to Sagina for study.",
+    "audio_file": "fr\\man_female\\man_female_9.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_10",
@@ -3014,8 +3117,9 @@
       "Hidâti"
     ],
     "original_file": "0A01EDAB.ogg",
-    "text": "As-tu des terres menacés? Je suis en train de se rater de Mosquilius.",
-    "audio_file": "fr\\man_female\\man_female_10.ogg"
+    "text": "As we left Minas Tirith, I saw smoke rising from Osgilius.",
+    "audio_file": "fr\\man_female\\man_female_10.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_11",
@@ -3052,8 +3156,9 @@
       "Jurmêna"
     ],
     "original_file": "0A014712.ogg",
-    "text": "Il ouin est un abecile et il a toujours été. Il ne faut jamais goûter un poison qu'on a concocté.",
-    "audio_file": "fr\\man_female\\man_female_11.ogg"
+    "text": "Elwin est un imbécile et l'a toujours été. Il ne faut jamais goûter un poison qu'on a concocté.",
+    "audio_file": "fr\\man_female\\man_female_11.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_female_12",
@@ -3090,8 +3195,9 @@
       "Brútha the Wayward"
     ],
     "original_file": "0A02D130.ogg",
-    "text": "Vous avez aidé me obtenir les détails de l'esprit et de son sound mais plus, pour ce qui est la même.",
-    "audio_file": "fr\\man_female\\man_female_12.ogg"
+    "text": "You have helped me obtain the details of sight and sound, but more since is remain.",
+    "audio_file": "fr\\man_female\\man_female_12.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_13",
@@ -3134,8 +3240,9 @@
       "Tatháta the Beast"
     ],
     "original_file": "0A014632.ogg",
-    "text": "L'histoire des clans du pays de donne et glorieuse. Elle n'en est pas moindre pour le clan du Focon.",
-    "audio_file": "fr\\man_female\\man_female_13.ogg"
+    "text": "L'histoire des clans du pays de Dun est glorieuse. Elle ne l'est pas moins pour le clan du Faucon.",
+    "audio_file": "fr\\man_female\\man_female_13.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_female_14",
@@ -3178,8 +3285,9 @@
       "Golwen"
     ],
     "original_file": "0A02BBE1.ogg",
-    "text": "Qu'est-ce que vous aurez mis ? Un ordre pour les suppliers pour un caravan vivant dans la ville ?",
-    "audio_file": "fr\\man_female\\man_female_14.ogg"
+    "text": "What have you brought me? An order for supplies for a caravan leaving the city?",
+    "audio_file": "fr\\man_female\\man_female_14.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_15",
@@ -3214,8 +3322,9 @@
       "Zimêlkha"
     ],
     "original_file": "0A02B692.ogg",
-    "text": "Je fais le book mais je ne veux pas ton coin. Tout le temps, je fais mon petit petit petit.",
-    "audio_file": "fr\\man_female\\man_female_15.ogg"
+    "text": "I have the book but I don't want your coin. All day long I deal with rats.",
+    "audio_file": "fr\\man_female\\man_female_15.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_16",
@@ -3247,8 +3356,9 @@
       "Nauriel"
     ],
     "original_file": "0A01EFFD.ogg",
-    "text": "Stop Friend, sur whose authority do you seek to access the upper stores?",
-    "audio_file": "fr\\man_female\\man_female_16.ogg"
+    "text": "Stop friend, on whose authority do you seek to access the upper stores?",
+    "audio_file": "fr\\man_female\\man_female_16.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_17",
@@ -3284,8 +3394,9 @@
       "Golwen"
     ],
     "original_file": "0A02C99C.ogg",
-    "text": "Je vais tracer à l'œil, Giorno. Merci de vous récoringez-le !",
-    "audio_file": "fr\\man_female\\man_female_17.ogg"
+    "text": "I will treasure his journal. Thank you for recurring it.",
+    "audio_file": "fr\\man_female\\man_female_17.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_18",
@@ -3308,8 +3419,9 @@
       "Jóla"
     ],
     "original_file": "0A02CA9D.ogg",
-    "text": "le gondor ne peut pas être sans défendre.",
-    "audio_file": "fr\\man_female\\man_female_18.ogg"
+    "text": "Gondor cannot be without defenders.",
+    "audio_file": "fr\\man_female\\man_female_18.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_19",
@@ -3330,8 +3442,9 @@
       "Cedrach"
     ],
     "original_file": "0A029B1D.ogg",
-    "text": "Je te dis que nous devons être bien restants.",
-    "audio_file": "fr\\man_female\\man_female_19.ogg"
+    "text": "I told you we would be fine stranger.",
+    "audio_file": "fr\\man_female\\man_female_19.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_20",
@@ -3356,8 +3469,9 @@
       "Girhâzi"
     ],
     "original_file": "0A02B68D.ogg",
-    "text": "Non, non, n'aura pas besoin. N'aura pas besoin. N'aura pas besoin.",
-    "audio_file": "fr\\man_female\\man_female_20.ogg"
+    "text": "No, no, nothing needed. Nothing desired. Nothing hoped.",
+    "audio_file": "fr\\man_female\\man_female_20.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_21",
@@ -3390,8 +3504,9 @@
       "Golwen"
     ],
     "original_file": "0A02AD8C.ogg",
-    "text": "Ah, je suis désolée. Mais c'était très hard de dire ces choses.",
-    "audio_file": "fr\\man_female\\man_female_21.ogg"
+    "text": "I am sorry, but it was very hard to hear these things.",
+    "audio_file": "fr\\man_female\\man_female_21.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_22",
@@ -3425,8 +3540,9 @@
       "Golwen"
     ],
     "original_file": "0A02AFF3.ogg",
-    "text": "mon père est Phélix et il est très beaucoup de temps.",
-    "audio_file": "fr\\man_female\\man_female_22.ogg"
+    "text": "My husband's name is Felix and he is very much alive.",
+    "audio_file": "fr\\man_female\\man_female_22.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_23",
@@ -3452,8 +3568,9 @@
       "Brútha the Wayward"
     ],
     "original_file": "0A02AEDC.ogg",
-    "text": "C'est un moment. Si ce moment-là est correct, je pense qu'on peut trouver un direct de l'hectel de la mort.",
-    "audio_file": "fr\\man_female\\man_female_23.ogg"
+    "text": "Wait a moment. If that marking is correct, I think we may have found the wreck of the Exceldula.",
+    "audio_file": "fr\\man_female\\man_female_23.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_24",
@@ -3482,8 +3599,9 @@
       "Tasila"
     ],
     "original_file": "0A02B485.ogg",
-    "text": "Je fais une remédie pour les plus forts. Mais cette bague de coins est pas bien pour ne couper la cost.",
-    "audio_file": "fr\\man_female\\man_female_24.ogg"
+    "text": "I do make a remedy for please. But this bag of coins is not enough to cover the cost.",
+    "audio_file": "fr\\man_female\\man_female_24.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_25",
@@ -3518,8 +3636,9 @@
       "Dhên-maka-Kwêl"
     ],
     "original_file": "0A01E296.ogg",
-    "text": "Et Marie l'était met du peuple. Mais sa fille l'autiriale est inexperimentée.",
-    "audio_file": "fr\\man_female\\man_female_25.ogg"
+    "text": "Imrahil était aimé du peuple. Mais sa fille Lothíriel est inexpérimentée.",
+    "audio_file": "fr\\man_female\\man_female_25.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_female_26",
@@ -3541,7 +3660,8 @@
     ],
     "original_file": "0A02A7FF.ogg",
     "text": "Ha! I hope they have fun rooting around in the mark.",
-    "audio_file": "fr\\man_female\\man_female_26.ogg"
+    "audio_file": "fr\\man_female\\man_female_26.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_27",
@@ -3571,8 +3691,9 @@
       "Unusâli"
     ],
     "original_file": "0A02C9A8.ogg",
-    "text": "La bonne chérie est un peu douloureux, n'est-ce pas ? La bonne chérie ? C'est ce que je veux dire, la plus chérie !",
-    "audio_file": "fr\\man_female\\man_female_27.ogg"
+    "text": "Good Shara is a GIF word spreading, is it not? Not good Shara? What am I saying? The BEST Shara!",
+    "audio_file": "fr\\man_female\\man_female_27.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_28",
@@ -3595,8 +3716,9 @@
       "Sarikhol"
     ],
     "original_file": "0A02B686.ogg",
-    "text": "Ah, il y a beaucoup de profiter de choses qui peuvent être fonds ici.",
-    "audio_file": "fr\\man_female\\man_female_28.ogg"
+    "text": "Ah, there are many profitable things that can be found down here.",
+    "audio_file": "fr\\man_female\\man_female_28.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_29",
@@ -3613,8 +3735,9 @@
       "Addie Wheatley"
     ],
     "original_file": "0A000891.ogg",
-    "text": "C'est le vous-plai. Laissez-moi à mon chagrin !",
-    "audio_file": "fr\\man_female\\man_female_29.ogg"
+    "text": "S'il vous plaît, laissez-moi à mon chagrin !",
+    "audio_file": "fr\\man_female\\man_female_29.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_female_30",
@@ -3631,8 +3754,9 @@
       "Rusgwen"
     ],
     "original_file": "0A02ACBA.ogg",
-    "text": "Ha! Vous avez fait le farment ou n'est-ce que j'ai expecté? Oh mon apologie est trop estimé !",
-    "audio_file": "fr\\man_female\\man_female_30.ogg"
+    "text": "Ha! You found farm or wood then I expected! Oh my apologies for underestimating you!",
+    "audio_file": "fr\\man_female\\man_female_30.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_31",
@@ -3667,8 +3791,9 @@
       "Alghila"
     ],
     "original_file": "0A02C9B5.ogg",
-    "text": "Si vous n'avez jamais besoin de assistance, vous pouvez raconter sur le friendship des droits de la mer.",
-    "audio_file": "fr\\man_female\\man_female_31.ogg"
+    "text": "If you ever have need of assistance, you can count upon the friendship of their car stravellers.",
+    "audio_file": "fr\\man_female\\man_female_31.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_32",
@@ -3685,8 +3810,9 @@
       "Derwen"
     ],
     "original_file": "0A029A5F.ogg",
-    "text": "Donc, vous avez trouvé mon blu clair, ok ?",
-    "audio_file": "fr\\man_female\\man_female_32.ogg"
+    "text": "So you found my blue cloak, okay?",
+    "audio_file": "fr\\man_female\\man_female_32.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_33",
@@ -3715,8 +3841,9 @@
       "Golwen"
     ],
     "original_file": "0A02B48A.ogg",
-    "text": "Et donc, tu es venu pour moi, une fois !",
-    "audio_file": "fr\\man_female\\man_female_33.ogg"
+    "text": "And so, you stand before me once again.",
+    "audio_file": "fr\\man_female\\man_female_33.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_34",
@@ -3733,8 +3860,9 @@
       "Jâdira"
     ],
     "original_file": "0A02B480.ogg",
-    "text": "ce que je pense de la cointre de les coins ? Et c'est une question difficile pour moi de me faire une surprise.",
-    "audio_file": "fr\\man_female\\man_female_34.ogg"
+    "text": "What do I think of the Kindred of the coins? And this is a difficult question for me to answer, friends.",
+    "audio_file": "fr\\man_female\\man_female_34.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_35",
@@ -3755,8 +3883,9 @@
       "Kuluk"
     ],
     "original_file": "0A02011C.ogg",
-    "text": "Oh, mon ! C'est en détruire !",
-    "audio_file": "fr\\man_female\\man_female_35.ogg"
+    "text": "Oh my! This is indeed worrying!",
+    "audio_file": "fr\\man_female\\man_female_35.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_36",
@@ -3784,8 +3913,9 @@
       "Rahâzi"
     ],
     "original_file": "0A02AEAA.ogg",
-    "text": "Oh, merci ! Cet ex-dien n'est pas là. Maintenant, j'ai l'impression que j'ai besoin de faire des gots. J'ai l'impression que j'ai fait ce que j'ai fait. Oh, c'est bon !",
-    "audio_file": "fr\\man_female\\man_female_36.ogg"
+    "text": "Oh, thanks! It's a dex down over there. Now if you'll excuse me, I have some goats to feed. Once I find where they've gone... Oh dear!",
+    "audio_file": "fr\\man_female\\man_female_36.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_female_37",
@@ -3804,8 +3934,9 @@
       "Captain Noreth"
     ],
     "original_file": "0A01E90C.ogg",
-    "text": "Voyez-vous le grand avis au large de la cité ?",
-    "audio_file": "fr\\man_female\\man_female_37.ogg"
+    "text": "Voyez-vous le grand navire au large de la cité ?",
+    "audio_file": "fr\\man_female\\man_female_37.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_female_38",
@@ -3828,8 +3959,9 @@
       "Bracha"
     ],
     "original_file": "0A01CD66.ogg",
-    "text": "Avez-vous le tort d'Edy une vieille femme ?",
-    "audio_file": "fr\\man_female\\man_female_38.ogg"
+    "text": "Avez-vous le temps d'aider une vieille femme ?",
+    "audio_file": "fr\\man_female\\man_female_38.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_female_39",
@@ -3860,8 +3992,9 @@
       "Igerna"
     ],
     "original_file": "0A029BEF.ogg",
-    "text": "Je ne peux pas vous dire, pour que notre friendship soit basée sur une déception. Je suis désolé.",
-    "audio_file": "fr\\man_female\\man_female_39.ogg"
+    "text": "My friends, no, I cannot address you so, for our friendship was based upon a deception. I am sorry.",
+    "audio_file": "fr\\man_female\\man_female_39.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_1",
@@ -3960,7 +4093,8 @@
     ],
     "original_file": "0A01B703.ogg",
     "text": "Mon père est un homme sévère. Il ne sera pas heureux de nous voir, je pense.",
-    "audio_file": "fr\\man_male\\man_male_1.ogg"
+    "audio_file": "fr\\man_male\\man_male_1.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_male_2",
@@ -4064,8 +4198,9 @@
       "Toghan"
     ],
     "original_file": "0A02DA7D.ogg",
-    "text": "L'agriculture le reste. Je suis glad que mes horreurs seraient en train de retour.",
-    "audio_file": "fr\\man_male\\man_male_2.ogg"
+    "text": "Laga to her lives! I am glad that my warriors will return soon.",
+    "audio_file": "fr\\man_male\\man_male_2.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_3",
@@ -4125,8 +4260,9 @@
       "Lornion"
     ],
     "original_file": "0A02AEEF.ogg",
-    "text": "Vous retournez avec les news que j'espère. Excellent ! Vous avez notre Thanks !",
-    "audio_file": "fr\\man_male\\man_male_3.ogg"
+    "text": "You return with good news, I hope. Excellent. You have our thanks.",
+    "audio_file": "fr\\man_male\\man_male_3.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_4",
@@ -4190,8 +4326,9 @@
       "Khutor"
     ],
     "original_file": "0A02C7F9.ogg",
-    "text": "les gens sont pour moi pour rejoindre un gars ensemble. Comme un ordre carburant, je ne peux pas refuser.",
-    "audio_file": "fr\\man_male\\man_male_4.ogg"
+    "text": "The people called for me to join God in G'dah. As Harbor Warden, I could not refuse.",
+    "audio_file": "fr\\man_male\\man_male_4.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_5",
@@ -4226,8 +4363,9 @@
       "Candúr"
     ],
     "original_file": "0A02D867.ogg",
-    "text": "While our numbers are few, I believe it to be to our advantage !",
-    "audio_file": "fr\\man_male\\man_male_5.ogg"
+    "text": "While our numbers are a few, I believe it to be to our advantage.",
+    "audio_file": "fr\\man_male\\man_male_5.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_6",
@@ -4277,8 +4415,9 @@
       "Meldir"
     ],
     "original_file": "0A024860.ogg",
-    "text": "Je pense que nous avons une idée. Nous allons nous considérer nos next steps.",
-    "audio_file": "fr\\man_male\\man_male_6.ogg"
+    "text": "I believe we have a lead. Let us consider our next steps.",
+    "audio_file": "fr\\man_male\\man_male_6.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_7",
@@ -4311,8 +4450,9 @@
       "Hrûd-buri-Khêsh"
     ],
     "original_file": "0A02B1F1.ogg",
-    "text": "A man from Gondor, a opened a new market store in the Sailor Heaven.",
-    "audio_file": "fr\\man_male\\man_male_7.ogg"
+    "text": "A man from Gondor has opened a new market store in the Sailor Heaven.",
+    "audio_file": "fr\\man_male\\man_male_7.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_8",
@@ -4388,8 +4528,9 @@
       "Meldir"
     ],
     "original_file": "0A01FEBD.ogg",
-    "text": "Vous et le visage seraient à la ville aussi.",
-    "audio_file": "fr\\man_male\\man_male_8.ogg"
+    "text": "You and the wizard will be coming to the city as well.",
+    "audio_file": "fr\\man_male\\man_male_8.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_9",
@@ -4414,8 +4555,9 @@
       "Thrymm Red-beard"
     ],
     "original_file": "0A01EE81.ogg",
-    "text": "beyond this cape lies the third circle, the craftsman's tear",
-    "audio_file": "fr\\man_male\\man_male_9.ogg"
+    "text": "Beyond this gate lies the third circle. The craftsman's tier.",
+    "audio_file": "fr\\man_male\\man_male_9.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_10",
@@ -4568,8 +4710,9 @@
       "Hadorion"
     ],
     "original_file": "0A01FAF5.ogg",
-    "text": "Est-ce que vous asksz de dire si vous êtes heureux de vous identifier son son ?",
-    "audio_file": "fr\\man_male\\man_male_10.ogg"
+    "text": "Would you ask Dwin here if he is willing to identify his sons?",
+    "audio_file": "fr\\man_male\\man_male_10.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_11",
@@ -4600,8 +4743,9 @@
       "Driftwood"
     ],
     "original_file": "0A02AE2A.ogg",
-    "text": "Vous vous espiez vraiment attendre cette évoquence de venir dans les paves de la mort ?",
-    "audio_file": "fr\\man_male\\man_male_11.ogg"
+    "text": "You really expect this elf warrior to come through the paths of the dead?",
+    "audio_file": "fr\\man_male\\man_male_11.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_12",
@@ -4634,8 +4778,9 @@
       "Abartârik"
     ],
     "original_file": "0A014B36.ogg",
-    "text": "Votre ternatal, cette compter semble des plus agréables.",
-    "audio_file": "fr\\man_male\\man_male_12.ogg"
+    "text": "Votre terre natale, cette Comté, semble des plus agréables.",
+    "audio_file": "fr\\man_male\\man_male_12.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_male_13",
@@ -4685,8 +4830,9 @@
       "Thrymm Red-beard"
     ],
     "original_file": "0A02ADC2.ogg",
-    "text": "Vous mettez ici pour un crew member, mais maintenant, vous avez 2.",
-    "audio_file": "fr\\man_male\\man_male_13.ogg"
+    "text": "You came here for one crew member, but now you have two!",
+    "audio_file": "fr\\man_male\\man_male_13.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_14",
@@ -4721,8 +4867,9 @@
       "Thurindol"
     ],
     "original_file": "0A02D889.ogg",
-    "text": "Qu'est-ce que mon master mort a-t-il fait ?",
-    "audio_file": "fr\\man_male\\man_male_14.ogg"
+    "text": "What power of thine armies was it brought my master low?",
+    "audio_file": "fr\\man_male\\man_male_14.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_15",
@@ -4753,8 +4900,9 @@
       "Thrymm Red-beard"
     ],
     "original_file": "0A01B8AA.ogg",
-    "text": "Bienvenue à Cleaving, ami venu de loin.",
-    "audio_file": "fr\\man_male\\man_male_15.ogg"
+    "text": "Bienvenue à Cléving, ami venu de loin.",
+    "audio_file": "fr\\man_male\\man_male_15.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_male_16",
@@ -4773,8 +4921,9 @@
       "Heledir"
     ],
     "original_file": "0A01E3B0.ogg",
-    "text": "Si vous gravissez silencieusement la colline, vous surprendrez peut-être un céléradissimulé.",
-    "audio_file": "fr\\man_male\\man_male_16.ogg"
+    "text": "Si vous gravissez silencieusement la colline, vous surprendrez peut-être un scélérat dissimulé.",
+    "audio_file": "fr\\man_male\\man_male_16.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_male_17",
@@ -4808,8 +4957,9 @@
       "Râkariz"
     ],
     "original_file": "0A0238DF.ogg",
-    "text": "Come on, on doit aller à l'hôpital, puis assurer le défi de la camp.",
-    "audio_file": "fr\\man_male\\man_male_17.ogg"
+    "text": "Come, we must tend to the wounded, then assess the damage to the camp.",
+    "audio_file": "fr\\man_male\\man_male_17.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_18",
@@ -4840,8 +4990,9 @@
       "Ghôl-buri-Prân"
     ],
     "original_file": "0A01E6AA.ogg",
-    "text": "Grimbert ne t'a mis au défi de porter le meilleur équipement possible.",
-    "audio_file": "fr\\man_male\\man_male_18.ogg"
+    "text": "Grimbeorn vous a mis au défi de porter le meilleur équipement possible.",
+    "audio_file": "fr\\man_male\\man_male_18.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_male_19",
@@ -4911,8 +5062,9 @@
       "Mindaug the Seeker"
     ],
     "original_file": "0A02B1D5.ogg",
-    "text": "Si nous devons faire le business, je veux vous dire que vous cherchez mon mind.",
-    "audio_file": "fr\\man_male\\man_male_19.ogg"
+    "text": "If we have to do business, I want to know you share my mind.",
+    "audio_file": "fr\\man_male\\man_male_19.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_20",
@@ -4936,8 +5088,9 @@
       "Malthellam"
     ],
     "original_file": "0A02AD12.ogg",
-    "text": "Tu as déjà conçu une position à la maison d'un hélène ? Tu as même besoin de l'attache !",
-    "audio_file": "fr\\man_male\\man_male_20.ogg"
+    "text": "Done already? Have you considered a position at a healing house? You seem to have the touch!",
+    "audio_file": "fr\\man_male\\man_male_20.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_21",
@@ -5007,7 +5160,8 @@
     ],
     "original_file": "0A02BAEC.ogg",
     "text": "Hey, let me out into the desert with a ragged cloth tied over my eyes!",
-    "audio_file": "fr\\man_male\\man_male_21.ogg"
+    "audio_file": "fr\\man_male\\man_male_21.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_22",
@@ -5032,8 +5186,9 @@
       "Rovalang"
     ],
     "original_file": "0A01F06D.ogg",
-    "text": "La 5e circule est la saigeste et c'est un pays de l'élection.",
-    "audio_file": "fr\\man_male\\man_male_22.ogg"
+    "text": "The fifth circle is the Sages' tier, and it is a place of learning.",
+    "audio_file": "fr\\man_male\\man_male_22.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_23",
@@ -5057,8 +5212,9 @@
       "Daeram"
     ],
     "original_file": "0A01EF84.ogg",
-    "text": "Il ne va pas être long pour que le monde soit surrounded. J'espère que nous sommes là.",
-    "audio_file": "fr\\man_male\\man_male_23.ogg"
+    "text": "It will not be long before the city is surrounded. I hope we are ready.",
+    "audio_file": "fr\\man_male\\man_male_23.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_24",
@@ -5083,8 +5239,9 @@
       "Thurindol"
     ],
     "original_file": "0A01EEEB.ogg",
-    "text": "Ah, tu es là pour faire une fin de course pour cette foule ?",
-    "audio_file": "fr\\man_male\\man_male_24.ogg"
+    "text": "Ah, you're here to purchase a fine horse for this fellow?",
+    "audio_file": "fr\\man_male\\man_male_24.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_25",
@@ -5143,8 +5300,9 @@
       "Húlamath"
     ],
     "original_file": "0A02D69D.ogg",
-    "text": "Nous sommes à l'aise de la prison. Il n'y a rien à faire quand vous êtes autour.",
-    "audio_file": "fr\\man_male\\man_male_25.ogg"
+    "text": "We will guard the prisoner. Nothing to fear while you are away.",
+    "audio_file": "fr\\man_male\\man_male_25.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_26",
@@ -5246,8 +5404,9 @@
       "Celonor"
     ],
     "original_file": "0A01CB28.ogg",
-    "text": "chacun de ses objets était un cadeau.",
-    "audio_file": "fr\\man_male\\man_male_26.ogg"
+    "text": "Chacun de ces objets était un cadeau.",
+    "audio_file": "fr\\man_male\\man_male_26.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_male_27",
@@ -5311,8 +5470,9 @@
       "Meldir"
     ],
     "original_file": "0A02AEB6.ogg",
-    "text": "Vous n'êtes pas monté ici, et neither es mon nephew.",
-    "audio_file": "fr\\man_male\\man_male_27.ogg"
+    "text": "You are not wanted here, and neither is my nephew.",
+    "audio_file": "fr\\man_male\\man_male_27.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_28",
@@ -5333,8 +5493,9 @@
       "Barathant"
     ],
     "original_file": "0A01F082.ogg",
-    "text": "Je ne peux pas les ramener pour les ramener, mais nous avons besoin de leur faire de la mouche.",
-    "audio_file": "fr\\man_male\\man_male_28.ogg"
+    "text": "I do not blame them for running. But we need them to muster their fear.",
+    "audio_file": "fr\\man_male\\man_male_28.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_29",
@@ -5367,8 +5528,9 @@
       "Azatikh"
     ],
     "original_file": "0A01F059.ogg",
-    "text": "Etre Don, vous voulez vous parler de Parfordon ? C'est une bonne idée.",
-    "audio_file": "fr\\man_male\\man_male_29.ogg"
+    "text": "Echadon wanted you to speak with Parfordon? Hmm. That is a good idea.",
+    "audio_file": "fr\\man_male\\man_male_29.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_30",
@@ -5408,8 +5570,9 @@
       "Thurindol"
     ],
     "original_file": "0A0296A6.ogg",
-    "text": "Je devais admettre que je ne suis pas expecté de retourner. Donc, c'est ce que c'est.",
-    "audio_file": "fr\\man_male\\man_male_30.ogg"
+    "text": "I must admit I did not expect it to return. I...so quickly that is...",
+    "audio_file": "fr\\man_male\\man_male_30.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_31",
@@ -5439,8 +5602,9 @@
       "Maurán"
     ],
     "original_file": "0A02A795.ogg",
-    "text": "Qu'est-ce que tu penses ? Je suis content de vous voir, maintenant que les députés sont derrière nous.",
-    "audio_file": "fr\\man_male\\man_male_31.ogg"
+    "text": "What a surprise! I'm glad to see you again. Now that those dark days are behind us.",
+    "audio_file": "fr\\man_male\\man_male_31.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_32",
@@ -5476,8 +5640,9 @@
       "Thrymm Red-beard"
     ],
     "original_file": "0A01ED2B.ogg",
-    "text": "Bonne時間 ! Je me suis juste prétendu ces gens à l'heure de notre aventure !",
-    "audio_file": "fr\\man_male\\man_male_32.ogg"
+    "text": "Good timing! I was just telling these ladies about our adventures.",
+    "audio_file": "fr\\man_male\\man_male_32.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_33",
@@ -5516,8 +5681,9 @@
       "Driftwood"
     ],
     "original_file": "0A02A75E.ogg",
-    "text": "Maybe you can do me a favor? Bring this beacon oil to howeun for safekeeping.",
-    "audio_file": "fr\\man_male\\man_male_33.ogg"
+    "text": "Maybe you can do me a favor? Bring this beacon oil to Howan for safe keeping.",
+    "audio_file": "fr\\man_male\\man_male_33.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_34",
@@ -5549,8 +5715,9 @@
       "Sirgon"
     ],
     "original_file": "0A029788.ogg",
-    "text": "Quoi ? Business could draw such terrible creatures to herna ?",
-    "audio_file": "fr\\man_male\\man_male_34.ogg"
+    "text": "What business could draw such terrible creatures to herna?",
+    "audio_file": "fr\\man_male\\man_male_34.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_35",
@@ -5595,8 +5762,9 @@
       "Meldir"
     ],
     "original_file": "0A010455.ogg",
-    "text": "J'ai mis un nouveau fer au cheval de Saïradan. Cela devrait résoudre son problème.",
-    "audio_file": "fr\\man_male\\man_male_35.ogg"
+    "text": "J'ai mis un nouveau fer au cheval de Saeradan. Cela devrait résoudre son problème.",
+    "audio_file": "fr\\man_male\\man_male_35.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_male_36",
@@ -5632,8 +5800,9 @@
       "Rhadrog"
     ],
     "original_file": "0A02CAC4.ogg",
-    "text": "Elle est là ? Elle est bien. Un coup de faute à l'esprit de la maison n'est pas faible.",
-    "audio_file": "fr\\man_male\\man_male_36.ogg"
+    "text": "She stays? Man is good. A scribe alone in this desert would not fare well.",
+    "audio_file": "fr\\man_male\\man_male_36.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_37",
@@ -5654,8 +5823,9 @@
       "Sêk-pulo-Têg"
     ],
     "original_file": "0A01FEE6.ogg",
-    "text": "J'ai utilisé l'occupe d'un ougroucours et d'autres comme-je.",
-    "audio_file": "fr\\man_male\\man_male_37.ogg"
+    "text": "Use the clothes I gave you to help put an end to Ugru Kour and others like him.",
+    "audio_file": "fr\\man_male\\man_male_37.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_38",
@@ -5684,8 +5854,9 @@
       "Gerwyn"
     ],
     "original_file": "0A0126C0.ogg",
-    "text": "Venez jusqu'à la dernière heure, même s'il est su et tragique, est un acte qui revient une certaine boire.",
-    "audio_file": "fr\\man_male\\man_male_38.ogg"
+    "text": "Lutter jusqu'à la dernière heure, même si l'issue est tragique, est un acte qui apporte une certaine gloire.",
+    "audio_file": "fr\\man_male\\man_male_38.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_male_39",
@@ -5709,8 +5880,9 @@
       "Duindil"
     ],
     "original_file": "0A021013.ogg",
-    "text": "Les pierres de la Masté sont des morts de la Tounse Smuggles.",
-    "audio_file": "fr\\man_male\\man_male_39.ogg"
+    "text": "Pears, our master was murdered by the Lake Town smugglers.",
+    "audio_file": "fr\\man_male\\man_male_39.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_40",
@@ -5788,8 +5960,9 @@
       "Ingold"
     ],
     "original_file": "0A0239F8.ogg",
-    "text": "Les autres servents de Sauron pourraient toujours travailler son évil dans le monde de la ville.",
-    "audio_file": "fr\\man_male\\man_male_40.ogg"
+    "text": "Other servants of Sauron might still work his evil within the dead city.",
+    "audio_file": "fr\\man_male\\man_male_40.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_41",
@@ -5806,8 +5979,9 @@
       "Daervunn"
     ],
     "original_file": "0A01FA5A.ogg",
-    "text": "Je suis heureux que tu avais suivi. Donc beaucoup de nos amis n'ont pas...",
-    "audio_file": "fr\\man_male\\man_male_41.ogg"
+    "text": "I am happy you survived. So many of our friends did not.",
+    "audio_file": "fr\\man_male\\man_male_41.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_42",
@@ -5914,8 +6088,9 @@
       "Thrymm Red-beard"
     ],
     "original_file": "0A01F537.ogg",
-    "text": "Listen not to horns dispending words, they are only on the surface.",
-    "audio_file": "fr\\man_male\\man_male_42.ogg"
+    "text": "Listen not to horns-disparing words. They are only on the surface.",
+    "audio_file": "fr\\man_male\\man_male_42.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_43",
@@ -5958,8 +6133,9 @@
       "Toghan"
     ],
     "original_file": "0A020220.ogg",
-    "text": "Bringe les termes de ma maître à la guerre.",
-    "audio_file": "fr\\man_male\\man_male_43.ogg"
+    "text": "Bring the terms of my master's peace to the king.",
+    "audio_file": "fr\\man_male\\man_male_43.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_44",
@@ -5987,8 +6163,9 @@
       "Uludakh"
     ],
     "original_file": "0A02DA46.ogg",
-    "text": "My people are una fred de fighting. The solar cherished battle. And shrink not from it.",
-    "audio_file": "fr\\man_male\\man_male_44.ogg"
+    "text": "My people are unafraid to fight. The Suhilar Cherish battle and shrink not from it.",
+    "audio_file": "fr\\man_male\\man_male_44.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_45",
@@ -6029,8 +6206,9 @@
       "Thrymm Red-beard"
     ],
     "original_file": "0A0299C7.ogg",
-    "text": "J'espère que je suis en train de dire que c'est quelque chose mais mes instincts me disent que quelque chose est correct.",
-    "audio_file": "fr\\man_male\\man_male_45.ogg"
+    "text": "I hope I am worrying over nothing, but my instincts tell me something is wrong.",
+    "audio_file": "fr\\man_male\\man_male_45.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_46",
@@ -6048,7 +6226,8 @@
     ],
     "original_file": "0A020F9D.ogg",
     "text": "Let us return to the task of mending these woods.",
-    "audio_file": "fr\\man_male\\man_male_46.ogg"
+    "audio_file": "fr\\man_male\\man_male_46.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_47",
@@ -6068,8 +6247,9 @@
       "Hasong"
     ],
     "original_file": "0A0114AE.ogg",
-    "text": "Ne me parlie pas de Wado ! C'est un lâche ! Et il n'est plus mon fils !",
-    "audio_file": "fr\\man_male\\man_male_47.ogg"
+    "text": "Ne me parlez pas de Wado ! C'est un lâche ! Et il n'est plus mon fils !",
+    "audio_file": "fr\\man_male\\man_male_47.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "man_male_48",
@@ -6100,8 +6280,9 @@
       "Arâniz"
     ],
     "original_file": "0A0297ED.ogg",
-    "text": "Le Prédice Throed a seen much more travel than usual, en recent days.",
-    "audio_file": "fr\\man_male\\man_male_48.ogg"
+    "text": "The great East Road has seen much more travel than usual in recent days.",
+    "audio_file": "fr\\man_male\\man_male_48.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_49",
@@ -6144,8 +6325,9 @@
       "Malgâras"
     ],
     "original_file": "0A01FEAA.ogg",
-    "text": "On doit se faire un coup de boule au revoir, puis c'est là qui va accomplir ce que nous faisons.",
-    "audio_file": "fr\\man_male\\man_male_49.ogg"
+    "text": "We must seek uschkbar the overseer then. It is he who will accomplish what we seek.",
+    "audio_file": "fr\\man_male\\man_male_49.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "man_male_50",
@@ -6170,8 +6352,9 @@
       "Arshûk"
     ],
     "original_file": "0A029783.ogg",
-    "text": "Mais ces musées vont avoir de l'air. Pour Winter, c'est l'approche et Autumn ne l'a pas.",
-    "audio_file": "fr\\man_male\\man_male_50.ogg"
+    "text": "But such musings will have to wait. For winter is approaching and autumn doesn't last.",
+    "audio_file": "fr\\man_male\\man_male_50.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "orc_1",
@@ -6202,8 +6385,9 @@
       "Morflak's Lackey"
     ],
     "original_file": "0A015042.ogg",
-    "text": "Pourquoi train-t-il de Paris-C? Exprétois!",
-    "audio_file": "fr\\orc\\orc_1.ogg"
+    "text": "Pourquoi traînes-tu par ici ? Dépêche-toi !",
+    "audio_file": "fr\\orc\\orc_1.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "orc_2",
@@ -6231,8 +6415,9 @@
       "Yazluk-garga"
     ],
     "original_file": "0A02B17A.ogg",
-    "text": "Vous avez prouvé que vous êtes heureux de mon truste. Maintenant je vais vous accueillir.",
-    "audio_file": "fr\\orc\\orc_2.ogg"
+    "text": "You have proven that you are worthy of my trust. Now I would call upon you to aid us.",
+    "audio_file": "fr\\orc\\orc_2.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "orc_3",
@@ -6249,8 +6434,9 @@
       "Zerlúk"
     ],
     "original_file": "0A01B8B0.ogg",
-    "text": "Apportez-moi une autre de grogues où je ne dirais rien.",
-    "audio_file": "fr\\orc\\orc_3.ogg"
+    "text": "Apportez-moi une outre de grog ou je ne dirai rien.",
+    "audio_file": "fr\\orc\\orc_3.ogg",
+    "is_native_french": true
   },
   {
     "voice_id": "orc_4",
@@ -6271,8 +6457,9 @@
       "Shúkurz"
     ],
     "original_file": "0A02B182.ogg",
-    "text": "Ha! Y'allellas, personne, on a expectant de se c'est ici.",
-    "audio_file": "fr\\orc\\orc_4.ogg"
+    "text": "Ha! You're the last person I expected to see here!",
+    "audio_file": "fr\\orc\\orc_4.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "orc_5",
@@ -6289,8 +6476,9 @@
       "Ashaug"
     ],
     "original_file": "0A023712.ogg",
-    "text": "Qu'est-ce que j'aurais dû faire? Je ne sais pas que ça va!",
-    "audio_file": "fr\\orc\\orc_5.ogg"
+    "text": "If I could still move my arm, I'd slice that throat!",
+    "audio_file": "fr\\orc\\orc_5.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "orc_6",
@@ -6307,8 +6495,9 @@
       "Mauznákh the Ruined"
     ],
     "original_file": "0A0203B8.ogg",
-    "text": "Vous, vous seraient l'instrument de mon revanche. Come closer, je te dis vous, tout ce que vous voulez.",
-    "audio_file": "fr\\orc\\orc_6.ogg"
+    "text": "You, you will be the instrument of my revenge. Come closer. I will tell you everything.",
+    "audio_file": "fr\\orc\\orc_6.ogg",
+    "is_native_french": false
   },
   {
     "voice_id": "troll_1",
@@ -6335,7 +6524,8 @@
       "Rothog"
     ],
     "original_file": "0A02BD6A.ogg",
-    "text": "Tu ne peux pas le parler, je ne vais pas le répéter de mes words.",
-    "audio_file": "fr\\troll\\troll_1.ogg"
+    "text": "Did you not listen? I will not repeat my words to you.",
+    "audio_file": "fr\\troll\\troll_1.ogg",
+    "is_native_french": false
   }
 ]
