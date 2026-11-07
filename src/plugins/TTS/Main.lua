@@ -51,7 +51,6 @@ _G.TTS.window = Turbine.UI.Window();
 _G.TTS.window:SetSize(settings.width, 20);
 _G.TTS.window:SetPosition(settings.left, settings.top);
 _G.TTS.window:SetVisible(true);
-_G.TTS.window:SetWantsUpdates(true);
 
 -- Echter LOTRO-Button
 _G.TTS.button = Turbine.UI.Lotro.Button();
@@ -177,19 +176,94 @@ _G.TTS.button.Click = function(sender, args)
     Turbine.Engine.ScriptLog("TTS|" .. code .. "|" .. name);
 end;
 
--- Ziel-Überwachung über das Update-Event
-_G.TTS.window.Update = function(sender, args)
-    local player = Turbine.Gameplay.LocalPlayer.GetInstance();
-    local hasTarget = false;
-    
-    if player ~= nil then
-        local target = player:GetTarget();
-        if target ~= nil then
-            hasTarget = true;
+-- --- ZIEL-ÜBERWACHUNG (EVENT-BASIERT STATT FRAME-POLLING) ---
+-- player:GetTarget() erzeugt bei jedem Aufruf ein natives C++ Entity-Wrapper-Objekt.
+-- Ein Abfragen pro Frame (Update-Event) erzeugt tausende Wrapper pro Minute im Speicher,
+-- die der LOTRO-Client bei jedem Zielwechsel durchlaufen muss -> führt zu wachsenden Freezes.
+-- Lösung: Ausschließlich ereignisbasiert auf TargetChanged reagieren.
+
+local function AddCallback(object, event, callback)
+    if object == nil then return nil end
+    local existing = object[event];
+    if existing == nil then
+        object[event] = callback;
+    elseif type(existing) == "table" then
+        table.insert(existing, callback);
+    elseif type(existing) == "function" then
+        object[event] = { existing, callback };
+    end
+    return callback;
+end
+
+local function RemoveCallback(object, event, callback)
+    if object == nil then return end
+    local existing = object[event];
+    if existing == callback then
+        object[event] = nil;
+    elseif type(existing) == "table" then
+        for i, cb in ipairs(existing) do
+            if cb == callback then
+                table.remove(existing, i);
+                break;
+            end
+        end
+        if #existing == 1 then
+            object[event] = existing[1];
+        elseif #existing == 0 then
+            object[event] = nil;
         end
     end
-    
+end
+
+local localPlayer = nil;
+
+local function RefreshButtonVisibility()
+    local hasTarget = false;
+    if localPlayer ~= nil then
+        local target = localPlayer:GetTarget();
+        hasTarget = (target ~= nil);
+    end
     if _G.TTS.button:IsVisible() ~= hasTarget then
         _G.TTS.button:SetVisible(hasTarget);
+    end
+end
+
+local function OnTargetChanged(sender, args)
+    RefreshButtonVisibility();
+end
+
+-- Initialisierung: Wenn das Plugin beim Login automatisch geladen wird,
+-- kann LocalPlayer.GetInstance() während des Ladebildschirms kurzzeitig nil sein.
+local function SetupTargetListener()
+    localPlayer = Turbine.Gameplay.LocalPlayer.GetInstance();
+    if localPlayer ~= nil then
+        AddCallback(localPlayer, "TargetChanged", OnTargetChanged);
+        RefreshButtonVisibility();
+        return true;
+    end
+    return false;
+end
+
+if not SetupTargetListener() then
+    -- Falls beim Laden noch im Ladebildschirm: temporär Updates aktivieren,
+    -- bis LocalPlayer existiert, danach sofort wieder komplett abschalten.
+    _G.TTS.window:SetWantsUpdates(true);
+    _G.TTS.window.Update = function(sender, args)
+        if SetupTargetListener() then
+            _G.TTS.window:SetWantsUpdates(false);
+            _G.TTS.window.Update = nil;
+        end
+    end;
+end
+
+-- Beim Entladen des Plugins Listener sauber lösen und Fenster schließen
+plugin.Unload = function(self)
+    if localPlayer ~= nil then
+        RemoveCallback(localPlayer, "TargetChanged", OnTargetChanged);
+    end
+    if _G.TTS.window ~= nil then
+        _G.TTS.window:SetWantsUpdates(false);
+        _G.TTS.window.Update = nil;
+        _G.TTS.window:SetVisible(false);
     end
 end;
