@@ -14,6 +14,8 @@ namespace LotroTtsGui
         public string PublishedAt { get; set; } = "";
         public string HtmlUrl { get; set; } = "";
         public string DownloadUrl { get; set; } = "";
+        public string DownloadFileName { get; set; } = "";
+        public bool IsDirectExe { get; set; }
         public bool IsNewer { get; set; }
     }
 
@@ -40,6 +42,32 @@ namespace LotroTtsGui
                 string htmlUrl = root.TryGetProperty("html_url", out var htmlElem) ? htmlElem.GetString() ?? "" : "";
                 string zipUrl = root.TryGetProperty("zipball_url", out var zipElem) ? zipElem.GetString() ?? "" : "";
 
+                string downloadUrl = "";
+                string downloadFileName = $"{tagName}.zip";
+                bool isDirectExe = false;
+
+                // Check for attached release assets first (.zip or .exe)
+                if (root.TryGetProperty("assets", out var assetsElem) && assetsElem.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var asset in assetsElem.EnumerateArray())
+                    {
+                        string aName = asset.TryGetProperty("name", out var an) ? an.GetString() ?? "" : "";
+                        string aUrl = asset.TryGetProperty("browser_download_url", out var au) ? au.GetString() ?? "" : "";
+                        if (aName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) || aName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                        {
+                            downloadUrl = aUrl;
+                            downloadFileName = aName;
+                            isDirectExe = aName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
+                            break;
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(downloadUrl))
+                {
+                    downloadUrl = zipUrl;
+                }
+
                 bool isNewer = CompareVersions(tagName, currentVersion) > 0;
 
                 return new UpdateInfo
@@ -49,7 +77,9 @@ namespace LotroTtsGui
                     Body = body,
                     PublishedAt = publishedAt,
                     HtmlUrl = htmlUrl,
-                    DownloadUrl = zipUrl,
+                    DownloadUrl = downloadUrl,
+                    DownloadFileName = downloadFileName,
+                    IsDirectExe = isDirectExe,
                     IsNewer = isNewer
                 };
             }

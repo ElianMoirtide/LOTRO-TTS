@@ -562,6 +562,10 @@ namespace LotroTtsGui
                         lblVolumeTitle.Text = $"TTS Volume: {vol}%";
                     }
                 }
+                else
+                {
+                    SaveConfig();
+                }
             }
             catch { }
         }
@@ -865,7 +869,7 @@ namespace LotroTtsGui
 
             SaveConfig();
 
-            if (!IsPluginInstalled())
+            if (!IsPluginInstalled() || IsPluginUpdateAvailable())
             {
                 InstallLuaPluginSilent();
             }
@@ -1124,7 +1128,7 @@ namespace LotroTtsGui
             if (string.IsNullOrEmpty(dlg.SelectedMode)) return;
             string mode = dlg.SelectedMode;
 
-            if (!IsPluginInstalled())
+            if (!IsPluginInstalled() || IsPluginUpdateAvailable())
             {
                 InstallLuaPluginSilent();
             }
@@ -1190,7 +1194,7 @@ namespace LotroTtsGui
         {
             if (latestUpdateInfo != null && latestUpdateInfo.IsNewer)
             {
-                var dlg = new UpdateDialog(latestUpdateInfo);
+                var dlg = new UpdateDialog(latestUpdateInfo, baseDir);
                 await dlg.ShowDialog(this);
             }
             else
@@ -1231,7 +1235,7 @@ namespace LotroTtsGui
 
                         if (!silent)
                         {
-                            var dlg = new UpdateDialog(info);
+                            var dlg = new UpdateDialog(info, baseDir);
                             await dlg.ShowDialog(this);
                         }
                     }
