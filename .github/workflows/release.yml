@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Target Release Tag (e.g. v2.0, or leave empty for latest)'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -14,17 +19,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Determine tag name
         id: vars
         run: |
-          if [ -n "${{ github.event.release.tag_name }}" ]; then
-            TAG="${{ github.event.release.tag_name }}"
+          INPUT_TAG="${{ github.event.inputs.tag_name }}"
+          EVENT_TAG="${{ github.event.release.tag_name }}"
+
+          if [ -n "${INPUT_TAG}" ]; then
+            TAG="${INPUT_TAG}"
+          elif [ -n "${EVENT_TAG}" ]; then
+            TAG="${EVENT_TAG}"
           else
-            TAG=$(git describe --tags --always)
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags --always)
           fi
+
           echo "TAG=${TAG}" >> $GITHUB_ENV
-          echo "Building packages for tag: ${TAG}"
+          echo "Selected package tag: ${TAG}"
 
       - name: Package Windows Zip (x64)
         run: |
@@ -72,12 +85,29 @@ jobs:
           zip -r "../../dist/LOTRO-TTS-${TAG}-Linux-x64.zip" .
           cd ../..
 
-      - name: Upload Release Assets
+      - name: Upload Workflow Artifacts (Action Summary)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LOTRO-TTS-${{ env.TAG }}-Packages
+          path: dist/*.zip
+          retention-days: 7
+
+      - name: Attach Assets to GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Uploading release packages for tag: ${TAG}..."
-          gh release upload "${TAG}" \
-            dist/LOTRO-TTS-${TAG}-Windows-x64.zip \
-            dist/LOTRO-TTS-${TAG}-Linux-x64.zip \
-            --clobber
+          echo "Checking release for tag: ${TAG}..."
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "Release '${TAG}' found. Uploading release assets..."
+            gh release upload "${TAG}" \
+              dist/LOTRO-TTS-${TAG}-Windows-x64.zip \
+              dist/LOTRO-TTS-${TAG}-Linux-x64.zip \
+              --clobber
+          else
+            echo "Release '${TAG}' does not exist on GitHub yet. Creating release '${TAG}'..."
+            gh release create "${TAG}" \
+              dist/LOTRO-TTS-${TAG}-Windows-x64.zip \
+              dist/LOTRO-TTS-${TAG}-Linux-x64.zip \
+              --title "LOTRO-TTS ${TAG}" \
+              --notes "Automated release packages for ${TAG}."
+          fi
