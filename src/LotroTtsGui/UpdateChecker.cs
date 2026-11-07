@@ -156,20 +156,58 @@ namespace LotroTtsGui
                 string downloadFileName = $"{tagName}.zip";
                 bool isDirectExe = false;
 
-                // Check for attached release assets first (.zip or .exe)
+                // Check for attached release assets first (.zip or .exe) with OS-specific matching
                 if (root.TryGetProperty("assets", out var assetsElem) && assetsElem.ValueKind == JsonValueKind.Array)
                 {
+                    string fallbackUrl = "";
+                    string fallbackFileName = "";
+                    bool fallbackDirectExe = false;
+                    bool isWin = OperatingSystem.IsWindows();
+
                     foreach (var asset in assetsElem.EnumerateArray())
                     {
                         string aName = asset.TryGetProperty("name", out var an) ? an.GetString() ?? "" : "";
                         string aUrl = asset.TryGetProperty("browser_download_url", out var au) ? au.GetString() ?? "" : "";
-                        if (aName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) || aName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                        if (string.IsNullOrEmpty(aUrl)) continue;
+
+                        bool isZip = aName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+                        bool isExe = aName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
+                        if (!isZip && !isExe) continue;
+
+                        string lower = aName.ToLowerInvariant();
+                        bool isWinAsset = lower.Contains("win") || isExe;
+                        bool isLinuxAsset = lower.Contains("linux") || lower.Contains("lin64");
+
+                        // 1. Prioritize exact matching OS asset
+                        if (isWin && isWinAsset)
                         {
                             downloadUrl = aUrl;
                             downloadFileName = aName;
-                            isDirectExe = aName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
+                            isDirectExe = isExe;
                             break;
                         }
+                        else if (!isWin && isLinuxAsset)
+                        {
+                            downloadUrl = aUrl;
+                            downloadFileName = aName;
+                            isDirectExe = false;
+                            break;
+                        }
+
+                        // 2. Generic fallback if asset does not specify OS
+                        if (string.IsNullOrEmpty(fallbackUrl) && !isWinAsset && !isLinuxAsset)
+                        {
+                            fallbackUrl = aUrl;
+                            fallbackFileName = aName;
+                            fallbackDirectExe = isExe;
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(downloadUrl) && !string.IsNullOrEmpty(fallbackUrl))
+                    {
+                        downloadUrl = fallbackUrl;
+                        downloadFileName = fallbackFileName;
+                        isDirectExe = fallbackDirectExe;
                     }
                 }
 

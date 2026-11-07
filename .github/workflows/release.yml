@@ -1,0 +1,83 @@
+name: Release Packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine tag name
+        id: vars
+        run: |
+          if [ -n "${{ github.event.release.tag_name }}" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG=$(git describe --tags --always)
+          fi
+          echo "TAG=${TAG}" >> $GITHUB_ENV
+          echo "Building packages for tag: ${TAG}"
+
+      - name: Package Windows Zip (x64)
+        run: |
+          mkdir -p dist/win_staging
+          rsync -av --exclude='.git' \
+                    --exclude='.github' \
+                    --exclude='.vscode' \
+                    --exclude='*.pyc' \
+                    --exclude='__pycache__' \
+                    --exclude='LOTRO-TTS' \
+                    --exclude='src/LotroTtsGui/bin' \
+                    --exclude='src/LotroTtsGui/obj' \
+                    --exclude='pub_win' \
+                    --exclude='pub_linux' \
+                    --exclude='dist' \
+                    --exclude='_update_temp' \
+                    ./ dist/win_staging/
+
+          cd dist/win_staging
+          zip -r "../../dist/LOTRO-TTS-${TAG}-Windows-x64.zip" .
+          cd ../..
+
+      - name: Package Linux Zip (x64)
+        run: |
+          mkdir -p dist/linux_staging
+          rsync -av --exclude='.git' \
+                    --exclude='.github' \
+                    --exclude='.vscode' \
+                    --exclude='*.pyc' \
+                    --exclude='__pycache__' \
+                    --exclude='LOTRO-TTS.exe' \
+                    --exclude='src/LotroTtsGui/bin' \
+                    --exclude='src/LotroTtsGui/obj' \
+                    --exclude='pub_win' \
+                    --exclude='pub_linux' \
+                    --exclude='dist' \
+                    --exclude='_update_temp' \
+                    ./ dist/linux_staging/
+
+          # Ensure execution permissions for Linux executable and scripts
+          chmod +x dist/linux_staging/LOTRO-TTS
+          find dist/linux_staging -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
+
+          cd dist/linux_staging
+          zip -r "../../dist/LOTRO-TTS-${TAG}-Linux-x64.zip" .
+          cd ../..
+
+      - name: Upload Release Assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Uploading release packages for tag: ${TAG}..."
+          gh release upload "${TAG}" \
+            dist/LOTRO-TTS-${TAG}-Windows-x64.zip \
+            dist/LOTRO-TTS-${TAG}-Linux-x64.zip \
+            --clobber
