@@ -219,11 +219,34 @@ def generate_database(src_dir: Path, output_db: Path):
         except Exception as e:
             logger.warning(f"Could not load races cache from {json_cache}: {e}")
 
+    # Load custom user NPC overrides if available (src/npc/npc_races_custom.json)
+    custom_cache = npc_dir / "npc_races_custom.json"
+    custom_overrides: dict[str, dict] = {}
+    if custom_cache.exists():
+        try:
+            with open(custom_cache, "r", encoding="utf-8") as f:
+                cdata = json.load(f)
+                for k, v in cdata.items():
+                    if str(k).startswith("_"):
+                        continue
+                    clean_k = str(k).strip().strip("'\"`")
+                    if isinstance(v, str):
+                        custom_overrides[clean_k] = {"race": v}
+                        custom_overrides[clean_k.lower()] = {"race": v}
+                    elif isinstance(v, dict):
+                        custom_overrides[clean_k] = v
+                        custom_overrides[clean_k.lower()] = v
+            if custom_overrides:
+                logger.info(f"Loaded {len(custom_overrides)} custom NPC overrides from {custom_cache.name}")
+        except Exception as e:
+            logger.warning(f"Could not load custom overrides from {custom_cache}: {e}")
+
     # Load voice profile pools directly from curated voices library
     voices_base_dir = Path(__file__).resolve().parent.parent / "data" / "voices"
     voice_pools, default_narrator = load_voice_pools(voices_base_dir)
 
     npcs_dict: dict[int, tuple] = {}
+    custom_applied_count = 0
     for _, elem in ET.iterparse(npc_file, events=("end",)):
         if elem.tag == "NPC":
             nid_str = elem.attrib.get("id")
@@ -238,9 +261,38 @@ def generate_database(src_dir: Path, output_db: Path):
                 race_info = (cached_races.get(clean_name) or cached_races.get(name_en) or {}) if name_en else {}
                 race = elem.attrib.get("race") or race_info.get("race")
                 url = elem.attrib.get("url") or race_info.get("url")
-                voice_id = get_deterministic_voice_id(nid, gender, race, voice_pools, default_narrator, name_en=name_en)
+
+                # Match custom overrides by ID (str or int) or any localized/clean name
+                custom = (
+                    custom_overrides.get(nid_str)
+                    or custom_overrides.get(str(nid))
+                    or (clean_name and (custom_overrides.get(clean_name) or custom_overrides.get(clean_name.lower())))
+                    or (name_en and (custom_overrides.get(name_en) or custom_overrides.get(name_en.lower())))
+                    or (name_de and (custom_overrides.get(name_de) or custom_overrides.get(name_de.lower())))
+                    or (name_fr and (custom_overrides.get(name_fr) or custom_overrides.get(name_fr.lower())))
+                    or (name_es and (custom_overrides.get(name_es) or custom_overrides.get(name_es.lower())))
+                    or {}
+                )
+                if custom:
+                    custom_applied_count += 1
+                    if custom.get("race"):
+                        race = custom["race"]
+                    if custom.get("gender"):
+                        gender = custom["gender"]
+                    if custom.get("url"):
+                        url = custom["url"]
+
+                custom_voice_id = custom.get("voice_id")
+                if custom_voice_id:
+                    voice_id = custom_voice_id
+                else:
+                    voice_id = get_deterministic_voice_id(nid, gender, race, voice_pools, default_narrator, name_en=name_en)
+
                 npcs_dict[nid] = (nid, name_en, name_de, name_fr, name_es, gender, race, url, voice_id)
         elem.clear()
+
+    if custom_applied_count > 0:
+        logger.info(f"Applied {custom_applied_count} custom NPC overrides from {custom_cache.name}")
 
     logger.info(f"Loaded {len(npcs_dict)} NPCs from NPC.xml in {time.time() - t0:.2f}s")
 

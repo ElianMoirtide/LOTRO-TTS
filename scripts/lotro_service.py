@@ -72,6 +72,9 @@ class LotroPipelineService:
         enable_mouse: bool = True,
         game_lang: str = "en",
         tts_lang: str = "en",
+        stop_hotkey: str = "pause",
+        narrator_mode: bool = False,
+        narrator_voice: str = "man_male_1",
     ):
         self.lotro_docs_dir = Path(lotro_docs_dir)
         self.script_log_path = self.lotro_docs_dir / "Script.log"
@@ -81,6 +84,9 @@ class LotroPipelineService:
         self.enable_mouse = enable_mouse
         self.game_lang = game_lang.lower().strip()
         self.tts_lang = tts_lang.lower().strip()
+        self.stop_hotkey = (stop_hotkey or "pause").lower().strip()
+        self.narrator_mode = bool(narrator_mode)
+        self.narrator_voice = str(narrator_voice).strip() if narrator_voice else "man_male_1"
 
         # Auto-detect CUDA GPU for maximum performance (e.g. RTX 4090)
         import torch
@@ -93,7 +99,13 @@ class LotroPipelineService:
         self.screen_reader = LotroScreenReader(str(self.db_path), eager_init=True)
 
         logger.info(f"Initializing TTS Speaker on device [{device.upper()}] (Voices: {self.voices_dir})")
-        self.speaker = LotroSpeaker(str(self.voices_dir), str(self.db_path), device=device)
+        self.speaker = LotroSpeaker(
+            str(self.voices_dir),
+            str(self.db_path),
+            device=device,
+            narrator_mode=self.narrator_mode,
+            narrator_voice=self.narrator_voice,
+        )
         self.translator = LotroTranslator(device=device)
         if self.tts_lang in ("it", "nl"):
             self.translator.preload(self.tts_lang, src_lang=self.game_lang)
@@ -505,13 +517,68 @@ class LotroPipelineService:
         with self._lock:
             self._is_speaking = True
         try:
-            logger.info(
-                f"Speaking text ({len(final_text)} chars) for NPC '{speaker_target}' in '{active_tts_lang}'..."
-            )
+            if self.narrator_mode:
+                logger.info(
+                    f"Speaking text ({len(final_text)} chars) for '{speaker_target}' in [NARRATOR MODE] (Voice: {self.narrator_voice}) in '{active_tts_lang}'..."
+                )
+            else:
+                logger.info(
+                    f"Speaking text ({len(final_text)} chars) for NPC '{speaker_target}' in '{active_tts_lang}'..."
+                )
             self.speaker.speak(final_text, speaker_target, lang=active_tts_lang)
         finally:
             with self._lock:
                 self._is_speaking = False
+
+    def force_stop(self):
+        """Immediately halts any running dialogue playback and cancels active speech synthesis."""
+        was_active = False
+        with self._lock:
+            if self._is_speaking or (self.speaker and self.speaker.is_speaking()):
+                was_active = True
+            self._is_speaking = False
+            self._is_scanning = False
+
+        if self.speaker:
+            self.speaker.stop()
+
+        if was_active:
+            logger.info("[FORCE STOP] Dialogue playback interrupted immediately by hotkey!")
+        else:
+            logger.debug("Stop hotkey pressed (no dialogue currently playing).")
+
+    def start_keyboard_listener(self):
+        """Starts background listener for the dialogue force-stop hotkey (default: Pause/Break)."""
+        try:
+            from pynput import keyboard
+
+            target_key_name = self.stop_hotkey
+
+            def on_press(key):
+                matched = False
+                k_name = getattr(key, "name", None)
+                k_char = getattr(key, "char", None)
+
+                # Pause / Break key support across different keyboards & platforms
+                if target_key_name in ("pause", "break", "pause_break"):
+                    if k_name in ("pause", "pause_break", "media_play_pause") or key == getattr(keyboard.Key, "pause", None):
+                        matched = True
+                elif k_name and k_name.lower() == target_key_name:
+                    matched = True
+                elif k_char and k_char.lower() == target_key_name:
+                    matched = True
+
+                if matched:
+                    self.force_stop()
+
+            listener = keyboard.Listener(on_press=on_press)
+            listener.daemon = True
+            listener.start()
+            logger.info(
+                f"Global keyboard listener activated: Stop Hotkey [{self.stop_hotkey.upper()}] -> Force-stop playback"
+            )
+        except Exception as e:
+            logger.warning(f"Could not start global keyboard listener: {e}")
 
     def start_mouse_listener(self):
         """Starts background listener for Middle Mouse Button (Button 3)."""
@@ -534,6 +601,7 @@ class LotroPipelineService:
         """Watches Script.log for new lines formatted as: TTS|<CLIENT_LANG>|<TARGET>."""
         logger.info(f"Watching '{self.script_log_path}' for plugin triggers...")
 
+        self.start_keyboard_listener()
         if self.enable_mouse:
             self.start_mouse_listener()
 
@@ -722,9 +790,46 @@ def main():
     parser.add_argument("--client-lang", type=str, default=None, help="Force LOTRO game client language (en, de, fr)")
     parser.add_argument("--tts-lang", type=str, default=None, help="Force TTS speech language (en, de, fr, es, it, nl)")
     parser.add_argument("--config", action="store_true", help="Prompt for language configuration")
+    parser.add_argument(
+        "--stop-hotkey",
+        type=str,
+        default=None,
+        help="Global hotkey to force-stop dialogue playback (default: 'pause')",
+    )
+    parser.add_argument(
+        "--narrator-mode",
+        action="store_true",
+        help="Enable optional single narrator voice for all dialogue (audiobook style)",
+    )
+    parser.add_argument(
+        "--narrator-voice",
+        type=str,
+        default=None,
+        help="Voice ID to use for narrator mode (default: 'man_male_1')",
+    )
     args = parser.parse_args()
 
-    # Determine languages
+    # Determine languages, stop hotkey, and narrator mode
+    config_file = base_dir / "config.json"
+    configured_stop_hotkey = "pause"
+    configured_narrator_mode = False
+    configured_narrator_voice = "man_male_1"
+    if config_file.exists():
+        try:
+            cfg = json.loads(config_file.read_text(encoding="utf-8"))
+            if cfg.get("stop_hotkey"):
+                configured_stop_hotkey = str(cfg["stop_hotkey"]).lower().strip()
+            if "narrator_mode" in cfg:
+                configured_narrator_mode = bool(cfg["narrator_mode"])
+            if cfg.get("narrator_voice"):
+                configured_narrator_voice = str(cfg["narrator_voice"]).strip()
+        except Exception:
+            pass
+
+    stop_hotkey = args.stop_hotkey or configured_stop_hotkey
+    narrator_mode = args.narrator_mode or configured_narrator_mode
+    narrator_voice = args.narrator_voice or configured_narrator_voice
+
     if args.client_lang and args.tts_lang:
         game_lang = args.client_lang.lower().strip()
         tts_lang = args.tts_lang.lower().strip()
@@ -735,8 +840,9 @@ def main():
         if args.tts_lang:
             tts_lang = args.tts_lang.lower().strip()
 
+    narrator_info = f" | Narrator Mode = [ENABLED: {narrator_voice}]" if narrator_mode else " | Narrator Mode = [DISABLED]"
     logger.info(
-        f"Active Settings: Game Client Language = [{game_lang.upper()}] | TTS Speech Language = [{tts_lang.upper()}]"
+        f"Active Settings: Game Client = [{game_lang.upper()}] | TTS Speech = [{tts_lang.upper()}] | Stop Hotkey = [{stop_hotkey.upper()}]{narrator_info}"
     )
 
     service = LotroPipelineService(
@@ -747,6 +853,9 @@ def main():
         enable_mouse=not args.no_mouse,
         game_lang=game_lang,
         tts_lang=tts_lang,
+        stop_hotkey=stop_hotkey,
+        narrator_mode=narrator_mode,
+        narrator_voice=narrator_voice,
     )
     service.watch_script_log()
 

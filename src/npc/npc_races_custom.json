@@ -1,0 +1,15 @@
+{
+  "_description": "LOTRO-TTS Custom NPC Overrides. Entries defined here take precedence over npc_races.json and NPC.xml both at runtime and during database generation (generate_db.py). This file is preserved across application updates.",
+  "_instructions": "Define overrides at root level by NPC name (e.g. 'Peony Grubb') or NPC ID (e.g. '1879049636'). Supported fields: 'race', 'gender', and optional 'voice_id'.",
+  "_examples": {
+    "Peony Grubb": {
+      "race": "Hobbit",
+      "gender": "Female"
+    },
+    "1879049636": {
+      "race": "Hobbit",
+      "gender": "Female",
+      "voice_id": "hobbit_female_9"
+    }
+  }
+}

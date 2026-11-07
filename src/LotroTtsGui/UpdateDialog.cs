@@ -71,10 +71,16 @@ namespace LotroTtsGui
             var headerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 12) };
             var lblTitle = new TextBlock
             {
-                Text = "New Update Available!",
+                Text = updateInfo.IsPrerelease ? "New Pre-Release Available! (Beta)" : "New Update Available!",
                 FontSize = 18,
                 FontWeight = FontWeight.Bold,
-                Foreground = goldAccent
+                Foreground = updateInfo.IsPrerelease ? amberWarn : goldAccent
+            };
+            var releaseStack = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 8,
+                Margin = new Thickness(0, 4, 0, 0)
             };
             var lblRelease = new TextBlock
             {
@@ -82,10 +88,32 @@ namespace LotroTtsGui
                 FontSize = 14,
                 FontWeight = FontWeight.SemiBold,
                 Foreground = textLight,
-                Margin = new Thickness(0, 4, 0, 0)
+                VerticalAlignment = VerticalAlignment.Center
             };
+            releaseStack.Children.Add(lblRelease);
+
+            if (updateInfo.IsPrerelease)
+            {
+                var badge = new Border
+                {
+                    Background = amberWarn,
+                    CornerRadius = new CornerRadius(3),
+                    Padding = new Thickness(6, 2),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                var lblBadge = new TextBlock
+                {
+                    Text = "PRE-RELEASE / BETA",
+                    FontSize = 10,
+                    FontWeight = FontWeight.Bold,
+                    Foreground = Brushes.Black
+                };
+                badge.Child = lblBadge;
+                releaseStack.Children.Add(badge);
+            }
+
             headerStack.Children.Add(lblTitle);
-            headerStack.Children.Add(lblRelease);
+            headerStack.Children.Add(releaseStack);
             Grid.SetRow(headerStack, 0);
             mainGrid.Children.Add(headerStack);
 
@@ -355,8 +383,10 @@ if exist ""%~3\python\win64"" (
     powershell -NoProfile -Command ""Get-ChildItem '%~2\python\win64\*._pth' -ErrorAction SilentlyContinue | ForEach-Object {{ (Get-Content $_.FullName) -replace '#import site', 'import site' | Set-Content $_.FullName }}"" 2>nul
 )
 
-:: 2. Robocopy files into base directory (excluding runtime, user cache, user db, logs)
-robocopy ""%~3"" ""%~2"" /E /XD python cache logs .git scratch _update_temp /XF config.json lotro.db *.log /R:5 /W:1 >nul
+:: 2. Robocopy files into base directory (excluding runtime, user cache, user db, custom npc overrides, logs)
+if exist ""%~2\src\npc\npc_races_custom.json"" copy /y ""%~2\src\npc\npc_races_custom.json"" ""%~2\_custom_npc.tmp"" >nul
+robocopy ""%~3"" ""%~2"" /E /XD python cache logs .git scratch _update_temp /XF config.json lotro.db npc_races_custom.json *.log /R:5 /W:1 >nul
+if exist ""%~2\_custom_npc.tmp"" move /y ""%~2\_custom_npc.tmp"" ""%~2\src\npc\npc_races_custom.json"" >nul
 
 :: If config.json did not exist in target, copy default
 if not exist ""%~2\config.json"" if exist ""%~3\config.json"" copy ""%~3\config.json"" ""%~2\config.json"" >nul
@@ -412,8 +442,14 @@ if [ -d ""$PAYLOAD_DIR/python/linux64"" ]; then
     fi
 fi
 
-# 2. Copy application files excluding python, cache, config.json, lotro.db, .git, logs
+# 2. Copy application files excluding python, cache, config.json, lotro.db, .git, logs, npc_races_custom.json
+if [ -f ""$BASE_DIR/src/npc/npc_races_custom.json"" ]; then
+    cp -f ""$BASE_DIR/src/npc/npc_races_custom.json"" ""$BASE_DIR/_custom_npc.tmp""
+fi
 find ""$PAYLOAD_DIR"" -mindepth 1 -maxdepth 1 ! -name 'python' ! -name 'cache' ! -name 'config.json' ! -name 'lotro.db' ! -name '.git' ! -name 'logs' -exec cp -rf {{}} ""$BASE_DIR""/ \;
+if [ -f ""$BASE_DIR/_custom_npc.tmp"" ]; then
+    mv -f ""$BASE_DIR/_custom_npc.tmp"" ""$BASE_DIR/src/npc/npc_races_custom.json""
+fi
 
 chmod +x ""$BASE_DIR/LOTRO-TTS"" 2>/dev/null
 rm -rf ""$BASE_DIR/_update_temp""

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -30,6 +31,11 @@ namespace LotroTtsGui
         private readonly string baseDir;
         private readonly string pythonExe;
         private readonly string configPath;
+        private string stopHotkey = "pause";
+        private double savedNormalWidth = 960;
+        private double savedNormalHeight = 720;
+        private bool savedIsMaximized = false;
+        private bool isLoadingConfig = false;
 
         // Status controls
         private TextBlock lblEnvStatus = null!;
@@ -43,6 +49,9 @@ namespace LotroTtsGui
         private Slider sliderVolume = null!;
         private TextBlock lblVolumeTitle = null!;
         private CheckBox chkMiddleMouse = null!;
+        private CheckBox chkNarratorMode = null!;
+        private ComboBox cmbNarratorVoice = null!;
+        private string savedNarratorVoice = "man_male_1";
         private Button btnStartStop = null!;
 
         // Tool buttons
@@ -54,6 +63,8 @@ namespace LotroTtsGui
 
         // Update Checker
         private Button btnUpdateBadge = null!;
+        private CheckBox chkIncludePrereleases = null!;
+        private bool includePrereleases = false;
         private UpdateInfo? latestUpdateInfo = null;
         private bool isCheckingUpdates = false;
 
@@ -98,9 +109,49 @@ namespace LotroTtsGui
             }
             catch { }
 
-            InitializeUi();
-            LoadConfig();
-            RefreshSystemStatus();
+            LoadSavedWindowSize();
+            Width = savedNormalWidth;
+            Height = savedNormalHeight;
+            if (savedIsMaximized)
+            {
+                WindowState = WindowState.Maximized;
+            }
+
+            isLoadingConfig = true;
+            try
+            {
+                InitializeUi();
+                PopulateNarratorVoices();
+                LoadConfig();
+                RefreshSystemStatus();
+            }
+            finally
+            {
+                isLoadingConfig = false;
+            }
+
+            this.PropertyChanged += (s, e) =>
+            {
+                if (isLoadingConfig) return;
+                if (e.Property.Name == nameof(WindowState))
+                {
+                    savedIsMaximized = (WindowState == WindowState.Maximized);
+                }
+                else if (e.Property.Name == nameof(Bounds) || e.Property.Name == nameof(ClientSize))
+                {
+                    if (WindowState == WindowState.Normal)
+                    {
+                        if (Bounds.Width >= MinWidth) savedNormalWidth = Bounds.Width;
+                        if (Bounds.Height >= MinHeight) savedNormalHeight = Bounds.Height;
+                    }
+                }
+            };
+
+            this.Closing += (s, e) =>
+            {
+                SaveConfig();
+                StopActiveProcess();
+            };
 
             AppendLog("======================================================================", goldAccent);
             AppendLog($"  LOTRO-TTS {AppVersion} — Local AI Voiceover System for Middle-earth", goldAccent);
@@ -123,8 +174,6 @@ namespace LotroTtsGui
                 await Task.Delay(1000);
                 await RunUpdateCheckAsync(silent: true);
             };
-
-            this.Closing += (s, e) => StopActiveProcess();
         }
 
         private void InitializeUi()
@@ -164,6 +213,28 @@ namespace LotroTtsGui
             Grid.SetColumn(lblVersion, 1);
             headerGrid.Children.Add(lblVersion);
 
+            var updateControls = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center,
+                Spacing = 10
+            };
+
+            chkIncludePrereleases = new CheckBox
+            {
+                Content = "Include Pre-Releases (Beta)",
+                IsChecked = includePrereleases,
+                Foreground = textMuted,
+                FontSize = 11.5,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            chkIncludePrereleases.IsCheckedChanged += (s, e) =>
+            {
+                includePrereleases = chkIncludePrereleases.IsChecked ?? false;
+                SaveConfig();
+                _ = RunUpdateCheckAsync(silent: true);
+            };
+
             btnUpdateBadge = new Button
             {
                 Content = "Check for Updates",
@@ -177,8 +248,11 @@ namespace LotroTtsGui
                 VerticalAlignment = VerticalAlignment.Center
             };
             btnUpdateBadge.Click += OnUpdateBadgeClicked;
-            Grid.SetColumn(btnUpdateBadge, 3);
-            headerGrid.Children.Add(btnUpdateBadge);
+
+            updateControls.Children.Add(chkIncludePrereleases);
+            updateControls.Children.Add(btnUpdateBadge);
+            Grid.SetColumn(updateControls, 3);
+            headerGrid.Children.Add(updateControls);
 
             Grid.SetRow(headerGrid, 0);
             rootGrid.Children.Add(headerGrid);
@@ -209,14 +283,25 @@ namespace LotroTtsGui
                 Margin = new Thickness(0, 0, 0, 10)
             };
 
-            var configGrid = new Grid
+            // Outer grid: Left is all settings (*), Right is the Start/Stop button (180px)
+            var configOuterGrid = new Grid
             {
-                RowDefinitions = new RowDefinitions("Auto,Auto"),
-                ColumnDefinitions = new ColumnDefinitions("1.1*,8,1.2*,8,0.9*,8,0.9*,12,1.3*")
+                ColumnDefinitions = new ColumnDefinitions("*,14,180")
+            };
+
+            var settingsPanel = new Grid
+            {
+                RowDefinitions = new RowDefinitions("Auto,Auto,Auto")
+            };
+
+            // Row 0: 4 dropdowns & volume slider
+            var row0Grid = new Grid
+            {
+                ColumnDefinitions = new ColumnDefinitions("1.1*,8,1.2*,8,0.9*,8,0.9*")
             };
 
             // Dropdown 1: Game Client Lang
-            cmbClientLang = CreateDropdown(configGrid, 0, 0, "Game Client Language (OCR):", new[]
+            cmbClientLang = CreateDropdown(row0Grid, 0, 0, "Game Client Language (OCR):", new[]
             {
                 "de — Deutsch (German)",
                 "en — English",
@@ -225,7 +310,7 @@ namespace LotroTtsGui
             cmbClientLang.SelectionChanged += (s, e) => SaveConfig();
 
             // Dropdown 2: TTS Voice Lang
-            cmbTtsLang = CreateDropdown(configGrid, 0, 2, "Spoken TTS Voice Language:", new[]
+            cmbTtsLang = CreateDropdown(row0Grid, 0, 2, "Spoken TTS Voice Language:", new[]
             {
                 "de — Deutsch (Native Voices)",
                 "en — English (Native Voices)",
@@ -234,10 +319,14 @@ namespace LotroTtsGui
                 "it — Italiano (AI Translation)",
                 "nl — Nederlands (AI Translation)"
             });
-            cmbTtsLang.SelectionChanged += (s, e) => SaveConfig();
+            cmbTtsLang.SelectionChanged += (s, e) =>
+            {
+                PopulateNarratorVoices();
+                SaveConfig();
+            };
 
             // Dropdown 3: Compute Mode
-            cmbComputeMode = CreateDropdown(configGrid, 0, 4, "Compute Mode:", new[]
+            cmbComputeMode = CreateDropdown(row0Grid, 0, 4, "Compute Mode:", new[]
             {
                 "auto — Auto (GPU / CPU)",
                 "cuda — GPU (NVIDIA / AMD)",
@@ -277,9 +366,69 @@ namespace LotroTtsGui
             volPanel.Children.Add(sliderVolume);
             Grid.SetRow(volPanel, 0);
             Grid.SetColumn(volPanel, 6);
-            configGrid.Children.Add(volPanel);
+            row0Grid.Children.Add(volPanel);
 
-            // Start/Stop Button
+            Grid.SetRow(row0Grid, 0);
+            settingsPanel.Children.Add(row0Grid);
+
+            // Row 1: Middle Mouse trigger checkbox
+            chkMiddleMouse = new CheckBox
+            {
+                Content = new TextBlock
+                {
+                    Text = "Enable Middle Mouse Button (Mouse 3) as In-Game Trigger (in addition to the LOTRO Plugin button)",
+                    TextWrapping = TextWrapping.Wrap,
+                    Foreground = textLight,
+                    FontSize = 12
+                },
+                IsChecked = true,
+                Margin = new Thickness(0, 6, 0, 0)
+            };
+            Grid.SetRow(chkMiddleMouse, 1);
+            settingsPanel.Children.Add(chkMiddleMouse);
+
+            // Row 2: Narrator Mode Controls in a WrapPanel
+            var narratorPanel = new WrapPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(0, 6, 0, 0)
+            };
+
+            chkNarratorMode = new CheckBox
+            {
+                Content = "Narrator Mode (Audiobook — single voice):",
+                IsChecked = false,
+                Foreground = textLight,
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            chkNarratorMode.IsCheckedChanged += (s, e) =>
+            {
+                cmbNarratorVoice.IsEnabled = chkNarratorMode.IsChecked ?? false;
+                SaveConfig();
+            };
+
+            cmbNarratorVoice = new ComboBox
+            {
+                Width = 240,
+                IsEnabled = false,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            cmbNarratorVoice.SelectionChanged += (s, e) => SaveConfig();
+
+            narratorPanel.Children.Add(chkNarratorMode);
+            narratorPanel.Children.Add(cmbNarratorVoice);
+
+            Grid.SetRow(narratorPanel, 2);
+            settingsPanel.Children.Add(narratorPanel);
+
+            Grid.SetColumn(settingsPanel, 0);
+            configOuterGrid.Children.Add(settingsPanel);
+
+            // Start/Stop Button in dedicated right column
             btnStartStop = new Button
             {
                 Content = "START LOTRO-TTS",
@@ -295,26 +444,10 @@ namespace LotroTtsGui
                 CornerRadius = new CornerRadius(4)
             };
             btnStartStop.Click += OnStartStopClicked;
-            Grid.SetRow(btnStartStop, 0);
-            Grid.SetColumn(btnStartStop, 8);
-            Grid.SetRowSpan(btnStartStop, 2);
-            configGrid.Children.Add(btnStartStop);
+            Grid.SetColumn(btnStartStop, 2);
+            configOuterGrid.Children.Add(btnStartStop);
 
-            // Middle Mouse trigger checkbox
-            chkMiddleMouse = new CheckBox
-            {
-                Content = "Enable Middle Mouse Button (Mouse 3) as In-Game Trigger (in addition to the LOTRO Plugin button)",
-                IsChecked = true,
-                Foreground = textLight,
-                FontSize = 12,
-                Margin = new Thickness(0, 6, 0, 0)
-            };
-            Grid.SetRow(chkMiddleMouse, 1);
-            Grid.SetColumn(chkMiddleMouse, 0);
-            Grid.SetColumnSpan(chkMiddleMouse, 7);
-            configGrid.Children.Add(chkMiddleMouse);
-
-            configBorder.Child = configGrid;
+            configBorder.Child = configOuterGrid;
             Grid.SetRow(configBorder, 2);
             rootGrid.Children.Add(configBorder);
 
@@ -540,6 +673,33 @@ namespace LotroTtsGui
             }
         }
 
+        private void LoadSavedWindowSize()
+        {
+            try
+            {
+                if (File.Exists(configPath))
+                {
+                    string json = File.ReadAllText(configPath, Encoding.UTF8);
+                    using var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+
+                    if (root.TryGetProperty("window_width", out var ww) && ww.TryGetDouble(out double w) && w >= MinWidth)
+                    {
+                        savedNormalWidth = w;
+                    }
+                    if (root.TryGetProperty("window_height", out var wh) && wh.TryGetDouble(out double h) && h >= MinHeight)
+                    {
+                        savedNormalHeight = h;
+                    }
+                    if (root.TryGetProperty("window_maximized", out var wm) && wm.ValueKind == JsonValueKind.True)
+                    {
+                        savedIsMaximized = true;
+                    }
+                }
+            }
+            catch { }
+        }
+
         private void LoadConfig()
         {
             try
@@ -561,6 +721,30 @@ namespace LotroTtsGui
                         sliderVolume.Value = Math.Clamp(vol, 0, 100);
                         lblVolumeTitle.Text = $"TTS Volume: {vol}%";
                     }
+
+                    if (root.TryGetProperty("stop_hotkey", out var sh) && !string.IsNullOrWhiteSpace(sh.GetString()))
+                    {
+                        stopHotkey = sh.GetString()!.ToLowerInvariant().Trim();
+                    }
+
+                    if (root.TryGetProperty("narrator_mode", out var nm) && (nm.ValueKind == JsonValueKind.True || nm.ValueKind == JsonValueKind.False))
+                    {
+                        bool isNarrator = nm.GetBoolean();
+                        chkNarratorMode.IsChecked = isNarrator;
+                        cmbNarratorVoice.IsEnabled = isNarrator;
+                    }
+
+                    if (root.TryGetProperty("narrator_voice", out var nv) && !string.IsNullOrWhiteSpace(nv.GetString()))
+                    {
+                        savedNarratorVoice = nv.GetString()!.Trim();
+                        SelectNarratorVoice(savedNarratorVoice);
+                    }
+
+                    if (root.TryGetProperty("include_prereleases", out var ip) && (ip.ValueKind == JsonValueKind.True || ip.ValueKind == JsonValueKind.False))
+                    {
+                        includePrereleases = ip.GetBoolean();
+                        if (chkIncludePrereleases != null) chkIncludePrereleases.IsChecked = includePrereleases;
+                    }
                 }
                 else
                 {
@@ -570,20 +754,127 @@ namespace LotroTtsGui
             catch { }
         }
 
+        private void PopulateNarratorVoices()
+        {
+            if (cmbNarratorVoice == null || cmbTtsLang == null) return;
+            string ttsLang = GetSelectedCode(cmbTtsLang, "en");
+            string voicesDir = Path.Combine(baseDir, "data", "voices");
+            string langFolder = (ttsLang == "de" || ttsLang == "fr") ? ttsLang : "en";
+            string indexFile = Path.Combine(voicesDir, langFolder, "voice_index.json");
+
+            var items = new List<string>();
+            string currentSelectedId = GetSelectedVoiceId(cmbNarratorVoice, savedNarratorVoice);
+
+            if (File.Exists(indexFile))
+            {
+                try
+                {
+                    using var doc = JsonDocument.Parse(File.ReadAllText(indexFile, Encoding.UTF8));
+                    var root = doc.RootElement;
+                    if (root.ValueKind == JsonValueKind.Array)
+                    {
+                        var seen = new HashSet<string>();
+                        foreach (var el in root.EnumerateArray())
+                        {
+                            if (el.TryGetProperty("voice_id", out var vidElem))
+                            {
+                                string vid = vidElem.GetString() ?? "";
+                                if (!string.IsNullOrEmpty(vid) && seen.Add(vid))
+                                {
+                                    string npc = el.TryGetProperty("npc_name", out var n) ? n.GetString() ?? "" : "";
+                                    string cat = el.TryGetProperty("category", out var c) ? c.GetString() ?? "" : "";
+                                    string label = string.IsNullOrEmpty(npc) ? $"{vid} ({cat})" : $"{vid} — {npc} ({cat})";
+                                    items.Add(label);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            if (items.Count == 0)
+            {
+                items.Add("man_male_1 — Horn / Narrator (man_male)");
+                items.Add("man_male_15 — Athelward (man_male)");
+                items.Add("elf_female_1 — Fimloth (elf_female)");
+                items.Add("hobbit_male_1 — Pippin (hobbit_male)");
+            }
+
+            cmbNarratorVoice.ItemsSource = items;
+            SelectNarratorVoice(currentSelectedId);
+        }
+
+        private void SelectNarratorVoice(string voiceId)
+        {
+            if (cmbNarratorVoice?.ItemsSource is IList<string> items)
+            {
+                for (int i = 0; i < items.Count; i++)
+                {
+                    if (items[i].StartsWith(voiceId + " ", StringComparison.OrdinalIgnoreCase)
+                        || items[i].StartsWith(voiceId + "—", StringComparison.OrdinalIgnoreCase)
+                        || items[i].Equals(voiceId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        cmbNarratorVoice.SelectedIndex = i;
+                        return;
+                    }
+                }
+                if (items.Count > 0) cmbNarratorVoice.SelectedIndex = 0;
+            }
+        }
+
+        private static string GetSelectedVoiceId(ComboBox cmb, string defaultVoice = "man_male_1")
+        {
+            if (cmb?.SelectedItem is string s)
+            {
+                int sep = s.IndexOf('—');
+                if (sep > 0) return s.Substring(0, sep).Trim();
+                int space = s.IndexOf(' ');
+                if (space > 0) return s.Substring(0, space).Trim();
+                return s.Trim();
+            }
+            return defaultVoice;
+        }
+
         private void SaveConfig()
         {
+            if (isLoadingConfig) return;
             try
             {
                 string gameLang = GetSelectedCode(cmbClientLang, "de");
                 string ttsLang = GetSelectedCode(cmbTtsLang, "de");
                 int volume = (int)sliderVolume.Value;
+                bool narratorMode = chkNarratorMode?.IsChecked ?? false;
+                string narratorVoice = GetSelectedVoiceId(cmbNarratorVoice, savedNarratorVoice);
+                savedNarratorVoice = narratorVoice;
+
+                if (WindowState == WindowState.Maximized)
+                {
+                    savedIsMaximized = true;
+                }
+                else
+                {
+                    savedIsMaximized = false;
+                    if (Bounds.Width >= MinWidth) savedNormalWidth = Bounds.Width;
+                    else if (Width >= MinWidth) savedNormalWidth = Width;
+
+                    if (Bounds.Height >= MinHeight) savedNormalHeight = Bounds.Height;
+                    else if (Height >= MinHeight) savedNormalHeight = Height;
+                }
 
                 var data = new
                 {
                     version = AppVersion,
                     game_lang = gameLang,
                     tts_lang = ttsLang,
-                    volume = volume
+                    volume = volume,
+                    stop_hotkey = stopHotkey,
+                    narrator_mode = narratorMode,
+                    narrator_voice = narratorVoice,
+                    include_prereleases = includePrereleases,
+                    window_width = (int)Math.Round(savedNormalWidth),
+                    window_height = (int)Math.Round(savedNormalHeight),
+                    window_maximized = savedIsMaximized
                 };
                 string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(configPath, json, new UTF8Encoding(false));
@@ -989,11 +1280,20 @@ namespace LotroTtsGui
             int volume = (int)sliderVolume.Value;
             bool useMouse = chkMiddleMouse.IsChecked ?? true;
 
-            string args = $"-u \"scripts/lotro_service.py\" --client-lang {clientLang} --tts-lang {ttsLang} --mode {mode}" +
+            bool narratorMode = chkNarratorMode.IsChecked ?? false;
+            string narratorVoice = GetSelectedVoiceId(cmbNarratorVoice, savedNarratorVoice);
+
+            string args = $"-u \"scripts/lotro_service.py\" --client-lang {clientLang} --tts-lang {ttsLang} --mode {mode} --stop-hotkey {stopHotkey}" +
+                          (narratorMode ? $" --narrator-mode --narrator-voice {narratorVoice}" : "") +
                           (useMouse ? "" : " --no-mouse");
 
             AppendLog("\n======================================================================", goldAccent);
             AppendLog($"Starting LOTRO-TTS Service [Client: {clientLang.ToUpperInvariant()} | TTS: {ttsLang.ToUpperInvariant()} | Mode: {mode.ToUpperInvariant()} | Vol: {volume}%]...", goldAccent);
+            AppendLog($"[HOTKEY] Press [{stopHotkey.ToUpperInvariant()}] anytime in-game to instantly force-stop dialogue.", goldAccent);
+            if (narratorMode)
+            {
+                AppendLog($"[NARRATOR MODE] Active — all dialogue will be read using single narrator voice: '{narratorVoice}'", goldAccent);
+            }
             AppendLog("======================================================================", goldAccent);
 
             try
@@ -1216,7 +1516,7 @@ namespace LotroTtsGui
 
             try
             {
-                var info = await UpdateChecker.CheckForUpdateAsync(AppVersion);
+                var info = await UpdateChecker.CheckForUpdateAsync(AppVersion, includePrereleases);
                 latestUpdateInfo = info;
 
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -1225,13 +1525,26 @@ namespace LotroTtsGui
 
                     if (info != null && info.IsNewer)
                     {
-                        btnUpdateBadge.Content = $"Update: {info.TagName}";
-                        btnUpdateBadge.Foreground = Brushes.White;
-                        btnUpdateBadge.Background = new SolidColorBrush(Color.FromRgb(170, 120, 15));
-                        btnUpdateBadge.FontWeight = FontWeight.Bold;
+                        if (info.IsPrerelease)
+                        {
+                            btnUpdateBadge.Content = $"Pre-Release: {info.TagName}";
+                            btnUpdateBadge.Foreground = Brushes.White;
+                            btnUpdateBadge.Background = amberWarn;
+                            btnUpdateBadge.FontWeight = FontWeight.Bold;
 
-                        AppendLog($"[UPDATE] A new version of LOTRO-TTS is available: {info.TagName} ({info.ReleaseName})", goldAccent);
-                        AppendLog("  Click 'Update' in the top right to view details.", textLight);
+                            AppendLog($"[UPDATE] A new pre-release (Beta) is available: {info.TagName} ({info.ReleaseName})", amberWarn);
+                            AppendLog("  Click 'Pre-Release' in the top right to view details.", textLight);
+                        }
+                        else
+                        {
+                            btnUpdateBadge.Content = $"Update: {info.TagName}";
+                            btnUpdateBadge.Foreground = Brushes.White;
+                            btnUpdateBadge.Background = new SolidColorBrush(Color.FromRgb(170, 120, 15));
+                            btnUpdateBadge.FontWeight = FontWeight.Bold;
+
+                            AppendLog($"[UPDATE] A new version of LOTRO-TTS is available: {info.TagName} ({info.ReleaseName})", goldAccent);
+                            AppendLog("  Click 'Update' in the top right to view details.", textLight);
+                        }
 
                         if (!silent)
                         {

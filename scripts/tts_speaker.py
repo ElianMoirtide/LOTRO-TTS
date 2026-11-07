@@ -36,10 +36,19 @@ def _norm_npc_key(name: str | None) -> str:
 
 
 class LotroSpeaker:
-    def __init__(self, voices_dir="data/voices", db_path="data/lotro.db", device=None):
+    def __init__(
+        self,
+        voices_dir="data/voices",
+        db_path="data/lotro.db",
+        device=None,
+        narrator_mode: bool = False,
+        narrator_voice: str = "man_male_1",
+    ):
         self.base_dir = Path(__file__).resolve().parent.parent
         self.voices_dir = self.base_dir / voices_dir
         self.db_path = self.base_dir / db_path
+        self.narrator_mode = bool(narrator_mode)
+        self.narrator_voice = str(narrator_voice).strip() if narrator_voice else "man_male_1"
 
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Initializing LOTRO-TTS Speaker Engine on [{self.device}]...")
@@ -86,6 +95,11 @@ class LotroSpeaker:
                 self.by_voice_id[lang] = {}
                 self.by_npc_name[lang] = {}
 
+        # Custom NPC overrides (src/npc/npc_races_custom.json)
+        self.custom_races_path = self.base_dir / "src" / "npc" / "npc_races_custom.json"
+        self._custom_races_mtime = 0
+        self._custom_races_cache = {}
+
         # Warm up OmniVoice with a silent mini-generation to initialize CUDA kernels & VRAM allocations,
         # and pre-cache default narrator voice prompts so quest dialogues start with 0ms prompt latency.
         self._warmup_engine()
@@ -112,74 +126,145 @@ class LotroSpeaker:
         except Exception as e:
             print(f"TTS warm-up notice: {e}")
 
-    def get_npc_info(self, npc_name_or_id):
-        """Looks up NPC race, gender, and assigned voice_id from data/lotro.db."""
-        if not self.db_path.exists():
-            return "narrator", "narrator", "male", None
+    def _get_custom_npc_overrides(self) -> dict:
+        """Loads or reloads custom NPC overrides from src/npc/npc_races_custom.json if modified."""
+        if not self.custom_races_path.exists():
+            return {}
+        try:
+            mtime = self.custom_races_path.stat().st_mtime
+            if mtime != self._custom_races_mtime:
+                with open(self.custom_races_path, "r", encoding="utf-8") as f:
+                    cdata = json.load(f)
+                parsed = {}
+                for k, v in cdata.items():
+                    if str(k).startswith("_"):
+                        continue
+                    clean_k = str(k).strip().strip("'\"`")
+                    norm_k = _norm_npc_key(clean_k)
+                    entry = {"race": v} if isinstance(v, str) else v
+                    parsed[clean_k] = entry
+                    parsed[clean_k.lower()] = entry
+                    if norm_k:
+                        parsed[norm_k] = entry
+                self._custom_races_cache = parsed
+                self._custom_races_mtime = mtime
+            return self._custom_races_cache
+        except Exception as e:
+            print(f"[WARN] Could not parse custom NPC overrides from {self.custom_races_path}: {e}")
+            return self._custom_races_cache
 
-        conn = sqlite3.connect(str(self.db_path))
-        c = conn.cursor()
+    @staticmethod
+    def _map_race_gender_to_category(race: str | None, gender: str | None) -> tuple[str, str]:
+        """Maps canonical or raw race & gender strings to TTS category and gender."""
+        race_str = (race or "man").lower().strip()
+        gender_str = (gender or "male").lower().strip()
+        if "river-maid" in race_str:
+            return "elf_female", "female"
+        elif "elf" in race_str or "kinta" in race_str:
+            r = "elf"
+        elif "hobbit" in race_str or "halfling" in race_str or "stoor" in race_str or "river" in race_str:
+            r = "hobbit"
+        elif "dwarf" in race_str or "stout" in race_str or "zhélruka" in race_str or "zhelruka" in race_str or "temámir" in race_str or "temamir" in race_str:
+            r = "dwarf"
+        elif "orc" in race_str or "uruk" in race_str or "goblin" in race_str or "ordâkhai" in race_str or "ordakhai" in race_str:
+            return "orc", "male"
+        elif "troll" in race_str or "giant" in race_str or "rogmul" in race_str:
+            return "troll", "male"
+        elif "ent" in race_str or "huorn" in race_str:
+            return "ent", "neutral"
+        elif "dead" in race_str or "shade" in race_str or "wraith" in race_str or "nazgûl" in race_str or "nazgul" in race_str:
+            return "dead", "neutral"
+        else:
+            r = "man"
+
+        g = "female" if gender_str in ("female", "f", "woman") else "male"
+        return f"{r}_{g}", g
+
+    def get_npc_info(self, npc_name_or_id):
+        """Looks up NPC race, gender, and assigned voice_id from custom overrides and data/lotro.db."""
+        custom_overrides = self._get_custom_npc_overrides()
+        raw_key = str(npc_name_or_id).strip().strip("'\"`")
+        norm_key = _norm_npc_key(raw_key)
+
+        # 1. Direct custom override lookup before DB query
+        custom = (
+            custom_overrides.get(raw_key)
+            or custom_overrides.get(raw_key.lower())
+            or (norm_key and custom_overrides.get(norm_key))
+        )
 
         row = None
-        if isinstance(npc_name_or_id, int) or (isinstance(npc_name_or_id, str) and npc_name_or_id.isdigit()):
-            c.execute("SELECT name_en, race, gender, voice_id FROM NPCs WHERE id = ?", (int(npc_name_or_id),))
-            row = c.fetchone()
-        else:
-            name_query = str(npc_name_or_id).strip()
-            c.execute(
-                "SELECT name_en, race, gender, voice_id FROM NPCs "
-                "WHERE name_en = ? OR name_de = ? OR name_fr = ? OR name_es = ? "
-                "ORDER BY CASE WHEN race IS NOT NULL AND length(race) > 0 THEN 0 ELSE 1 END, id ASC LIMIT 1",
-                (name_query, name_query, name_query, name_query)
-            )
-            row = c.fetchone()
-            if not row:
+        if self.db_path.exists():
+            conn = sqlite3.connect(str(self.db_path))
+            c = conn.cursor()
+            if isinstance(npc_name_or_id, int) or (isinstance(npc_name_or_id, str) and npc_name_or_id.isdigit()):
+                c.execute("SELECT name_en, race, gender, voice_id FROM NPCs WHERE id = ?", (int(npc_name_or_id),))
+                row = c.fetchone()
+            else:
+                name_query = raw_key
                 c.execute(
                     "SELECT name_en, race, gender, voice_id FROM NPCs "
-                    "WHERE name_en LIKE ? OR name_de LIKE ? OR name_fr LIKE ? OR name_es LIKE ? "
+                    "WHERE name_en = ? OR name_de = ? OR name_fr = ? OR name_es = ? "
                     "ORDER BY CASE WHEN race IS NOT NULL AND length(race) > 0 THEN 0 ELSE 1 END, id ASC LIMIT 1",
-                    (f"%{name_query}%", f"%{name_query}%", f"%{name_query}%", f"%{name_query}%")
+                    (name_query, name_query, name_query, name_query)
                 )
                 row = c.fetchone()
-
-        conn.close()
+                if not row:
+                    c.execute(
+                        "SELECT name_en, race, gender, voice_id FROM NPCs "
+                        "WHERE name_en LIKE ? OR name_de LIKE ? OR name_fr LIKE ? OR name_es LIKE ? "
+                        "ORDER BY CASE WHEN race IS NOT NULL AND length(race) > 0 THEN 0 ELSE 1 END, id ASC LIMIT 1",
+                        (f"%{name_query}%", f"%{name_query}%", f"%{name_query}%", f"%{name_query}%")
+                    )
+                    row = c.fetchone()
+            conn.close()
 
         if row:
-            name, race, gender, voice_id = row
-            race_str = (race or "man").lower()
-            gender_str = (gender or "male").lower()
+            db_name, db_race, db_gender, db_voice_id = row
+            # If not matched earlier, check custom overrides by DB English name
+            if not custom and db_name:
+                custom = (
+                    custom_overrides.get(db_name)
+                    or custom_overrides.get(db_name.lower())
+                    or custom_overrides.get(_norm_npc_key(db_name))
+                )
 
-            # Map race to category
-            if "river-maid" in race_str:
-                return name, "elf_female", "female", voice_id
-            elif "elf" in race_str or "kinta" in race_str:
-                r = "elf"
-            elif "hobbit" in race_str or "halfling" in race_str or "stoor" in race_str or "river" in race_str:
-                r = "hobbit"
-            elif "dwarf" in race_str or "stout" in race_str or "zhélruka" in race_str or "zhelruka" in race_str or "temámir" in race_str or "temamir" in race_str:
-                r = "dwarf"
-            elif "orc" in race_str or "uruk" in race_str or "goblin" in race_str or "ordâkhai" in race_str or "ordakhai" in race_str:
-                return name, "orc", "male", voice_id
-            elif "troll" in race_str or "giant" in race_str or "rogmul" in race_str:
-                return name, "troll", "male", voice_id
-            elif "ent" in race_str or "huorn" in race_str:
-                return name, "ent", "neutral", voice_id
-            elif "dead" in race_str or "shade" in race_str or "wraith" in race_str or "nazgûl" in race_str or "nazgul" in race_str:
-                return name, "dead", "neutral", voice_id
+            name = db_name
+            race = custom.get("race") if (custom and custom.get("race")) else db_race
+            gender = custom.get("gender") if (custom and custom.get("gender")) else db_gender
+
+            # If voice_id explicitly overridden in custom json, use it;
+            # If race or gender were overridden in custom json without explicit voice_id, set voice_id to None
+            # so select_voice_template picks dynamically from the new race/gender category pool!
+            if custom and custom.get("voice_id"):
+                voice_id = custom["voice_id"]
+            elif custom and (custom.get("race") or custom.get("gender")):
+                voice_id = None
             else:
-                r = "man"
+                voice_id = db_voice_id
 
-            g = "female" if gender_str == "female" else "male"
-            return name, f"{r}_{g}", g, voice_id
+            category, g = self._map_race_gender_to_category(race, gender)
+            if custom:
+                print(f"[CUSTOM NPC OVERRIDE] Applied custom settings for '{name}': category={category}, gender={g}, voice_id={voice_id}")
+            return name, category, g, voice_id
+
+        if custom:
+            name = custom.get("name") or raw_key
+            race = custom.get("race")
+            gender = custom.get("gender")
+            voice_id = custom.get("voice_id")
+            category, g = self._map_race_gender_to_category(race, gender)
+            print(f"[CUSTOM NPC OVERRIDE] Applied custom settings for '{name}': category={category}, gender={g}, voice_id={voice_id}")
+            return name, category, g, voice_id
 
         # Diacritic-insensitive fallback via pre-indexed verified NPC names (e.g. 'Gloin' -> 'Glóin', 'Eowyn' -> 'Éowyn')
-        norm_q = _norm_npc_key(npc_name_or_id)
-        for l in ("en", "de", "fr"):
-            if norm_q in self.by_npc_name.get(l, {}):
-                it = self.by_npc_name[l][norm_q]
-                return str(npc_name_or_id), it.get("category", "man_male"), it.get("gender", "male"), it["voice_id"]
+        if norm_key:
+            for l in ("en", "de", "fr"):
+                if norm_key in self.by_npc_name.get(l, {}):
+                    it = self.by_npc_name[l][norm_key]
+                    return raw_key, it.get("category", "man_male"), it.get("gender", "male"), it["voice_id"]
 
-        return str(npc_name_or_id), "narrator", "male", None
+        return raw_key, "narrator", "male", None
 
     def select_voice_template(self, category, lang="de", seed_key=None, preferred_voice_id=None):
         """Selects reference audio and sidecar transcript for cloning (prioritizing 1:1 NPC voice when available)."""
@@ -447,11 +532,20 @@ class LotroSpeaker:
         """Returns True if speech synthesis or playback is currently in progress."""
         return hasattr(self, "_is_speaking_event") and self._is_speaking_event.is_set()
 
-    def speak(self, text, npc_name_or_category="narrator", lang="de", output_path=None, cache_key=None):
+    def speak(
+        self,
+        text,
+        npc_name_or_category="narrator",
+        lang="de",
+        output_path=None,
+        cache_key=None,
+        narrator_mode=None,
+        narrator_voice=None,
+    ):
         """
         Synthesizes authentic speech for given NPC / category and text.
         Includes persistent disk cache and sentence-level streaming for instant playback.
-        Supports thread-safe instant interruption via stop().
+        Supports thread-safe instant interruption via stop() and optional single-narrator mode.
         """
         import hashlib
 
@@ -464,6 +558,9 @@ class LotroSpeaker:
         self._active_stop_event.clear()
         self._is_speaking_event.set()
 
+        use_narrator_mode = self.narrator_mode if narrator_mode is None else bool(narrator_mode)
+        active_narrator_voice = (narrator_voice or self.narrator_voice or "man_male_1").strip()
+
         with self._synthesis_lock:
             if self._active_stop_event.is_set():
                 self._is_speaking_event.clear()
@@ -471,7 +568,22 @@ class LotroSpeaker:
             try:
                 # Determine category & NPC info
                 preferred_voice_id = None
-                if npc_name_or_category in [
+                if use_narrator_mode:
+                    preferred_voice_id = active_narrator_voice
+                    if npc_name_or_category in [
+                        "elf_female", "elf_male", "man_female", "man_male",
+                        "hobbit_female", "hobbit_male", "dwarf_female", "dwarf_male",
+                        "orc", "troll", "ent", "dead", "narrator"
+                    ]:
+                        npc_name = npc_name_or_category
+                    else:
+                        npc_name, _, _, _ = self.get_npc_info(npc_name_or_category)
+
+                    # Look up category of active_narrator_voice from index if available
+                    ref_l = lang if lang in self.indices and self.indices[lang] else "en"
+                    v_info = self.by_voice_id.get(ref_l, {}).get(preferred_voice_id)
+                    category = v_info.get("category", "narrator") if v_info else "narrator"
+                elif npc_name_or_category in [
                     "elf_female", "elf_male", "man_female", "man_male",
                     "hobbit_female", "hobbit_male", "dwarf_female", "dwarf_male",
                     "orc", "troll", "ent", "dead", "narrator"
@@ -502,7 +614,10 @@ class LotroSpeaker:
                     self.play_audio(cached_wav)
                     return cached_wav
 
-                print(f"[{lang.upper()}] Speaking for '{npc_name}' as {category} using template {voice_id}...")
+                if use_narrator_mode:
+                    print(f"[{lang.upper()}] [NARRATOR MODE] Speaking for '{npc_name}' using narrator voice '{voice_id}'...")
+                else:
+                    print(f"[{lang.upper()}] Speaking for '{npc_name}' as {category} using template {voice_id}...")
                 print(f"  Reference audio: {ref_audio.name}")
 
                 if self._active_stop_event.is_set():
