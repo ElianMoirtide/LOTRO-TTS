@@ -24,7 +24,7 @@ namespace LotroTtsGui
 
         public SetupAiDialog()
         {
-            Title = "LOTRO-TTS — Select AI Compute Hardware";
+            Title = "LOTRO-TTS — Select Hardware Acceleration";
             Width = 680;
             Height = 540;
             MinWidth = 620;
@@ -53,7 +53,7 @@ namespace LotroTtsGui
             };
             var lblTitle = new TextBlock
             {
-                Text = "Choose AI Acceleration Hardware",
+                Text = "Choose Acceleration for TTS (GPU/CPU)",
                 FontSize = 18,
                 FontWeight = FontWeight.Bold,
                 Foreground = goldAccent

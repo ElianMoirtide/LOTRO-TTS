@@ -154,7 +154,7 @@ namespace LotroTtsGui
             };
 
             AppendLog("======================================================================", goldAccent);
-            AppendLog($"  LOTRO-TTS {AppVersion} — Local AI Voiceover System for Middle-earth", goldAccent);
+            AppendLog($"  LOTRO-TTS {AppVersion} — Local Voiceover System for Middle-earth", goldAccent);
             AppendLog("======================================================================", goldAccent);
             AppendLog("Ready. Click 'START LOTRO-TTS' to launch.", textLight);
 
@@ -265,7 +265,7 @@ namespace LotroTtsGui
             };
 
             string pythonFolder = OperatingSystem.IsWindows() ? "python/win64" : "python/linux64";
-            lblEnvStatus = CreateStatusCard(statusGrid, 0, $"AI Environment ({pythonFolder})");
+            lblEnvStatus = CreateStatusCard(statusGrid, 0, $"TTS Environment ({pythonFolder})");
             lblDbStatus = CreateStatusCard(statusGrid, 2, "Quest Database (data/lotro.db)");
             lblPluginStatus = CreateStatusCard(statusGrid, 4, "LOTRO Lua Plugin (Plugins/TTS)");
 
@@ -316,8 +316,8 @@ namespace LotroTtsGui
                 "en — English (Native Voices)",
                 "fr — Français (Native Voices)",
                 "es — Español (Voice Cloning)",
-                "it — Italiano (AI Translation)",
-                "nl — Nederlands (AI Translation)"
+                "it — Italiano (Translated)",
+                "nl — Nederlands (Translated)"
             });
             cmbTtsLang.SelectionChanged += (s, e) =>
             {
@@ -458,7 +458,7 @@ namespace LotroTtsGui
                 Margin = new Thickness(0, 0, 0, 10)
             };
 
-            btnSetupAi = CreateToolButton(toolsGrid, 0, "Setup AI (GPU/CPU)", OnSetupAiClicked);
+            btnSetupAi = CreateToolButton(toolsGrid, 0, "Setup TTS (GPU/CPU)", OnSetupAiClicked);
             btnRebuildDb = CreateToolButton(toolsGrid, 2, "Build Quest DB", OnRebuildDbClicked);
             btnUpdateSources = CreateToolButton(toolsGrid, 4, "Update XMLs & DB", OnUpdateSourcesClicked);
             btnInstallPlugin = CreateToolButton(toolsGrid, 6, "Install LOTRO Plugin", OnInstallPluginClicked);
@@ -1039,7 +1039,7 @@ namespace LotroTtsGui
                 }
                 else
                 {
-                    lblEnvStatus.Text = "Not Installed (Click Setup AI)";
+                    lblEnvStatus.Text = "Not Installed (Click Setup TTS)";
                     lblEnvStatus.Foreground = amberWarn;
                 }
 
@@ -1196,12 +1196,12 @@ namespace LotroTtsGui
                 {
                     if (!string.IsNullOrEmpty(setupMode))
                     {
-                        AppendLog($"\n>>> Running First-Time AI Environment Setup ({setupMode.ToUpperInvariant()})...", goldAccent);
+                        AppendLog($"\n>>> Running First-Time TTS Environment Setup ({setupMode.ToUpperInvariant()})...", goldAccent);
                         int code = RunPythonBlocking($"-u \"scripts/setup_tts.py\" --mode {setupMode}");
                         RefreshSystemStatus();
                         if (code != 0)
                         {
-                            AppendLog($"[ERROR] AI Environment Setup exited with code {code}", redStop);
+                            AppendLog($"[ERROR] TTS Environment Setup exited with code {code}", redStop);
                             return;
                         }
                     }
@@ -1437,7 +1437,7 @@ namespace LotroTtsGui
             SetButtonsEnabled(false);
             btnStartStop.IsEnabled = false;
 
-            AppendLog($"\n>>> AI Environment Setup ({mode.ToUpperInvariant()})...", goldAccent);
+            AppendLog($"\n>>> TTS Environment Setup ({mode.ToUpperInvariant()})...", goldAccent);
             ThreadPool.QueueUserWorkItem(_ =>
             {
                 int code = RunPythonBlocking($"-u \"scripts/setup_tts.py\" --mode {mode}");
@@ -1449,7 +1449,7 @@ namespace LotroTtsGui
                 Dispatcher.UIThread.Post(() =>
                 {
                     if (code == 0)
-                        AppendLog("[OK] AI Environment & Database Setup completed successfully!", greenOk);
+                        AppendLog("[OK] TTS Engine & Database Setup completed successfully!", greenOk);
                     else
                         AppendLog($"[ERROR] Setup exited with code {code}", redStop);
 

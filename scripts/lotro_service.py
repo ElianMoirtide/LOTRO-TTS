@@ -740,8 +740,8 @@ def load_or_prompt_config(base_dir: Path, force_prompt: bool = False) -> tuple[s
     print("   [2] German (de) - Native Voice")
     print("   [3] French (fr) - Native Voice")
     print("   [4] Spanish (es) - Native Quest Text via Voice Cloning")
-    print("   [5] Italian (it) - AI Translated Quest Text via Voice Cloning")
-    print("   [6] Dutch (nl) - AI Translated Quest Text via Voice Cloning")
+    print("   [5] Italian (it) - Translated Quest Text via Voice Cloning")
+    print("   [6] Dutch (nl) - Translated Quest Text via Voice Cloning")
     choice_tts = input("Select (1-6) [Default 1]: ").strip().lower()
 
     tts_map = {

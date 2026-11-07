@@ -27,13 +27,20 @@ WIP:
   - One-click first-time setup (installs PyTorch with CUDA 12.6, ROCm, or CPU, OmniVoice, RapidOCR, and dependencies into the embedded Python environment).
   - Automatically installs the in-game Lua plugin (`Plugins\TTS`) into your `The Lord of the Rings Online` user documents folder (supporting Windows Registry, Steam Proton, Lutris, and custom wine prefixes).
   - Automatically builds the local SQLite database (`data/lotro.db`) and pre-warms OCR and TTS GPU kernels on startup.
+  - **Integrated Auto-Updater**: Checks for updates on startup, supports one-click automated updates with rollback backups, and includes an optional toggle for **Pre-Releases / Beta Versions**.
 - **Multilingual Support (`DE` / `EN` / `FR` / `ES` / `IT` / `NL`)**:
   - **Game Client Languages (OCR & Quest DB)**: **German (`DE`)**, **English (`EN`)**, and **French (`FR`)**.
-  - **Spoken TTS Output Languages**: Native LOTRO voice libraries for **German (`DE`)**, **English (`EN`)**, and **French (`FR`)**, plus cross-lingual zero-shot voice cloning for **Spanish (`ES`)** (native database quest texts) and **Italian (`IT`)** / **Dutch (`NL`)** (local MarianMT AI translation).
+  - **Spoken TTS Output Languages**: Native LOTRO voice libraries for **German (`DE`)**, **English (`EN`)**, and **French (`FR`)**, plus cross-lingual zero-shot voice cloning for **Spanish (`ES`)** (native database quest texts) and **Italian (`IT`)** / **Dutch (`NL`)** (local MarianMT translation).
 - **190 Quest-Verified Authentic Voice Actors per Language (`570` Audio Profiles)**:
   - Extracted, transcribed, and verified 1:1 against the LOTRO Quest Database using neural speaker verification (`WavLM-SV`).
   - Covers `man_male` (50), `man_female` (39), `dwarf_male` (32), `elf_male` (21), `elf_female` (11), `hobbit_male` (9), `hobbit_female` (9), `dead` (6), `orc` (6), `dwarf_female` (5), `ent` (1), and `troll` (1).
   - Over **2,000 named Quest NPCs** (e.g. *Galadriel*, *Gandalf*, *Aragorn*, *Glóin*, *Treebeard*, *Gothmog*, *The Witch-king of Angmar*) are directly linked to their authentic voice actor, while all remaining **18,000+ NPCs** receive a deterministic voice matching their race and gender.
+- **Custom NPC Overrides (`src/npc/npc_races_custom.json`)**:
+  - Easily define or override race, gender, and specific voice profiles for any NPC by name or ID.
+  - Custom overrides take precedence during database generation and are preserved across updates.
+- **Narrator Mode & Audio Controls**:
+  - Optional global **Narrator Mode** to read all quest dialogues in a chosen storytelling voice.
+  - Configurable in-game stop hotkey (default: `Pause`) and master volume slider.
 - **Intelligent Quest & Instance Window Detection**:
   - **Direct DWM Window Surface Capture**: Captures the LOTRO client frame directly on demand (even if other windows overlap the game, with zero idle CPU/GPU overhead).
   - **Standard Quests**: Reads the quest title via GPU-accelerated `RapidOCR` and retrieves the **complete, un-truncated original text** from `data/lotro.db` (even if parts are hidden behind in-game scrollbars).
@@ -48,7 +55,7 @@ WIP:
 ## 🛠️ Requirements & System Compatibility
 
 - **Hardware Acceleration (Pick one)**:
-  - **NVIDIA GPU (Recommended)**: GeForce RTX (2000 / 3000 / 4000 / 5000) or GTX 1600 series with CUDA 12.6.
+  - **NVIDIA GPU (Recommended)**: GeForce RTX (2000 / 3000 / 4000 / 5000 Series, including Blackwell) or GTX 1600 series with CUDA 12.6.
   - **AMD GPU**: Modern Radeon RX 7000 / 9000 Series (RDNA 3/4) & Ryzen 700M / 800M APUs with ROCm.
   - **CPU Mode (Universal Compatibility)**: Highly optimized with multi-threading and AVX2/AVX-512 instructions (runs on any Intel Core, AMD Ryzen, or handhelds like Steam Deck).
 - **Operating Systems**:
@@ -67,9 +74,9 @@ Simply launch the single-file GUI executable for your platform:
 ### First-Time Setup (Automated via GUI)
 1. Launch **`LOTRO-TTS.exe`** (Windows) or **`./LOTRO-TTS`** (Linux).
 2. Select your **Game Client Language** (`DE`, `EN`, `FR`) and your desired **Spoken TTS Voice Language** (`DE`, `EN`, `FR`, `ES`, `IT`, `NL`).
-3. Click **`▶ START LOTRO-TTS`** (or **`⚙ Setup AI (GPU/CPU)`**):
+3. Click **`▶ START LOTRO-TTS`** (or **`⚙ Setup TTS (GPU/CPU)`**):
    - **Step 1 (LOTRO Lua Plugin)**: If not yet installed, LOTRO-TTS automatically copies the Lua plugin into your LOTRO `Plugins/TTS` folder.
-   - **Step 2 (AI Environment)**: Prompts you to choose your compute backend (**NVIDIA GPU**, **AMD GPU**, or **CPU Mode**), and installs PyTorch, OmniVoice, sounddevice, and RapidOCR into `python/win64` (Windows) or `python/linux64` (Linux).
+   - **Step 2 (TTS Environment)**: Prompts you to choose your compute backend (**NVIDIA GPU**, **AMD GPU**, or **CPU Mode**), and installs PyTorch, OmniVoice, sounddevice, and RapidOCR into `python/win64` (Windows) or `python/linux64` (Linux).
    - **Step 3 (Quest Database)**: Automatically generates `data/lotro.db` (~140 MB, 18,074 NPCs & 15,489 Quests) in ~4 seconds and starts the background service!
 
 *In-Game Tip: Enable the plugin in LOTRO via the **Plugin Manager** at character selection or by typing `/plugins load tts` in chat.*
@@ -87,6 +94,36 @@ While `LOTRO-TTS.exe` is running in the background, you have **two ways** to tri
 2. **Middle Mouse Button (Mouse 3) — *(Alternative Shortcut)***:
    - Alternatively, you can press your **Middle Mouse Button (Mouse 3)** whenever a quest or instance dialogue window is open.
    - For standard quests in `lotro.db`, LOTRO-TTS automatically resolves the quest's associated NPC from the database; for dynamic instance texts or objects without an NPC, it uses the last logged target or the default narrator voice (`man_male_1`).
+
+---
+
+## 🎭 Custom NPC Overrides (Race, Gender & Voice Assignment)
+
+Encountered an NPC whose race or gender in the base lore data is missing or incorrect? Want to assign a specific favorite voice actor to a particular quest giver?
+
+You can easily override or define metadata for any NPC by editing **`src/npc/npc_races_custom.json`**:
+
+```json
+{
+  "Peony Grubb": {
+    "race": "Hobbit",
+    "gender": "Female"
+  },
+  "1879049636": {
+    "race": "Hobbit",
+    "gender": "Female",
+    "voice_id": "hobbit_female_9"
+  }
+}
+```
+
+* **Match by Name or ID**: Use either the NPC's English or localized in-game name (e.g. `"Peony Grubb"`) or their numeric NPC ID (e.g. `"1879049636"`).
+* **Supported Fields**:
+  * `"race"`: `Man`, `Elf`, `Dwarf`, `Hobbit`, `Orc`, `Ent`, `Troll`, `Dead`, etc.
+  * `"gender"`: `Male` or `Female`.
+  * `"voice_id"`: (Optional) Directly assign any specific voice profile ID from `data/voices/` (e.g. `hobbit_female_9`, `man_male_1`, `elf_female_3`).
+* **Applying Changes**: Click **`Tools` → `Rebuild Database`** in the GUI (or run `scripts/generate_db.py`). The generator immediately applies your custom definitions when compiling `data/lotro.db`.
+* **Safe Across Updates**: `src/npc/npc_races_custom.json` is user-managed and will never be overwritten or erased when updating LOTRO-TTS.
 
 ---
 
@@ -184,7 +221,7 @@ LOTRO-TTS/
 │   ├── screen_reader.py      # Screen reader, CUDA RapidOCR & window geometry cache
 │   ├── tts_speaker.py        # OmniVoice Zero-Shot engine, sounddevice playback & streaming
 │   ├── translator.py         # Local MarianMT neural translator (for Italian 'it' and Dutch 'nl')
-│   ├── generate_db.py        # SQLite database generator from LotroCompanion XMLs
+│   ├── generate_db.py        # SQLite database generator (auto-downloads missing sources)
 │   ├── assign_voices.py      # Deterministic & 1:1 verified NPC voice assignment
 │   ├── update_sources.py     # Updater for LotroCompanion NPC/Quest XMLs
 │   ├── scrape_npc_races.py   # Race metadata scraper for lotro-wiki.com
@@ -193,8 +230,8 @@ LOTRO-TTS/
 │   └── sh/                   # Linux CLI shell scripts (incl. build_gui.sh)
 └── src/
     ├── LotroTtsGui/          # Cross-Platform Avalonia UI .NET 8 source project
-    ├── npc/                  # Extracted LOTRO NPC XMLs & cached race metadata
-    ├── quests/               # Extracted LOTRO Quest & Dialogue XMLs (DE, EN, FR, ES)
+    ├── npc/                  # Extracted LOTRO NPC XMLs, cached races & npc_races_custom.json
+    ├── quests/               # Extracted LOTRO Quest XMLs (auto-fetched on first run if missing)
     └── plugins/TTS/          # Lua Plugin for the LOTRO client (in-game UI button)
 ```
 

@@ -368,7 +368,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("LOTRO-TTS Audio & AI Environment Setup")
+    print("LOTRO-TTS Audio & TTS Environment Setup")
     print(f"Target Mode: {args.mode.upper()}")
     print("=" * 60)
 

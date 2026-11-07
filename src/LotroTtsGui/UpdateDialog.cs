@@ -376,9 +376,9 @@ echo Source payload:     %3
 echo.
 
 :: 1. If Python runtime update is included in the release payload, update binaries & stdlib
-:: while strictly preserving site-packages (AI wheels: PyTorch, OmniVoice, CUDA, etc.)
+:: while strictly preserving site-packages (TTS wheels: PyTorch, OmniVoice, CUDA, etc.)
 if exist ""%~3\python\win64"" (
-    echo Updating Python runtime environment (preserving installed AI packages)...
+    echo Updating Python runtime environment (preserving installed TTS packages)...
     robocopy ""%~3\python\win64"" ""%~2\python\win64"" /E /XD site-packages Scripts share /R:5 /W:1 >nul
     powershell -NoProfile -Command ""Get-ChildItem '%~2\python\win64\*._pth' -ErrorAction SilentlyContinue | ForEach-Object {{ (Get-Content $_.FullName) -replace '#import site', 'import site' | Set-Content $_.FullName }}"" 2>nul
 )
@@ -432,7 +432,7 @@ echo ""Applying update to $BASE_DIR...""
 
 # 1. If Python runtime update is included, update binaries & stdlib preserving site-packages
 if [ -d ""$PAYLOAD_DIR/python/linux64"" ]; then
-    echo ""Updating Python runtime environment (preserving installed AI packages)...""
+    echo ""Updating Python runtime environment (preserving installed TTS packages)...""
     mkdir -p ""$BASE_DIR/python/linux64""
     [ -d ""$PAYLOAD_DIR/python/linux64/bin"" ] && cp -rf ""$PAYLOAD_DIR/python/linux64/bin"" ""$BASE_DIR/python/linux64/""
     [ -d ""$PAYLOAD_DIR/python/linux64/include"" ] && cp -rf ""$PAYLOAD_DIR/python/linux64/include"" ""$BASE_DIR/python/linux64/""
