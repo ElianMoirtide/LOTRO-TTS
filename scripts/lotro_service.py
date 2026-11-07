@@ -762,7 +762,7 @@ def load_or_prompt_config(base_dir: Path, force_prompt: bool = False) -> tuple[s
 
     # Save atomically to config.json so an empty 0 KB file can never be left behind
     try:
-        payload = json.dumps({"version": "v2.0", "game_lang": game_lang, "tts_lang": tts_lang}, indent=2) + "\n"
+        payload = json.dumps({"version": "v2.0-rc1", "game_lang": game_lang, "tts_lang": tts_lang}, indent=2) + "\n"
         tmp_file = config_file.with_suffix(".json.tmp")
         tmp_file.write_text(payload, encoding="utf-8")
         os.replace(str(tmp_file), str(config_file))

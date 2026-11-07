@@ -26,7 +26,7 @@ namespace LotroTtsGui
 
     public class MainWindow : Window
     {
-        public const string AppVersion = "v2.0";
+        public const string AppVersion = "v2.0-rc1";
 
         private readonly string baseDir;
         private readonly string pythonExe;
