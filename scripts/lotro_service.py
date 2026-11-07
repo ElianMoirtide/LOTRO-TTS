@@ -458,23 +458,28 @@ class LotroPipelineService:
                 logger.info("Using OCR-extracted text from window.")
 
             # Resolve speaker target:
-            # - If triggered via In-Game Button with an explicit target NPC, use that target NPC.
-            # - If triggered via Middle Mouse Button (or without explicit target) and the quest in lotro.db
-            #   has an associated Quest-giver npc_id, use that exact npc_id!
+            # 1. Authoritative: If lotro.db matched the quest and identified its quest-giver NPC ID,
+            #    ALWAYS prioritize that exact npc_id! (The quest database is the single source of truth for who speaks this dialogue,
+            #    regardless of which entity the player happens to have selected in-game).
+            # 2. Fallback: If no DB NPC is associated with this dialogue (e.g. ambient text, custom dialog, or quest not in DB),
+            #    use the player's in-game target (target_name from plugin log).
+            # 3. Default: Fallback to "narrator".
             matched_npc_id = scan_result.get("npc_id")
-            if explicit_target:
-                speaker_target = target_name
-            elif matched_npc_id:
+            if matched_npc_id:
                 speaker_target = str(matched_npc_id)
                 logger.info(f"Resolved Quest NPC ID [{matched_npc_id}] directly from lotro.db!")
+            elif explicit_target and target_name:
+                speaker_target = target_name
+                logger.info(f"No DB NPC ID found; using in-game target from plugin log: '{target_name}'")
             else:
                 speaker_target = target_name or "narrator"
 
             # 3. Cross-language native DB lookup (e.g. EN client -> ES/DE/FR native text by quest_id)
             matched_qid = scan_result.get("quest_id")
+            db_target_hint = "" if matched_npc_id else target_name
             if matched_qid and active_tts_lang in ("de", "en", "fr", "es") and active_tts_lang != active_client_lang:
                 direct_text = self.screen_reader.get_quest_text_by_id(
-                    matched_qid, target_npc=target_name, lang=active_tts_lang
+                    matched_qid, target_npc=db_target_hint, lang=active_tts_lang
                 )
                 if direct_text:
                     logger.info(f"Using native '{active_tts_lang.upper()}' quest text directly from lotro.db!")
@@ -485,7 +490,7 @@ class LotroPipelineService:
                 # When matched from lotro.db, English text is always available and yields optimal translation
                 if matched_qid:
                     clean_en_text = self.screen_reader.get_quest_text_by_id(
-                        matched_qid, target_npc=target_name, lang="en"
+                        matched_qid, target_npc=db_target_hint, lang="en"
                     )
                     if clean_en_text:
                         final_text = clean_en_text
