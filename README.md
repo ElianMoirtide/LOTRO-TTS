@@ -22,9 +22,10 @@ WIP:
 ## 🌟 Key Features
 
 - **100% Local & Portable**: No cloud subscriptions, no external APIs, and no telemetry. All inference runs directly on your local hardware inside the project folder.
-- **All-in-One GUI Launcher (`LOTRO-TTS.exe`)**:
-  - One-click first-time setup (installs PyTorch with CUDA 12.6 or CPU, OmniVoice, RapidOCR, and dependencies into the embedded Python environment).
-  - Automatically installs the in-game Lua plugin (`Plugins\TTS`) into your `Documents\The Lord of the Rings Online` folder.
+- **All-in-One Cross-Platform GUI (`LOTRO-TTS.exe` / `LOTRO-TTS`)**:
+  - Native, modern dark-themed GUI built with **Avalonia UI (.NET 8)** — available as a single-file, self-contained executable on both **Windows** and **Linux**.
+  - One-click first-time setup (installs PyTorch with CUDA 12.6, ROCm, or CPU, OmniVoice, RapidOCR, and dependencies into the embedded Python environment).
+  - Automatically installs the in-game Lua plugin (`Plugins\TTS`) into your `The Lord of the Rings Online` user documents folder (supporting Windows Registry, Steam Proton, Lutris, and custom wine prefixes).
   - Automatically builds the local SQLite database (`data/lotro.db`) and pre-warms OCR and TTS GPU kernels on startup.
 - **Multilingual Support (`DE` / `EN` / `FR` / `ES` / `IT` / `NL`)**:
   - **Game Client Languages (OCR & Quest DB)**: **German (`DE`)**, **English (`EN`)**, and **French (`FR`)**.
@@ -44,23 +45,31 @@ WIP:
 
 ---
 
-## 🛠️ Requirements
+## 🛠️ Requirements & System Compatibility
 
-- **Graphics Card (Recommended)**: NVIDIA GPU with CUDA support (e.g. RTX series) for instant speech generation and GPU-accelerated OCR. *(CPU mode is supported as a fallback).*
-- **The Lord of the Rings Online**: Standard game installation.
+- **Hardware Acceleration (Pick one)**:
+  - **NVIDIA GPU (Recommended)**: GeForce RTX (2000 / 3000 / 4000 / 5000) or GTX 1600 series with CUDA 12.6.
+  - **AMD GPU**: Modern Radeon RX 7000 / 9000 Series (RDNA 3/4) & Ryzen 700M / 800M APUs with ROCm.
+  - **CPU Mode (Universal Compatibility)**: Highly optimized with multi-threading and AVX2/AVX-512 instructions (runs on any Intel Core, AMD Ryzen, or handhelds like Steam Deck).
+- **Operating Systems**:
+  - **Windows 10 / 11 (64-bit)**
+  - **Linux (64-bit / SteamOS / Steam Deck)**: Compatible with Proton, Lutris, and native wine prefixes. Recommended tools: `pipewire-pulse` / `pulseaudio-utils` (for process volume control) and `wmctrl` or `xdotool` (for window detection).
+- **The Lord of the Rings Online**: Standard game installation (English, German, or French game client).
 
 ---
 
-## 🚀 Getting Started (Quick Start with `LOTRO-TTS.exe`)
+## 🚀 Getting Started
 
-Simply double-click **`LOTRO-TTS.exe`** in the root folder!
+Simply launch the single-file GUI executable for your platform:
+* **Windows**: Double-click **`LOTRO-TTS.exe`** in the root folder.
+* **Linux**: Run **`./LOTRO-TTS`** in terminal or double-click it in your desktop file manager.
 
 ### First-Time Setup (Automated via GUI)
-1. Launch **`LOTRO-TTS.exe`**.
+1. Launch **`LOTRO-TTS.exe`** (Windows) or **`./LOTRO-TTS`** (Linux).
 2. Select your **Game Client Language** (`DE`, `EN`, `FR`) and your desired **Spoken TTS Voice Language** (`DE`, `EN`, `FR`, `ES`, `IT`, `NL`).
 3. Click **`▶ START LOTRO-TTS`** (or **`⚙ Setup AI (GPU/CPU)`**):
-   - **Step 1 (LOTRO Lua Plugin)**: If not yet installed, `LOTRO-TTS.exe` automatically copies the Lua plugin into `Documents\The Lord of the Rings Online\Plugins\TTS`.
-   - **Step 2 (AI Environment)**: Prompts you to choose **GPU (NVIDIA CUDA 12.6)** *(Recommended)* or **CPU**, and installs PyTorch, OmniVoice, and RapidOCR into `python/win64`.
+   - **Step 1 (LOTRO Lua Plugin)**: If not yet installed, LOTRO-TTS automatically copies the Lua plugin into your LOTRO `Plugins/TTS` folder.
+   - **Step 2 (AI Environment)**: Prompts you to choose your compute backend (**NVIDIA GPU**, **AMD GPU**, or **CPU Mode**), and installs PyTorch, OmniVoice, sounddevice, and RapidOCR into `python/win64` (Windows) or `python/linux64` (Linux).
    - **Step 3 (Quest Database)**: Automatically generates `data/lotro.db` (~140 MB, 18,074 NPCs & 15,489 Quests) in ~4 seconds and starts the background service!
 
 *In-Game Tip: Enable the plugin in LOTRO via the **Plugin Manager** at character selection or by typing `/plugins load tts` in chat.*
@@ -112,7 +121,9 @@ While `LOTRO-TTS.exe` is running in the background, you have **two ways** to tri
 
 ## 🔧 Advanced CLI & Batch Scripts (`scripts/bat/`)
 
-In addition to `LOTRO-TTS.exe`, standalone batch scripts and CLI entrypoints are available in `scripts/bat/`:
+In addition to the GUI launchers (`LOTRO-TTS.exe` on Windows and `LOTRO-TTS` on Linux), standalone scripts and CLI entrypoints are available for Windows (`scripts/bat/`) and Linux (`scripts/sh/`):
+
+### Windows Batch Scripts (`scripts/bat/`)
 
 | Script | Description |
 | :--- | :--- |
@@ -121,6 +132,19 @@ In addition to `LOTRO-TTS.exe`, standalone batch scripts and CLI entrypoints are
 | `scripts\bat\run_generate_db.bat` | Builds `data/lotro.db` from local XML files in `src/` (`scripts/generate_db.py`). |
 | `scripts\bat\run_update_sources.bat` | Downloads the latest XML data from LotroCompanion and rebuilds `data/lotro.db`. |
 | `scripts\bat\test_speech.bat` | Generates sample `.wav` files in `audio_samples/` to verify voice cloning. |
+| `scripts\bat\build_gui.bat` | Compiles the cross-platform Avalonia GUI executable for Windows (`LOTRO-TTS.exe`). |
+
+### Linux Shell Scripts (`scripts/sh/`)
+
+| Script | Description |
+| :--- | :--- |
+| `scripts/sh/setup_tts.sh` | Auto-downloads standalone portable Python 3.13 into `python/linux64` & installs PyTorch/OmniVoice. |
+| `scripts/sh/start_lotro_tts.sh` | Starts `scripts/lotro_service.py` directly in a console window. |
+| `scripts/sh/run_generate_db.sh` | Builds `data/lotro.db` on Linux (`scripts/generate_db.py`). |
+| `scripts/sh/run_update_sources.sh` | Downloads the latest XML data from LotroCompanion and rebuilds database on Linux. |
+| `scripts/sh/run_scrape_races.sh` | Scrapes missing NPC race metadata from lotro-wiki.com on Linux. |
+| `scripts/sh/test_speech.sh` | Generates sample `.wav` files in `audio_samples/` to verify voice cloning. |
+| `scripts/sh/build_gui.sh` | Compiles the cross-platform Avalonia GUI executable for Linux (`LOTRO-TTS`). |
 
 ### CLI Arguments for `scripts/lotro_service.py`
 
@@ -143,7 +167,8 @@ python\win64\python.exe scripts\lotro_service.py [OPTIONS]
 
 ```
 LOTRO-TTS/
-├── LOTRO-TTS.exe             # All-in-One Windows GUI Launcher (Setup, DB Builder, Service)
+├── LOTRO-TTS.exe             # All-in-One GUI Launcher (Windows standalone binary)
+├── LOTRO-TTS                 # All-in-One GUI Launcher (Linux standalone binary)
 ├── README.md                 # Project documentation
 ├── data/
 │   ├── lotro.db              # Generated SQLite Database (18,074 NPCs, 15,489 Quests)
@@ -151,20 +176,23 @@ LOTRO-TTS/
 │       ├── de/               # German reference audio profiles & voice_index.json
 │       ├── en/               # English reference audio profiles & voice_index.json
 │       └── fr/               # French reference audio profiles & voice_index.json
-├── python/win64/             # Embedded portable Python 3.13 runtime
+├── python/
+│   ├── win64/                # Embedded portable Python 3.13 runtime (Windows)
+│   └── linux64/              # Standalone portable Python 3.13 runtime (Linux)
 ├── scripts/
-│   ├── lotro_service.py      # Core service (log watcher, DWM window capture, pipeline)
+│   ├── lotro_service.py      # Core service (log watcher, DWM/X11 window capture, pipeline)
 │   ├── screen_reader.py      # Screen reader, CUDA RapidOCR & window geometry cache
-│   ├── tts_speaker.py        # OmniVoice Zero-Shot engine, cadence calibration & streaming
-│   ├── translator.py         # Local MarianMT neural translator (for Italian 'it' and Dutch 'nl' output)
+│   ├── tts_speaker.py        # OmniVoice Zero-Shot engine, sounddevice playback & streaming
+│   ├── translator.py         # Local MarianMT neural translator (for Italian 'it' and Dutch 'nl')
 │   ├── generate_db.py        # SQLite database generator from LotroCompanion XMLs
 │   ├── assign_voices.py      # Deterministic & 1:1 verified NPC voice assignment
 │   ├── update_sources.py     # Updater for LotroCompanion NPC/Quest XMLs
 │   ├── scrape_npc_races.py   # Race metadata scraper for lotro-wiki.com
-│   ├── setup_tts.py          # Automated PyTorch/CUDA & OmniVoice installer
-│   ├── bat/                  # Standalone CLI batch scripts
-│   └── exe/                  # C# WinForms source & build script for LOTRO-TTS.exe
+│   ├── setup_tts.py          # Automated PyTorch/CUDA & OmniVoice installer (Win & Linux)
+│   ├── bat/                  # Windows CLI batch scripts (incl. build_gui.bat)
+│   └── sh/                   # Linux CLI shell scripts (incl. build_gui.sh)
 └── src/
+    ├── LotroTtsGui/          # Cross-Platform Avalonia UI .NET 8 source project
     ├── npc/                  # Extracted LOTRO NPC XMLs & cached race metadata
     ├── quests/               # Extracted LOTRO Quest & Dialogue XMLs (DE, EN, FR, ES)
     └── plugins/TTS/          # Lua Plugin for the LOTRO client (in-game UI button)

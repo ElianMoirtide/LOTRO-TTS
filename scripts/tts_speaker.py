@@ -54,6 +54,11 @@ class LotroSpeaker:
         self._prompt_cache = {}
         self._ref_duration_cache = {}
 
+        # Thread synchronization & playback control
+        self._synthesis_lock = threading.Lock()
+        self._active_stop_event = threading.Event()
+        self._is_speaking_event = threading.Event()
+
         # Load voice indexes for all supported native voice libraries (de, en, fr)
         self.indices = {}
         self.by_voice_id = {}
@@ -414,10 +419,39 @@ class LotroSpeaker:
 
         return merged
 
+    def stop(self):
+        """
+        Immediately halts any active speech synthesis and stops audio playback.
+        Signals threads to exit and cuts ongoing Windows / Linux sound output.
+        """
+        if hasattr(self, "_active_stop_event") and self._active_stop_event is not None:
+            self._active_stop_event.set()
+        if hasattr(self, "_is_speaking_event") and self._is_speaking_event is not None:
+            self._is_speaking_event.clear()
+
+        # 1. Stop sounddevice (Cross-platform: Windows, Linux, macOS)
+        try:
+            import sounddevice as sd
+            sd.stop()
+        except Exception:
+            pass
+
+        # 2. Stop winsound (Windows fallback)
+        try:
+            import winsound
+            winsound.PlaySound(None, 0)
+        except Exception:
+            pass
+
+    def is_speaking(self) -> bool:
+        """Returns True if speech synthesis or playback is currently in progress."""
+        return hasattr(self, "_is_speaking_event") and self._is_speaking_event.is_set()
+
     def speak(self, text, npc_name_or_category="narrator", lang="de", output_path=None, cache_key=None):
         """
         Synthesizes authentic speech for given NPC / category and text.
         Includes persistent disk cache and sentence-level streaming for instant playback.
+        Supports thread-safe instant interruption via stop().
         """
         import hashlib
 
@@ -425,117 +459,172 @@ class LotroSpeaker:
         if not text:
             return None
 
-        # Determine category & NPC info
-        preferred_voice_id = None
-        if npc_name_or_category in [
-            "elf_female", "elf_male", "man_female", "man_male",
-            "hobbit_female", "hobbit_male", "dwarf_female", "dwarf_male",
-            "orc", "troll", "ent", "dead", "narrator"
-        ]:
-            category = npc_name_or_category
-            npc_name = category
-        else:
-            npc_name, category, _, preferred_voice_id = self.get_npc_info(npc_name_or_category)
+        # Stop any previous playback and reset stop event for this new speech turn
+        self.stop()
+        self._active_stop_event.clear()
+        self._is_speaking_event.set()
 
-        voice_id, ref_audio, ref_text, ref_lang = self.select_voice_template(
-            category, lang=lang, seed_key=npc_name, preferred_voice_id=preferred_voice_id
-        )
+        with self._synthesis_lock:
+            if self._active_stop_event.is_set():
+                self._is_speaking_event.clear()
+                return None
+            try:
+                # Determine category & NPC info
+                preferred_voice_id = None
+                if npc_name_or_category in [
+                    "elf_female", "elf_male", "man_female", "man_male",
+                    "hobbit_female", "hobbit_male", "dwarf_female", "dwarf_male",
+                    "orc", "troll", "ent", "dead", "narrator"
+                ]:
+                    category = npc_name_or_category
+                    npc_name = category
+                else:
+                    npc_name, category, _, preferred_voice_id = self.get_npc_info(npc_name_or_category)
 
-        # 1. AUDIO CACHE CHECK
-        cache_dir = self.base_dir / "cache" / "audio"
-        cache_dir.mkdir(parents=True, exist_ok=True)
+                voice_id, ref_audio, ref_text, ref_lang = self.select_voice_template(
+                    category, lang=lang, seed_key=npc_name, preferred_voice_id=preferred_voice_id
+                )
 
-        text_hash = hashlib.md5(
-            f"{SPEAKER_ENGINE_VERSION}_{voice_id}_{ref_audio.name}_{lang}_{text}".encode("utf-8")
-        ).hexdigest()
-        cached_wav = Path(output_path) if output_path else (cache_dir / f"{text_hash}.wav")
+                # 1. AUDIO CACHE CHECK
+                cache_dir = self.base_dir / "cache" / "audio"
+                cache_dir.mkdir(parents=True, exist_ok=True)
 
-        if not output_path and cached_wav.exists() and cached_wav.stat().st_size > 44:
-            print(f"[{lang.upper()}] [AUDIO CACHE HIT] Playing cached audio instantly for '{npc_name}'...")
-            self.play_audio(cached_wav)
-            return cached_wav
+                # Include reference audio mtime & transcription hash so modified voices automatically invalidate cache
+                ref_mtime = int(ref_audio.stat().st_mtime) if ref_audio.exists() else 0
+                ref_text_hash = hashlib.md5((ref_text or "").encode("utf-8")).hexdigest()[:8]
+                text_hash = hashlib.md5(
+                    f"{SPEAKER_ENGINE_VERSION}_{voice_id}_{ref_audio.name}_{ref_mtime}_{ref_text_hash}_{lang}_{text}".encode("utf-8")
+                ).hexdigest()
+                cached_wav = Path(output_path) if output_path else (cache_dir / f"{text_hash}.wav")
 
-        print(f"[{lang.upper()}] Speaking for '{npc_name}' as {category} using template {voice_id}...")
-        print(f"  Reference audio: {ref_audio.name}")
+                if not output_path and cached_wav.exists() and cached_wav.stat().st_size > 44:
+                    print(f"[{lang.upper()}] [AUDIO CACHE HIT] Playing cached audio instantly for '{npc_name}'...")
+                    self.play_audio(cached_wav)
+                    return cached_wav
 
-        # 2. STREAMING OR DIRECT SYNTHESIS
-        sentences = self._split_dialogue_chunks(text, lang=lang)
+                print(f"[{lang.upper()}] Speaking for '{npc_name}' as {category} using template {voice_id}...")
+                print(f"  Reference audio: {ref_audio.name}")
 
-        # If short text (1 sentence and < 140 chars), generate directly and play from RAM immediately
-        if len(sentences) <= 1 and len(text) < 140:
-            audio_data = self._synthesize_chunk(
-                text, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=24
-            )
-            # Immediate in-memory playback with 0ms disk delay
-            self.play_memory_audio(audio_data, sample_rate=24000)
-            # Asynchronously write to persistent cache in background daemon thread
-            if not output_path:
-                threading.Thread(
-                    target=sf.write,
-                    args=(str(cached_wav), audio_data, 24000),
-                    daemon=True
-                ).start()
-            else:
-                sf.write(str(cached_wav), audio_data, 24000)
-            return cached_wav
+                if self._active_stop_event.is_set():
+                    return None
 
-        # For multi-sentence texts, generate and stream sentence by sentence
-        self._stream_speech(sentences, voice_id, ref_lang, ref_audio, ref_text, lang, category, cached_wav)
-        return cached_wav
+                # 2. STREAMING OR DIRECT SYNTHESIS
+                sentences = self._split_dialogue_chunks(text, lang=lang)
+
+                # If short text (1 sentence and < 140 chars), generate directly and play from RAM immediately
+                if len(sentences) <= 1 and len(text) < 140:
+                    audio_data = self._synthesize_chunk(
+                        text, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=24
+                    )
+                    if self._active_stop_event.is_set():
+                        return None
+                    # Immediate in-memory playback with 0ms disk delay
+                    self.play_memory_audio(audio_data, sample_rate=24000)
+                    # Asynchronously write to persistent cache in background daemon thread
+                    if not output_path:
+                        threading.Thread(
+                            target=sf.write,
+                            args=(str(cached_wav), audio_data, 24000),
+                            daemon=True
+                        ).start()
+                    else:
+                        sf.write(str(cached_wav), audio_data, 24000)
+                    return cached_wav
+
+                # For multi-sentence texts, generate and stream sentence by sentence
+                self._stream_speech(sentences, voice_id, ref_lang, ref_audio, ref_text, lang, category, cached_wav)
+                return cached_wav
+            finally:
+                self._is_speaking_event.clear()
 
     def _stream_speech(self, sentences, voice_id, ref_lang, ref_audio, ref_text, lang, category, final_cached_wav):
-        """Generates and plays sentences sequentially with zero wait-time between chunks."""
+        """Generates and plays sentences sequentially with zero wait-time between chunks and instant cancellation support."""
         import queue
 
         audio_queue = queue.Queue()
-        stop_event = threading.Event()
+        synthesis_done = threading.Event()
         all_chunks = []
 
         def player_thread():
-            import winsound
-            import io
-            import wave
+            import time
 
-            while not stop_event.is_set() or not audio_queue.empty():
+            while not self._active_stop_event.is_set():
                 try:
-                    chunk = audio_queue.get(timeout=0.15)
-                    # Convert float32 chunk to 16-bit PCM in memory to eliminate disk I/O and device-lock stutter
-                    int16_data = (np.clip(chunk, -1.0, 1.0) * 32767.0).astype(np.int16)
-                    mem_wav = io.BytesIO()
-                    with wave.open(mem_wav, "wb") as wf:
-                        wf.setnchannels(1)
-                        wf.setsampwidth(2)
-                        wf.setframerate(24000)
-                        wf.writeframes(int16_data.tobytes())
-                    wav_bytes = mem_wav.getvalue()
+                    chunk = audio_queue.get(timeout=0.1)
+                except queue.Empty:
+                    if synthesis_done.is_set():
+                        break
+                    continue
+
+                if self._active_stop_event.is_set():
+                    audio_queue.task_done()
+                    break
+
+                # 1. Try sounddevice (Cross-platform: Windows, Linux, macOS)
+                played = False
+                try:
+                    import sounddevice as sd
+                    sd.play(chunk, 24000)
+                    chunk_dur = len(chunk) / 24000.0
+                    t0 = time.time()
+                    while (time.time() - t0) < chunk_dur:
+                        if self._active_stop_event.is_set():
+                            sd.stop()
+                            break
+                        time.sleep(0.02)
+                    played = True
+                except Exception:
+                    pass
+
+                # 2. Windows fallback via winsound
+                if not played and not self._active_stop_event.is_set():
                     try:
+                        import winsound
+                        import io
+                        import wave
+
+                        int16_data = (np.clip(chunk, -1.0, 1.0) * 32767.0).astype(np.int16)
+                        mem_wav = io.BytesIO()
+                        with wave.open(mem_wav, "wb") as wf:
+                            wf.setnchannels(1)
+                            wf.setsampwidth(2)
+                            wf.setframerate(24000)
+                            wf.writeframes(int16_data.tobytes())
+                        wav_bytes = mem_wav.getvalue()
                         winsound.PlaySound(wav_bytes, winsound.SND_MEMORY)
                     except Exception:
                         pass
-                    audio_queue.task_done()
-                except queue.Empty:
-                    continue
+
+                audio_queue.task_done()
 
         play_t = threading.Thread(target=player_thread, daemon=True)
         play_t.start()
 
         try:
             for i, sent in enumerate(sentences):
+                if self._active_stop_event.is_set():
+                    print("  [LOTRO-TTS] Synthesis canceled.")
+                    break
+
                 # First sentence uses num_step=22 for rapid time-to-first-sound; subsequent use 24
                 step_count = 22 if i == 0 else 24
                 chunk = self._synthesize_chunk(
                     sent, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=step_count
                 )
+                if self._active_stop_event.is_set():
+                    print("  [LOTRO-TTS] Synthesis canceled after chunk.")
+                    break
+
                 all_chunks.append(chunk)
                 audio_queue.put(chunk)
                 if i == 0:
                     print("  First sentence ready! Playback started instantly.")
         finally:
-            stop_event.set()
-            play_t.join()
+            synthesis_done.set()
+            play_t.join(timeout=0.5 if self._active_stop_event.is_set() else None)
 
-        # Write final full dialogue to persistent cache in background thread
-        if all_chunks:
+        # Write final full dialogue to persistent cache in background thread only if completed without interruption
+        if all_chunks and not self._active_stop_event.is_set() and len(all_chunks) == len(sentences):
             full_audio = np.concatenate(all_chunks)
             threading.Thread(
                 target=sf.write,
@@ -545,6 +634,15 @@ class LotroSpeaker:
 
     def play_memory_audio(self, audio_data, sample_rate=24000):
         """Plays float32 audio array directly from memory without touching the hard drive."""
+        # 1. Try sounddevice (Cross-platform: Windows, Linux, macOS)
+        try:
+            import sounddevice as sd
+            sd.play(audio_data, sample_rate)
+            return
+        except Exception:
+            pass
+
+        # 2. Try winsound on Windows
         try:
             import winsound
             import io
@@ -562,7 +660,7 @@ class LotroSpeaker:
         except Exception:
             pass
 
-        # Fallback for systems without winsound
+        # 3. Fallback for systems without winsound or sounddevice
         import tempfile
         try:
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
@@ -573,6 +671,16 @@ class LotroSpeaker:
 
     def play_audio(self, audio_file):
         """Plays a WAV file asynchronously or via standard system sound."""
+        # 1. Try sounddevice
+        try:
+            import sounddevice as sd
+            data, fs = sf.read(str(audio_file), dtype="float32")
+            sd.play(data, fs)
+            return
+        except Exception:
+            pass
+
+        # 2. Try winsound on Windows
         try:
             import winsound
             winsound.PlaySound(str(audio_file), winsound.SND_FILENAME | winsound.SND_ASYNC)
@@ -580,10 +688,17 @@ class LotroSpeaker:
         except Exception:
             pass
 
+        # 3. Native system players on Linux / macOS
         try:
             import subprocess
             if sys.platform.startswith("linux"):
-                subprocess.Popen(["aplay", "-q", str(audio_file)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                # PipeWire / PulseAudio native tools with aplay fallback
+                for player in [["pw-cat", "-p"], ["paplay"], ["aplay", "-q"]]:
+                    try:
+                        subprocess.Popen(player + [str(audio_file)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        return
+                    except FileNotFoundError:
+                        continue
             elif sys.platform == "darwin":
                 subprocess.Popen(["afplay", str(audio_file)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except Exception as e:

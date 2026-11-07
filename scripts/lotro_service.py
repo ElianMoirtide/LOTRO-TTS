@@ -104,7 +104,8 @@ class LotroPipelineService:
 
         self.last_detected_client_lang = self.game_lang.upper()
         self.last_detected_target = ""
-        self._is_processing = False
+        self._is_scanning = False
+        self._is_speaking = False
         self._lock = threading.Lock()
 
     def get_lotro_window(self) -> Optional[Dict[str, Any]]:
@@ -114,7 +115,7 @@ class LotroPipelineService:
         or None if not found or minimized.
         """
         if not sys.platform.startswith("win"):
-            return None
+            return self._get_lotro_window_linux()
 
         import ctypes
         from ctypes import wintypes
@@ -200,6 +201,66 @@ class LotroPipelineService:
             "width": info["width"],
             "height": info["height"],
         }
+
+    def _get_lotro_window_linux(self) -> Optional[Dict[str, Any]]:
+        """
+        Locates the LOTRO client window under Linux (X11 / XWayland) via wmctrl or xdotool.
+        Returns {'hwnd': id, 'title': title, 'left': x, 'top': y, 'width': w, 'height': h}
+        or None.
+        """
+        import subprocess
+        import shutil
+
+        # 1. Try wmctrl -l -G
+        if shutil.which("wmctrl"):
+            try:
+                res = subprocess.run(["wmctrl", "-l", "-G"], capture_output=True, text=True, timeout=2)
+                if res.returncode == 0:
+                    for line in res.stdout.splitlines():
+                        if "lord of the rings online" in line.lower():
+                            parts = line.split(None, 7)
+                            if len(parts) >= 8:
+                                win_id_str, _, x_str, y_str, w_str, h_str, _, title = parts
+                                try:
+                                    return {
+                                        "hwnd": int(win_id_str, 16),
+                                        "title": title.strip(),
+                                        "left": int(x_str),
+                                        "top": int(y_str),
+                                        "width": int(w_str),
+                                        "height": int(h_str),
+                                    }
+                                except ValueError:
+                                    pass
+            except Exception as e:
+                logger.debug(f"wmctrl window lookup failed: {e}")
+
+        # 2. Try xdotool
+        if shutil.which("xdotool"):
+            try:
+                res = subprocess.run(
+                    ["xdotool", "search", "--onlyvisible", "--name", "Lord of the Rings Online"],
+                    capture_output=True, text=True, timeout=2
+                )
+                if res.returncode == 0 and res.stdout.strip():
+                    win_id = res.stdout.strip().splitlines()[0].strip()
+                    geo = subprocess.run(["xdotool", "getwindowgeometry", win_id], capture_output=True, text=True, timeout=2)
+                    if geo.returncode == 0:
+                        pos_match = re.search(r"Position:\s*(\d+),(\d+)", geo.stdout)
+                        size_match = re.search(r"Geometry:\s*(\d+)x(\d+)", geo.stdout)
+                        if pos_match and size_match:
+                            return {
+                                "hwnd": int(win_id),
+                                "title": "The Lord of the Rings Online",
+                                "left": int(pos_match.group(1)),
+                                "top": int(pos_match.group(2)),
+                                "width": int(size_match.group(1)),
+                                "height": int(size_match.group(2)),
+                            }
+            except Exception as e:
+                logger.debug(f"xdotool window lookup failed: {e}")
+
+        return None
 
     @staticmethod
     def _capture_window_surface_win32(hwnd: int, w: int, h: int):
@@ -339,10 +400,15 @@ class LotroPipelineService:
     def handle_trigger(self, plugin_client_lang: str = "", target_name: str = ""):
         """Executes full workflow upon plugin button click or hotkey."""
         with self._lock:
-            if self._is_processing:
-                logger.info("Speech/OCR process already running, skipping trigger...")
+            if self._is_scanning:
+                logger.info("OCR scan already running, debouncing trigger...")
                 return
-            self._is_processing = True
+            self._is_scanning = True
+
+        # If previous speech is still generating or playing, interrupt it immediately
+        if self.speaker and (self._is_speaking or self.speaker.is_speaking()):
+            logger.info("Interrupting previous speech for new dialogue trigger...")
+            self.speaker.stop()
 
         try:
             # Note: Script.log emits TTS|<CLIENT_LANG>|<TARGET> from Turbine.Engine.GetLanguage().
@@ -426,14 +492,21 @@ class LotroPipelineService:
                         active_client_lang = "en"
                 final_text = self.translator.translate(final_text, src_lang=active_client_lang, target_lang=active_tts_lang)
 
-            # 5. Speak through TTS
+        finally:
+            with self._lock:
+                self._is_scanning = False
+
+        # 5. Speak through TTS
+        with self._lock:
+            self._is_speaking = True
+        try:
             logger.info(
                 f"Speaking text ({len(final_text)} chars) for NPC '{speaker_target}' in '{active_tts_lang}'..."
             )
             self.speaker.speak(final_text, speaker_target, lang=active_tts_lang)
         finally:
             with self._lock:
-                self._is_processing = False
+                self._is_speaking = False
 
     def start_mouse_listener(self):
         """Starts background listener for Middle Mouse Button (Button 3)."""
@@ -496,6 +569,8 @@ class LotroPipelineService:
                 time.sleep(poll_interval)
             except KeyboardInterrupt:
                 logger.info("Stopping LOTRO-TTS Service...")
+                if self.speaker:
+                    self.speaker.stop()
                 break
             except Exception as e:
                 logger.error(f"Error watching log: {e}")
@@ -533,13 +608,26 @@ def get_default_lotro_documents_dir() -> Path:
         return home_docs_de
 
     if sys.platform.startswith("linux"):
-        steam_lotro_paths = list(
-            Path.home().glob(
-                ".steam/steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online"
-            )
-        )
-        if steam_lotro_paths:
-            return steam_lotro_paths[0]
+        # 1. Steam Proton (native Steam library, ~/.local/share/Steam or Flatpak Steam)
+        steam_patterns = [
+            ".steam/steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online",
+            ".local/share/Steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online",
+            ".var/app/com.valvesoftware.Steam/.steam/steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online",
+        ]
+        for pattern in steam_patterns:
+            matches = list(Path.home().glob(pattern))
+            if matches:
+                return matches[0]
+
+        # 2. Lutris prefixes
+        lutris_matches = list(Path.home().glob("Games/the-lord-of-the-rings-online/drive_c/users/*/Documents/The Lord of the Rings Online"))
+        if lutris_matches:
+            return lutris_matches[0]
+
+        # 3. Bottles prefixes
+        bottles_matches = list(Path.home().glob(".var/app/com.usebottles.bottles/data/bottles/bottles/*/drive_c/users/*/Documents/The Lord of the Rings Online"))
+        if bottles_matches:
+            return bottles_matches[0]
 
     return home_docs
 
@@ -601,7 +689,7 @@ def load_or_prompt_config(base_dir: Path, force_prompt: bool = False) -> tuple[s
 
     # Save atomically to config.json so an empty 0 KB file can never be left behind
     try:
-        payload = json.dumps({"game_lang": game_lang, "tts_lang": tts_lang}, indent=2) + "\n"
+        payload = json.dumps({"version": "v2.0", "game_lang": game_lang, "tts_lang": tts_lang}, indent=2) + "\n"
         tmp_file = config_file.with_suffix(".json.tmp")
         tmp_file.write_text(payload, encoding="utf-8")
         os.replace(str(tmp_file), str(config_file))

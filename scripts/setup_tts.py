@@ -23,28 +23,45 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 WIN64_DIR = BASE_DIR / "python" / "win64"
-PYTHON_EXE = WIN64_DIR / "python.exe"
+LINUX64_DIR = BASE_DIR / "python" / "linux64"
+
+if sys.platform.startswith("linux"):
+    if (LINUX64_DIR / "bin" / "python3").exists():
+        PYTHON_EXE = LINUX64_DIR / "bin" / "python3"
+    else:
+        PYTHON_EXE = Path(sys.executable)
+else:
+    PYTHON_EXE = WIN64_DIR / "python.exe"
 
 PYTORCH_CUDA_INDEX = "https://download.pytorch.org/whl/cu126"
+PYTORCH_ROCM_INDEX = (
+    "https://download.pytorch.org/whl/rocm6.2"
+    if sys.platform.startswith("linux")
+    else "https://stable.repo.amd.com/rocm/whl-next/"
+)
 
 
 def enable_site_packages():
     """Uncomments 'import site' in python3*._pth so site-packages works."""
-    pth_files = list(WIN64_DIR.glob("*._pth"))
-    for pth in pth_files:
-        content = pth.read_text(encoding="utf-8")
-        lines = content.splitlines()
-        modified = False
-        new_lines = []
-        for line in lines:
-            if line.strip() == "#import site":
-                new_lines.append("import site")
-                modified = True
-            else:
-                new_lines.append(line)
-        if modified:
-            pth.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
-            print(f"Enabled site-packages in {pth.name}")
+    target_dirs = [WIN64_DIR]
+    if LINUX64_DIR.exists():
+        target_dirs.append(LINUX64_DIR)
+
+    for pdir in target_dirs:
+        for pth in pdir.glob("*._pth"):
+            content = pth.read_text(encoding="utf-8")
+            lines = content.splitlines()
+            modified = False
+            new_lines = []
+            for line in lines:
+                if line.strip() == "#import site":
+                    new_lines.append("import site")
+                    modified = True
+                else:
+                    new_lines.append(line)
+            if modified:
+                pth.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+                print(f"Enabled site-packages in {pth.name}")
 
 
 def install_pip():
@@ -69,23 +86,40 @@ def install_pip():
 def install_packages(mode: str):
     """Installs PyTorch, OmniVoice, Whisper and all audio support packages."""
     mode = mode.lower().strip()
+    if mode in ["nvidia", "cuda", "gpu"]:
+        mode_label = "NVIDIA GPU (CUDA 12.6)"
+    elif mode in ["amd", "rocm"]:
+        mode_label = "AMD GPU (ROCm 10.x - RDNA 3/4)"
+    else:
+        mode_label = "CPU ONLY"
+
     print(f"\n========================================================")
-    print(f"Installing PyTorch & TorchAudio in mode: {mode.upper()}...")
+    print(f"Installing PyTorch & TorchAudio in mode: {mode_label}...")
     print(f"========================================================")
 
-    if mode == "gpu":
-        print(f"Using CUDA index: {PYTORCH_CUDA_INDEX}", flush=True)
+    if mode in ["nvidia", "cuda", "gpu"]:
+        print(f"Using NVIDIA CUDA index: {PYTORCH_CUDA_INDEX}", flush=True)
         cmd_torch = [
             str(PYTHON_EXE), "-m", "pip", "install",
-            "--upgrade", "--no-input", "--disable-pip-version-check", "--no-warn-script-location",
+            "--upgrade", "--force-reinstall", "--no-input", "--disable-pip-version-check", "--no-warn-script-location",
             "torch", "torchaudio",
             "--index-url", PYTORCH_CUDA_INDEX
         ]
-    else:
+    elif mode in ["amd", "rocm"]:
+        print(f"Using AMD ROCm index: {PYTORCH_ROCM_INDEX}", flush=True)
         cmd_torch = [
             str(PYTHON_EXE), "-m", "pip", "install",
-            "--upgrade", "--no-input", "--disable-pip-version-check", "--no-warn-script-location",
-            "torch", "torchaudio"
+            "--upgrade", "--force-reinstall", "--no-input", "--disable-pip-version-check", "--no-warn-script-location",
+            "torch", "torchaudio",
+            "--index-url", PYTORCH_ROCM_INDEX
+        ]
+    else:
+        print("Using PyTorch CPU index: https://download.pytorch.org/whl/cpu", flush=True)
+        cmd_torch = [
+            str(PYTHON_EXE), "-m", "pip", "install",
+            "--upgrade", "--force-reinstall", "--no-input", "--disable-pip-version-check", "--no-warn-script-location",
+            "torch", "torchaudio",
+            "--index-url", "https://download.pytorch.org/whl/cpu"
         ]
 
     subprocess.run(cmd_torch, check=True)
@@ -95,6 +129,7 @@ def install_packages(mode: str):
         "omnivoice",
         "openai-whisper",
         "soundfile",
+        "sounddevice",
         "scipy",
         "librosa",
         "transformers",
@@ -116,7 +151,7 @@ def install_packages(mode: str):
     ] + extra_packages
     subprocess.run(cmd_extra, check=True)
 
-    if mode == "gpu":
+    if mode in ["nvidia", "cuda", "gpu"]:
         # Install onnxruntime-gpu==1.20.0 (matching CUDA 12 / cu126) after rapidocr
         # so CPU onnxruntime does not shadow CUDAExecutionProvider
         cmd_ort_gpu = [
@@ -130,7 +165,10 @@ def install_packages(mode: str):
     verify_cmd = [
         str(PYTHON_EXE), "-c",
         "import torch, soundfile, omnivoice, whisper; "
-        "print(f'PyTorch: {torch.__version__} | CUDA available: {torch.cuda.is_available()} | Device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"CPU\"}'); "
+        "is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None; "
+        "hw = 'ROCm (AMD)' if is_rocm else ('CUDA (NVIDIA)' if torch.cuda.is_available() else 'CPU'); "
+        "dev = torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU'; "
+        "print(f'PyTorch: {torch.__version__} | Acceleration: {hw} | Device: {dev}'); "
         "print('OmniVoice & Whisper: Successfully loaded!')"
     ]
     print("\n========================================================", flush=True)
@@ -141,7 +179,12 @@ def install_packages(mode: str):
 
 def main():
     parser = argparse.ArgumentParser(description="LOTRO-TTS Setup")
-    parser.add_argument("--mode", choices=["gpu", "cpu"], default="gpu", help="Compute mode: gpu (NVIDIA/CUDA) or cpu")
+    parser.add_argument(
+        "--mode",
+        choices=["gpu", "nvidia", "cuda", "amd", "rocm", "cpu"],
+        default="nvidia",
+        help="Compute mode: nvidia (GeForce RTX/CUDA), amd (Radeon RX 7000/9000 ROCm), or cpu"
+    )
     args = parser.parse_args()
 
     print("=" * 60)

@@ -11,9 +11,11 @@ import json
 import logging
 import os
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 # Configure logging
@@ -107,7 +109,7 @@ def format_bytes(num_bytes: int) -> str:
     return f"{num_bytes / (1024 * 1024):.2f} MB"
 
 
-def download_file(url: str, target_path: Path, cached_etag: str | None, force: bool = False) -> tuple[bool, str | None]:
+def download_file(url: str, target_path: Path, cached_etag: str | None, force: bool = False, is_parallel: bool = False) -> tuple[bool, str | None]:
     """
     Downloads a single file with progress reporting and atomic temporary file.
     Returns: (was_updated: bool, new_etag: str | None)
@@ -137,7 +139,11 @@ def download_file(url: str, target_path: Path, cached_etag: str | None, force: b
             start_time = time.time()
             last_print = start_time
 
-            print(f"  Downloading {target_path.name} ({format_bytes(total_bytes) if total_bytes else 'unknown size'})...")
+            size_str = format_bytes(total_bytes) if total_bytes else "unknown size"
+            if not is_parallel:
+                print(f"  Downloading {target_path.name} ({size_str})...")
+            else:
+                logger.info(f"  Downloading {target_path.name} ({size_str})...")
 
             with open(temp_path, "wb") as f_out:
                 while True:
@@ -148,14 +154,16 @@ def download_file(url: str, target_path: Path, cached_etag: str | None, force: b
                     downloaded_bytes += len(chunk)
 
                     now = time.time()
-                    if total_bytes and (now - last_print >= 0.5 or downloaded_bytes == total_bytes):
+                    if not is_parallel and total_bytes and (now - last_print >= 0.5 or downloaded_bytes == total_bytes):
                         last_print = now
                         pct = (downloaded_bytes / total_bytes) * 100
                         speed = downloaded_bytes / max(0.001, (now - start_time))
                         speed_str = f"{format_bytes(int(speed))}/s"
                         print(f"\r    [{pct:5.1f}%] {format_bytes(downloaded_bytes)} / {format_bytes(total_bytes)} ({speed_str})", end="", flush=True)
 
-            print()  # Newline after progress bar
+            if not is_parallel and total_bytes:
+                print()  # Newline after progress bar
+
             # Atomic replace
             if target_path.exists():
                 target_path.unlink()
@@ -182,32 +190,49 @@ def download_file(url: str, target_path: Path, cached_etag: str | None, force: b
         return False, None
 
 
-def update_all(src_dir: Path, force: bool = False, generate_db: bool = False):
-    """Updates all source XML files."""
+def update_all(src_dir: Path, force: bool = False, generate_db: bool = False, workers: int = 5):
+    """Updates all source XML files in parallel using a thread pool."""
     start_time = time.time()
     logger.info("Starting LOTRO source XML update...")
     logger.info(f"Target directory: {src_dir}")
+    logger.info(f"Parallel download threads: {workers}")
 
     cache_file = src_dir / ".etags.json"
     etags = load_etags(cache_file)
+    etags_lock = threading.Lock()
 
     updated_count = 0
     total_files = len(SOURCES)
 
-    for idx, item in enumerate(SOURCES, start=1):
+    def process_source(idx: int, item: dict) -> tuple[dict, bool, str | None]:
         name = item["name"]
         target = src_dir / item["rel_path"]
         url = item["url"]
-        cached_etag = etags.get(str(item["rel_path"]))
+        with etags_lock:
+            cached_etag = etags.get(str(item["rel_path"]))
 
         logger.info(f"[{idx}/{total_files}] Checking {name}...")
-        was_updated, new_etag = download_file(url, target, cached_etag, force=force)
+        was_updated, new_etag = download_file(
+            url, target, cached_etag, force=force, is_parallel=(workers > 1)
+        )
+        return item, was_updated, new_etag
 
-        if new_etag:
-            etags[str(item["rel_path"])] = new_etag
-
-        if was_updated:
-            updated_count += 1
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
+        future_to_item = {
+            executor.submit(process_source, idx, item): item
+            for idx, item in enumerate(SOURCES, start=1)
+        }
+        for future in as_completed(future_to_item):
+            try:
+                item, was_updated, new_etag = future.result()
+                if new_etag:
+                    with etags_lock:
+                        etags[str(item["rel_path"])] = new_etag
+                if was_updated:
+                    updated_count += 1
+            except Exception as e:
+                item = future_to_item[future]
+                logger.error(f"Error updating {item['name']}: {e}")
 
     save_etags(cache_file, etags)
 
@@ -250,9 +275,16 @@ def main():
         action="store_true",
         help="Automatically regenerate SQLite database after update."
     )
+    parser.add_argument(
+        "--workers",
+        "-w",
+        type=int,
+        default=5,
+        help="Number of concurrent download threads (default: 5)."
+    )
 
     args = parser.parse_args()
-    update_all(args.src, force=args.force, generate_db=args.generate_db)
+    update_all(args.src, force=args.force, generate_db=args.generate_db, workers=args.workers)
 
 
 if __name__ == "__main__":
