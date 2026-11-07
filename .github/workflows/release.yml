@@ -53,6 +53,7 @@ jobs:
                     --exclude='*.pyc' \
                     --exclude='__pycache__' \
                     --exclude='LOTRO-TTS' \
+                    --exclude='src/quests' \
                     --exclude='src/LotroTtsGui/bin' \
                     --exclude='src/LotroTtsGui/obj' \
                     --exclude='pub_win' \
@@ -75,6 +76,7 @@ jobs:
                     --exclude='__pycache__' \
                     --exclude='LOTRO-TTS.exe' \
                     --exclude='python/win64' \
+                    --exclude='src/quests' \
                     --exclude='src/LotroTtsGui/bin' \
                     --exclude='src/LotroTtsGui/obj' \
                     --exclude='pub_win' \

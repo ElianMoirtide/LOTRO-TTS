@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import sqlite3
+import subprocess
 import sys
 import time
 import xml.etree.ElementTree as ET
@@ -69,6 +70,39 @@ def find_file_case_insensitive(parent: Path, filename: str) -> Path:
             if child.is_file() and child.name.lower() == filename.lower():
                 return child
     return target
+
+
+def ensure_sources_available(src_dir: Path):
+    """
+    Checks if essential source XML files (quests.xml, npc.xml) are present.
+    If missing, automatically downloads them via update_sources.py.
+    """
+    npc_dir = find_dir_case_insensitive(src_dir, "npc")
+    quests_dir = find_dir_case_insensitive(src_dir, "quests")
+
+    npc_file = find_file_case_insensitive(npc_dir, "npc.xml") if npc_dir.exists() else None
+    quests_file = find_file_case_insensitive(quests_dir, "quests.xml") if quests_dir.exists() else None
+
+    missing = []
+    if not npc_file or not npc_file.exists():
+        missing.append("npc.xml")
+    if not quests_file or not quests_file.exists():
+        missing.append("quests.xml")
+
+    if missing:
+        logger.info(f"Essential source XML file(s) missing ({', '.join(missing)}) in '{src_dir}'.")
+        logger.info("Automatically downloading latest XML sources from LotroCompanion repository...")
+        try:
+            import update_sources
+            update_sources.update_all(src_dir, force=False, generate_db=False)
+        except ImportError:
+            script_path = Path(__file__).resolve().parent / "update_sources.py"
+            if script_path.exists():
+                subprocess.run([sys.executable, str(script_path), "--src", str(src_dir)], check=True)
+            else:
+                logger.error("Could not find update_sources.py to download missing XML sources.")
+        except Exception as e:
+            logger.error(f"Failed to automatically download source XML files: {e}")
 
 
 def create_schema(conn: sqlite3.Connection):
@@ -144,6 +178,8 @@ def generate_database(src_dir: Path, output_db: Path):
     logger.info("Starting LOTRO-TTS SQLite database generation...")
     logger.info(f"Source directory: {src_dir}")
     logger.info(f"Target database:  {output_db}")
+
+    ensure_sources_available(src_dir)
 
     output_db.parent.mkdir(parents=True, exist_ok=True)
     if output_db.exists():
