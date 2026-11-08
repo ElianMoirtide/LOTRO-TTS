@@ -44,6 +44,31 @@ jobs:
           echo "TAG=${TAG}" >> $GITHUB_ENV
           echo "Selected package tag: ${TAG}"
 
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build Windows Executable (Self-Contained)
+        run: |
+          dotnet publish src/LotroTtsGui/LotroTtsGui.csproj \
+            -c Release \
+            -r win-x64 \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -o pub_win
+
+      - name: Build Linux Executable (Self-Contained)
+        run: |
+          dotnet publish src/LotroTtsGui/LotroTtsGui.csproj \
+            -c Release \
+            -r linux-x64 \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -o pub_linux
+
       - name: Package Windows Zip (x64)
         run: |
           mkdir -p dist/win_staging
@@ -53,6 +78,7 @@ jobs:
                     --exclude='*.pyc' \
                     --exclude='__pycache__' \
                     --exclude='LOTRO-TTS' \
+                    --exclude='LOTRO-TTS.exe' \
                     --exclude='src/quests' \
                     --exclude='src/LotroTtsGui/bin' \
                     --exclude='src/LotroTtsGui/obj' \
@@ -61,6 +87,9 @@ jobs:
                     --exclude='dist' \
                     --exclude='_update_temp' \
                     ./ dist/win_staging/
+
+          # Copy freshly compiled self-contained Windows executable into package root
+          cp pub_win/LOTRO-TTS.exe dist/win_staging/LOTRO-TTS.exe
 
           cd dist/win_staging
           7z a -tzip -mx=9 -mfb=258 -mpass=15 "../../dist/LOTRO-TTS-${TAG}-Windows-x64.zip" .
@@ -74,6 +103,7 @@ jobs:
                     --exclude='.vscode' \
                     --exclude='*.pyc' \
                     --exclude='__pycache__' \
+                    --exclude='LOTRO-TTS' \
                     --exclude='LOTRO-TTS.exe' \
                     --exclude='python/win64' \
                     --exclude='src/quests' \
@@ -84,6 +114,9 @@ jobs:
                     --exclude='dist' \
                     --exclude='_update_temp' \
                     ./ dist/linux_staging/
+
+          # Copy freshly compiled self-contained Linux executable into package root
+          cp pub_linux/LOTRO-TTS dist/linux_staging/LOTRO-TTS
 
           # Ensure execution permissions for Linux executable and scripts
           chmod +x dist/linux_staging/LOTRO-TTS
