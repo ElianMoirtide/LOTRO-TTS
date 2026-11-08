@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Formats.Tar;
 using System.IO;
+using System.IO.Compression;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -29,7 +32,7 @@ namespace LotroTtsGui
         public const string AppVersion = "v2.0-rc1";
 
         private readonly string baseDir;
-        private readonly string pythonExe;
+        private string pythonExe;
         private readonly string configPath;
         private string stopHotkey = "pause";
         private double savedNormalWidth = 960;
@@ -1152,12 +1155,6 @@ namespace LotroTtsGui
                 return;
             }
 
-            if (!File.Exists(pythonExe))
-            {
-                AppendLog($"[ERROR] Python was not found at: {pythonExe}", redStop);
-                return;
-            }
-
             SaveConfig();
 
             if (!IsPluginInstalled() || IsPluginUpdateAvailable())
@@ -1172,6 +1169,12 @@ namespace LotroTtsGui
                 if (string.IsNullOrEmpty(dlg.SelectedMode)) return;
 
                 RunSequentialTasksAndStartService(dlg.SelectedMode, !IsDatabaseReady());
+                return;
+            }
+
+            if (!File.Exists(pythonExe))
+            {
+                AppendLog($"[ERROR] Python was not found at: {pythonExe}", redStop);
                 return;
             }
 
@@ -1194,6 +1197,21 @@ namespace LotroTtsGui
             {
                 try
                 {
+                    if (OperatingSystem.IsLinux() && !File.Exists(pythonExe))
+                    {
+                        bool ok = EnsureLinuxPythonAvailable();
+                        if (!ok)
+                        {
+                            Dispatcher.UIThread.Post(() =>
+                            {
+                                isTaskRunning = false;
+                                SetButtonsEnabled(true);
+                                btnStartStop.IsEnabled = true;
+                            });
+                            return;
+                        }
+                    }
+
                     if (!string.IsNullOrEmpty(setupMode))
                     {
                         AppendLog($"\n>>> Running First-Time TTS Environment Setup ({setupMode.ToUpperInvariant()})...", goldAccent);
@@ -1269,6 +1287,161 @@ namespace LotroTtsGui
             {
                 AppendLog($"[ERROR] {ex.Message}", redStop);
                 return -1;
+            }
+        }
+
+        private bool EnsureLinuxPythonAvailable()
+        {
+            if (!OperatingSystem.IsLinux()) return true;
+
+            string linuxPyDir = Path.Combine(baseDir, "python", "linux64");
+            string linuxPyExe = Path.Combine(linuxPyDir, "bin", "python3");
+
+            if (File.Exists(linuxPyExe))
+            {
+                pythonExe = linuxPyExe;
+                return true;
+            }
+
+            AppendLog("\n========================================================", goldAccent);
+            AppendLog(">>> Standalone Python for Linux not found.", goldAccent);
+            AppendLog(">>> Downloading portable Python 3.13 from python-build-standalone...", goldAccent);
+            AppendLog("========================================================", goldAccent);
+
+            string downloadUrl = "https://github.com/astral-sh/python-build-standalone/releases/download/20241016/cpython-3.13.0+20241016-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz";
+            string tempTar = Path.Combine(baseDir, "python", "linux64_python.tar.gz");
+
+            try
+            {
+                Directory.CreateDirectory(Path.Combine(baseDir, "python"));
+                if (Directory.Exists(linuxPyDir))
+                {
+                    try { Directory.Delete(linuxPyDir, true); } catch { }
+                }
+                Directory.CreateDirectory(linuxPyDir);
+
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("User-Agent", "LOTRO-TTS-Installer");
+                    using var response = client.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead).GetAwaiter().GetResult();
+                    response.EnsureSuccessStatusCode();
+
+                    long? totalBytes = response.Content.Headers.ContentLength;
+                    using var inStream = response.Content.ReadAsStream();
+                    using var outStream = new FileStream(tempTar, FileMode.Create, FileAccess.Write, FileShare.None);
+
+                    byte[] buffer = new byte[128 * 1024];
+                    long downloaded = 0;
+                    long lastReport = 0;
+                    int bytesRead;
+
+                    while ((bytesRead = inStream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        outStream.Write(buffer, 0, bytesRead);
+                        downloaded += bytesRead;
+                        if (downloaded - lastReport >= 5 * 1024 * 1024 || (totalBytes.HasValue && downloaded == totalBytes.Value))
+                        {
+                            lastReport = downloaded;
+                            double mb = downloaded / (1024.0 * 1024.0);
+                            if (totalBytes.HasValue)
+                            {
+                                double totalMb = totalBytes.Value / (1024.0 * 1024.0);
+                                AppendLog($"  Downloading: {mb:F1} MB / {totalMb:F1} MB ({(int)(downloaded * 100 / totalBytes.Value)}%)...");
+                            }
+                            else
+                            {
+                                AppendLog($"  Downloading: {mb:F1} MB...");
+                            }
+                        }
+                    }
+                }
+
+                AppendLog(">>> Extracting portable Python to python/linux64...", goldAccent);
+
+                bool tarSuccess = false;
+                try
+                {
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = "tar",
+                        Arguments = $"-xzf \"{tempTar}\" -C \"{linuxPyDir}\" --strip-components=1",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+                    using var p = Process.Start(psi);
+                    p?.WaitForExit();
+                    tarSuccess = (p?.ExitCode == 0);
+                }
+                catch { }
+
+                if (!tarSuccess || !File.Exists(linuxPyExe))
+                {
+                    using var fs = File.OpenRead(tempTar);
+                    using var gz = new GZipStream(fs, CompressionMode.Decompress);
+                    using var reader = new TarReader(gz);
+
+                    while (reader.GetNextEntry() is { } entry)
+                    {
+                        string rel = entry.Name;
+                        int slash = rel.IndexOf('/');
+                        if (slash >= 0) rel = rel.Substring(slash + 1);
+                        if (string.IsNullOrEmpty(rel)) continue;
+
+                        string dest = Path.Combine(linuxPyDir, rel);
+                        if (entry.EntryType == TarEntryType.Directory)
+                        {
+                            Directory.CreateDirectory(dest);
+                        }
+                        else if (entry.EntryType is TarEntryType.RegularFile or TarEntryType.V7RegularFile)
+                        {
+                            Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+                            entry.ExtractToFile(dest, overwrite: true);
+                        }
+                        else if (entry.EntryType == TarEntryType.SymbolicLink)
+                        {
+                            Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+                            if (File.Exists(dest) || Directory.Exists(dest)) File.Delete(dest);
+                            File.CreateSymbolicLink(dest, entry.LinkName);
+                        }
+                    }
+                }
+
+                try { File.Delete(tempTar); } catch { }
+
+                try
+                {
+                    File.SetUnixFileMode(linuxPyExe, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                                                     UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+                                                     UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+                }
+                catch
+                {
+                    try
+                    {
+                        using var cp = Process.Start(new ProcessStartInfo("chmod", $"+x \"{linuxPyExe}\"") { UseShellExecute = false, CreateNoWindow = true });
+                        cp?.WaitForExit(2000);
+                    }
+                    catch { }
+                }
+
+                if (File.Exists(linuxPyExe))
+                {
+                    pythonExe = linuxPyExe;
+                    AppendLog("[OK] Portable Python successfully installed to python/linux64!", greenOk);
+                    Dispatcher.UIThread.Post(RefreshSystemStatus);
+                    return true;
+                }
+                else
+                {
+                    AppendLog($"[ERROR] Failed to extract Python to {linuxPyExe}", redStop);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"[ERROR] Failed to download portable Python: {ex.Message}", redStop);
+                try { if (File.Exists(tempTar)) File.Delete(tempTar); } catch { }
+                return false;
             }
         }
 
@@ -1403,6 +1576,21 @@ namespace LotroTtsGui
             AppendLog($"\n>>> {title}...", goldAccent);
             ThreadPool.QueueUserWorkItem(_ =>
             {
+                if (OperatingSystem.IsLinux() && !File.Exists(pythonExe))
+                {
+                    bool ok = EnsureLinuxPythonAvailable();
+                    if (!ok)
+                    {
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            isTaskRunning = false;
+                            SetButtonsEnabled(true);
+                            btnStartStop.IsEnabled = true;
+                        });
+                        return;
+                    }
+                }
+
                 int code = RunPythonBlocking(pythonArgs);
                 Dispatcher.UIThread.Post(() =>
                 {
@@ -1440,6 +1628,21 @@ namespace LotroTtsGui
             AppendLog($"\n>>> TTS Environment Setup ({mode.ToUpperInvariant()})...", goldAccent);
             ThreadPool.QueueUserWorkItem(_ =>
             {
+                if (OperatingSystem.IsLinux() && !File.Exists(pythonExe))
+                {
+                    bool ok = EnsureLinuxPythonAvailable();
+                    if (!ok)
+                    {
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            isTaskRunning = false;
+                            SetButtonsEnabled(true);
+                            btnStartStop.IsEnabled = true;
+                        });
+                        return;
+                    }
+                }
+
                 int code = RunPythonBlocking($"-u \"scripts/setup_tts.py\" --mode {mode}");
                 if (code == 0 && !IsDatabaseReady())
                 {

@@ -18,7 +18,7 @@ if [ ! -f "$LINUX_PY" ]; then
     echo "[INFO] Downloading portable Python 3.13 (x86_64) from python-build-standalone..."
     mkdir -p python/linux64
 
-    STANDALONE_URL="https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.13.18%2B20261026-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
+    STANDALONE_URL="https://github.com/astral-sh/python-build-standalone/releases/download/20241016/cpython-3.13.0+20241016-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
     TEMP_TAR="python/linux64_python.tar.gz"
 
     if command -v curl >/dev/null 2>&1; then

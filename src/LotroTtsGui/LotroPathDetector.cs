@@ -15,9 +15,7 @@ namespace LotroTtsGui
             }
             else
             {
-                string linPy = Path.Combine(baseDir, "python", "linux64", "bin", "python3");
-                if (File.Exists(linPy)) return linPy;
-                return "python3";
+                return Path.Combine(baseDir, "python", "linux64", "bin", "python3");
             }
         }
 

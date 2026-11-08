@@ -26,13 +26,58 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 WIN64_DIR = BASE_DIR / "python" / "win64"
 LINUX64_DIR = BASE_DIR / "python" / "linux64"
 
+STANDALONE_PYTHON_LINUX_URL = (
+    "https://github.com/astral-sh/python-build-standalone/releases/download/20241016/"
+    "cpython-3.13.0+20241016-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
+)
+
 if sys.platform.startswith("linux"):
-    if (LINUX64_DIR / "bin" / "python3").exists():
-        PYTHON_EXE = LINUX64_DIR / "bin" / "python3"
-    else:
-        PYTHON_EXE = Path(sys.executable)
+    PYTHON_EXE = LINUX64_DIR / "bin" / "python3"
 else:
     PYTHON_EXE = WIN64_DIR / "python.exe"
+
+
+def ensure_linux_python():
+    """Ensures portable standalone Python 3.13 is downloaded and extracted into python/linux64."""
+    if not sys.platform.startswith("linux"):
+        return
+
+    linux_py = LINUX64_DIR / "bin" / "python3"
+    if linux_py.exists():
+        return
+
+    print("========================================================")
+    print("Standalone Python for Linux not found.")
+    print("Downloading portable Python 3.13 from python-build-standalone...")
+    print("========================================================")
+
+    LINUX64_DIR.mkdir(parents=True, exist_ok=True)
+    temp_tar = BASE_DIR / "python" / "linux64_python.tar.gz"
+
+    import tarfile
+    urllib.request.urlretrieve(STANDALONE_PYTHON_LINUX_URL, str(temp_tar))
+
+    print("Extracting portable Python to python/linux64...")
+    with tarfile.open(temp_tar, "r:gz") as tar:
+        for member in tar.getmembers():
+            parts = Path(member.name).parts
+            if len(parts) > 1:
+                member.name = str(Path(*parts[1:]))
+                tar.extract(member, path=str(LINUX64_DIR))
+
+    if temp_tar.exists():
+        temp_tar.unlink()
+
+    try:
+        linux_py.chmod(0o755)
+    except Exception:
+        pass
+
+    print("[OK] Portable Python successfully installed to python/linux64!")
+
+    if Path(sys.executable).resolve() != linux_py.resolve():
+        print(f"Re-executing setup using standalone Python: {linux_py}")
+        os.execv(str(linux_py), [str(linux_py)] + sys.argv)
 
 PYTORCH_CUDA12_INDEX = "https://download.pytorch.org/whl/cu126"
 PYTORCH_CUDA13_INDEX = "https://download.pytorch.org/whl/cu130"
@@ -216,7 +261,8 @@ def install_pip():
 
     print("Downloading get-pip.py...")
     get_pip_url = "https://bootstrap.pypa.io/get-pip.py"
-    get_pip_path = WIN64_DIR / "get-pip.py"
+    get_pip_dir = WIN64_DIR if sys.platform.startswith("win") else LINUX64_DIR
+    get_pip_path = get_pip_dir / "get-pip.py"
     urllib.request.urlretrieve(get_pip_url, str(get_pip_path))
 
     print("Installing pip into embedded Python...")
@@ -358,6 +404,8 @@ def install_packages(mode: str):
 
 
 def main():
+    ensure_linux_python()
+
     parser = argparse.ArgumentParser(description="LOTRO-TTS Setup")
     parser.add_argument(
         "--mode",
