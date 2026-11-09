@@ -1273,6 +1273,8 @@ namespace LotroTtsGui
                 };
                 psi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8";
                 psi.EnvironmentVariables["PYTHONUTF8"] = "1";
+                psi.EnvironmentVariables["HF_HUB_VERBOSITY"] = "error";
+                psi.EnvironmentVariables["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1";
 
                 using var p = new Process { StartInfo = psi };
                 p.OutputDataReceived += (s, ev) => { if (ev.Data != null) AppendLog(ev.Data); };
@@ -1485,6 +1487,8 @@ namespace LotroTtsGui
                 };
                 psi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8";
                 psi.EnvironmentVariables["PYTHONUTF8"] = "1";
+                psi.EnvironmentVariables["HF_HUB_VERBOSITY"] = "error";
+                psi.EnvironmentVariables["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1";
 
                 activeProcess = new Process { StartInfo = psi, EnableRaisingEvents = true };
                 activeProcess.OutputDataReceived += (s, ev) => { if (ev.Data != null) AppendLog(ev.Data); };

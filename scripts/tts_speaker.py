@@ -13,9 +13,17 @@ import random
 import unicodedata
 import threading
 from pathlib import Path
+import warnings
 import numpy as np
 import soundfile as sf
 import torch
+
+# Suppress noisy HuggingFace Hub unauthenticated warnings and verbose HTTP logs
+os.environ["HF_HUB_VERBOSITY"] = "error"
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+warnings.filterwarnings("ignore", message=".*unauthenticated requests.*")
+warnings.filterwarnings("ignore", message=".*HF_TOKEN.*")
+warnings.filterwarnings("ignore", module="huggingface_hub.*")
 
 try:
     from omnivoice import OmniVoice

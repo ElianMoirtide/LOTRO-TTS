@@ -7,8 +7,18 @@ using HuggingFace MarianMT (Helsinki-NLP/opus-mt-en-*).
 
 import hashlib
 import logging
+import os
 import sqlite3
+import warnings
 from pathlib import Path
+
+# Suppress noisy HuggingFace Hub unauthenticated warnings and verbose HTTP logs
+os.environ["HF_HUB_VERBOSITY"] = "error"
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+warnings.filterwarnings("ignore", message=".*unauthenticated requests.*")
+warnings.filterwarnings("ignore", message=".*HF_TOKEN.*")
+warnings.filterwarnings("ignore", message=".*sacremoses.*")
+warnings.filterwarnings("ignore", module="huggingface_hub.*")
 
 logger = logging.getLogger("LOTRO-Translator")
 
@@ -23,7 +33,7 @@ for noisy in (
     "huggingface_hub",
     "transformers",
 ):
-    logging.getLogger(noisy).setLevel(logging.WARNING)
+    logging.getLogger(noisy).setLevel(logging.ERROR)
 
 # Supported language pairs and corresponding HuggingFace model IDs
 SUPPORTED_TRANSLATION_MODELS = {
@@ -126,10 +136,13 @@ class LotroTranslator:
             "huggingface_hub",
             "transformers",
         ):
-            logging.getLogger(noisy).setLevel(logging.WARNING)
+            logging.getLogger(noisy).setLevel(logging.ERROR)
 
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message=".*sacremoses.*")
+            warnings.filterwarnings("ignore", message=".*unauthenticated requests.*")
+            warnings.filterwarnings("ignore", message=".*HF_TOKEN.*")
+            warnings.filterwarnings("ignore", module="huggingface_hub.*")
             try:
                 # Fast offline load if already downloaded (use_safetensors=False avoids PR conversion lookup)
                 tokenizer = MarianTokenizer.from_pretrained(model_id, local_files_only=True)

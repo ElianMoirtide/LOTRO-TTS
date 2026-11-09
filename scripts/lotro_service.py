@@ -17,8 +17,16 @@ import time
 import argparse
 import logging
 import threading
+import warnings
 from pathlib import Path
 from typing import Optional, Dict, Any
+
+# Suppress noisy HuggingFace Hub unauthenticated warnings and verbose HTTP logs
+os.environ["HF_HUB_VERBOSITY"] = "error"
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+warnings.filterwarnings("ignore", message=".*unauthenticated requests.*")
+warnings.filterwarnings("ignore", message=".*HF_TOKEN.*")
+warnings.filterwarnings("ignore", module="huggingface_hub.*")
 
 # Enable Per-Monitor v2 DPI Awareness on Windows so GetWindowRect / PrintWindow / mss
 # always operate at native physical resolution (e.g. 3840x2160 on 150% scaled 4K displays).
@@ -59,7 +67,7 @@ for noisy in (
     "huggingface_hub",
     "transformers",
 ):
-    logging.getLogger(noisy).setLevel(logging.WARNING)
+    logging.getLogger(noisy).setLevel(logging.ERROR)
 
 
 class LotroPipelineService:
