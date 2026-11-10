@@ -51,15 +51,27 @@ class LotroSpeaker:
         device=None,
         narrator_mode: bool = False,
         narrator_voice: str = "man_male_1",
+        volume: int = 80,
     ):
         self.base_dir = Path(__file__).resolve().parent.parent
         self.voices_dir = self.base_dir / voices_dir
         self.db_path = self.base_dir / db_path
         self.narrator_mode = bool(narrator_mode)
         self.narrator_voice = str(narrator_voice).strip() if narrator_voice else "man_male_1"
+        self.volume = max(0, min(100, int(volume)))
+        self._cached_vol_scale = max(0.0, min(1.0, float(self.volume) / 100.0))
+        self._config_vol_mtime = None
 
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Initializing LOTRO-TTS Speaker Engine on [{self.device}]...")
+
+        # Initialize audio backend and register WASAPI audio session with OS mixer immediately (0.01s silent warmup)
+        try:
+            import sounddevice as sd
+            sd.play(np.zeros(240, dtype=np.float32), 24000)
+            sd.wait()
+        except Exception:
+            pass
 
         # Load OmniVoice model once (FP16 half-precision on CUDA for 2x faster Tensor Core inference)
         model_dtype = torch.float16 if self.device == "cuda" else torch.float32
@@ -755,8 +767,33 @@ class LotroSpeaker:
                 daemon=True
             ).start()
 
+    def _get_volume_scale(self) -> float:
+        """
+        Reads volume (0-100) from config.json to apply real-time software audio scaling.
+        Caches file modification time for instant 0ms lookups.
+        """
+        config_path = self.base_dir / "config.json"
+        if not config_path.exists():
+            return self._cached_vol_scale
+        try:
+            mtime = config_path.stat().st_mtime
+            if mtime != self._config_vol_mtime:
+                self._config_vol_mtime = mtime
+                cfg = json.loads(config_path.read_text(encoding="utf-8"))
+                vol = cfg.get("volume", self.volume)
+                self.volume = max(0, min(100, int(vol)))
+                self._cached_vol_scale = max(0.0, min(1.0, float(self.volume) / 100.0))
+            return self._cached_vol_scale
+        except Exception:
+            return self._cached_vol_scale
+
     def play_memory_audio(self, audio_data, sample_rate=24000):
         """Plays float32 audio array directly from memory without touching the hard drive."""
+        # Apply software audio scaling on all platforms so volume is reliably respected
+        vol_scale = self._get_volume_scale()
+        if vol_scale < 0.999:
+            audio_data = np.clip(audio_data * vol_scale, -1.0, 1.0)
+
         # 1. Try sounddevice (Cross-platform: Windows, Linux, macOS)
         try:
             import sounddevice as sd
@@ -783,39 +820,38 @@ class LotroSpeaker:
         except Exception:
             pass
 
-        # 3. Fallback for systems without winsound or sounddevice
+        # 3. Fallback for systems without winsound or sounddevice (Linux / macOS CLI players)
         import tempfile
+        import subprocess
         try:
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                 sf.write(tmp.name, audio_data, sample_rate)
-                self.play_audio(Path(tmp.name))
+                if sys.platform.startswith("linux"):
+                    for player in [["pw-cat", "-p"], ["paplay"], ["aplay", "-q"]]:
+                        try:
+                            subprocess.Popen(player + [tmp.name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            return
+                        except FileNotFoundError:
+                            continue
+                elif sys.platform == "darwin":
+                    subprocess.Popen(["afplay", tmp.name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    return
         except Exception:
             pass
 
     def play_audio(self, audio_file):
         """Plays a WAV file asynchronously or via standard system sound."""
-        # 1. Try sounddevice
         try:
-            import sounddevice as sd
             data, fs = sf.read(str(audio_file), dtype="float32")
-            sd.play(data, fs)
+            self.play_memory_audio(data, fs)
             return
         except Exception:
             pass
 
-        # 2. Try winsound on Windows
-        try:
-            import winsound
-            winsound.PlaySound(str(audio_file), winsound.SND_FILENAME | winsound.SND_ASYNC)
-            return
-        except Exception:
-            pass
-
-        # 3. Native system players on Linux / macOS
+        # Native system player fallback if soundfile could not decode directly
         try:
             import subprocess
             if sys.platform.startswith("linux"):
-                # PipeWire / PulseAudio native tools with aplay fallback
                 for player in [["pw-cat", "-p"], ["paplay"], ["aplay", "-q"]]:
                     try:
                         subprocess.Popen(player + [str(audio_file)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -834,8 +870,9 @@ if __name__ == "__main__":
     parser.add_argument("--npc", type=str, default="narrator", help="NPC name (e.g. Galadriel, Lobelia) or category (elf_female, etc.)")
     parser.add_argument("--lang", type=str, choices=["de", "en", "fr", "es", "it", "nl"], default="de", help="Language code")
     parser.add_argument("--output", type=str, default=None, help="Output wav file path")
+    parser.add_argument("--volume", type=int, default=80, help="Volume percentage (0-100)")
     parser.add_argument("--device", type=str, choices=["cuda", "cpu"], default=None, help="Compute device (default: auto-detect cuda/cpu)")
 
     args = parser.parse_args()
-    speaker = LotroSpeaker(device=args.device)
+    speaker = LotroSpeaker(device=args.device, volume=args.volume)
     speaker.speak(args.text, npc_name_or_category=args.npc, lang=args.lang, output_path=args.output)

@@ -83,6 +83,7 @@ class LotroPipelineService:
         stop_hotkey: str = "pause",
         narrator_mode: bool = False,
         narrator_voice: str = "man_male_1",
+        volume: int = 80,
     ):
         self.lotro_docs_dir = Path(lotro_docs_dir)
         self.script_log_path = self.lotro_docs_dir / "Script.log"
@@ -95,6 +96,7 @@ class LotroPipelineService:
         self.stop_hotkey = (stop_hotkey or "pause").lower().strip()
         self.narrator_mode = bool(narrator_mode)
         self.narrator_voice = str(narrator_voice).strip() if narrator_voice else "man_male_1"
+        self.volume = max(0, min(100, int(volume)))
 
         # Auto-detect CUDA GPU for maximum performance (e.g. RTX 4090)
         import torch
@@ -113,6 +115,7 @@ class LotroPipelineService:
             device=device,
             narrator_mode=self.narrator_mode,
             narrator_voice=self.narrator_voice,
+            volume=self.volume,
         )
         self.translator = LotroTranslator(device=device)
         if self.tts_lang in ("it", "nl"):
@@ -815,13 +818,20 @@ def main():
         default=None,
         help="Voice ID to use for narrator mode (default: 'man_male_1')",
     )
+    parser.add_argument(
+        "--volume",
+        type=int,
+        default=None,
+        help="TTS speech playback volume percent (0-100)",
+    )
     args = parser.parse_args()
 
-    # Determine languages, stop hotkey, and narrator mode
+    # Determine languages, stop hotkey, narrator mode, and volume
     config_file = base_dir / "config.json"
     configured_stop_hotkey = "pause"
     configured_narrator_mode = False
     configured_narrator_voice = "man_male_1"
+    configured_volume = 80
     if config_file.exists():
         try:
             cfg = json.loads(config_file.read_text(encoding="utf-8"))
@@ -831,12 +841,15 @@ def main():
                 configured_narrator_mode = bool(cfg["narrator_mode"])
             if cfg.get("narrator_voice"):
                 configured_narrator_voice = str(cfg["narrator_voice"]).strip()
+            if "volume" in cfg:
+                configured_volume = int(cfg["volume"])
         except Exception:
             pass
 
     stop_hotkey = args.stop_hotkey or configured_stop_hotkey
     narrator_mode = args.narrator_mode or configured_narrator_mode
     narrator_voice = args.narrator_voice or configured_narrator_voice
+    volume = args.volume if args.volume is not None else configured_volume
 
     if args.client_lang and args.tts_lang:
         game_lang = args.client_lang.lower().strip()
@@ -850,7 +863,7 @@ def main():
 
     narrator_info = f" | Narrator Mode = [ENABLED: {narrator_voice}]" if narrator_mode else " | Narrator Mode = [DISABLED]"
     logger.info(
-        f"Active Settings: Game Client = [{game_lang.upper()}] | TTS Speech = [{tts_lang.upper()}] | Stop Hotkey = [{stop_hotkey.upper()}]{narrator_info}"
+        f"Active Settings: Game Client = [{game_lang.upper()}] | TTS Speech = [{tts_lang.upper()}] | Stop Hotkey = [{stop_hotkey.upper()}] | Volume = [{volume}%]{narrator_info}"
     )
 
     service = LotroPipelineService(
@@ -864,6 +877,7 @@ def main():
         stop_hotkey=stop_hotkey,
         narrator_mode=narrator_mode,
         narrator_voice=narrator_voice,
+        volume=volume,
     )
     service.watch_script_log()
 

@@ -51,6 +51,8 @@ namespace LotroTtsGui
         private ComboBox cmbComputeMode = null!;
         private Slider sliderVolume = null!;
         private TextBlock lblVolumeTitle = null!;
+        private volatile int currentVolume = 80;
+        private CancellationTokenSource? serviceVolumeWatcherCts;
         private CheckBox chkMiddleMouse = null!;
         private CheckBox chkNarratorMode = null!;
         private ComboBox cmbNarratorVoice = null!;
@@ -357,12 +359,14 @@ namespace LotroTtsGui
                 if (e.Property.Name == nameof(Slider.Value))
                 {
                     int v = (int)sliderVolume.Value;
+                    currentVolume = v;
                     lblVolumeTitle.Text = $"TTS Volume: {v}%";
                     SaveConfig();
-                    if (activeProcess != null && !activeProcess.HasExited)
+                    int targetPid = (activeProcess != null && !activeProcess.HasExited) ? activeProcess.Id : -1;
+                    ThreadPool.QueueUserWorkItem(_ =>
                     {
-                        ProcessVolumeManager.SetProcessVolume(activeProcess.Id, v);
-                    }
+                        ProcessVolumeManager.SetProcessVolume(targetPid, v);
+                    });
                 }
             };
             volPanel.Children.Add(lblVolumeTitle);
@@ -721,8 +725,9 @@ namespace LotroTtsGui
 
                     if (root.TryGetProperty("volume", out var v) && v.TryGetInt32(out int vol))
                     {
-                        sliderVolume.Value = Math.Clamp(vol, 0, 100);
-                        lblVolumeTitle.Text = $"TTS Volume: {vol}%";
+                        currentVolume = Math.Clamp(vol, 0, 100);
+                        sliderVolume.Value = currentVolume;
+                        lblVolumeTitle.Text = $"TTS Volume: {currentVolume}%";
                     }
 
                     if (root.TryGetProperty("stop_hotkey", out var sh) && !string.IsNullOrWhiteSpace(sh.GetString()))
@@ -1282,6 +1287,18 @@ namespace LotroTtsGui
                 p.Start();
                 p.BeginOutputReadLine();
                 p.BeginErrorReadLine();
+                if (OperatingSystem.IsWindows())
+                {
+                    int pid = p.Id;
+                    ThreadPool.QueueUserWorkItem(_ =>
+                    {
+                        while (!p.HasExited)
+                        {
+                            ProcessVolumeManager.SetProcessVolume(pid, currentVolume);
+                            Thread.Sleep(200);
+                        }
+                    });
+                }
                 p.WaitForExit();
                 return p.ExitCode;
             }
@@ -1458,7 +1475,7 @@ namespace LotroTtsGui
             bool narratorMode = chkNarratorMode.IsChecked ?? false;
             string narratorVoice = GetSelectedVoiceId(cmbNarratorVoice, savedNarratorVoice);
 
-            string args = $"-u \"scripts/lotro_service.py\" --client-lang {clientLang} --tts-lang {ttsLang} --mode {mode} --stop-hotkey {stopHotkey}" +
+            string args = $"-u \"scripts/lotro_service.py\" --client-lang {clientLang} --tts-lang {ttsLang} --mode {mode} --volume {volume} --stop-hotkey {stopHotkey}" +
                           (narratorMode ? $" --narrator-mode --narrator-voice {narratorVoice}" : "") +
                           (useMouse ? "" : " --no-mouse");
 
@@ -1495,6 +1512,8 @@ namespace LotroTtsGui
                 activeProcess.ErrorDataReceived += (s, ev) => { if (ev.Data != null) AppendLog(ev.Data); };
                 activeProcess.Exited += (s, ev) =>
                 {
+                    serviceVolumeWatcherCts?.Cancel();
+                    serviceVolumeWatcherCts = null;
                     Dispatcher.UIThread.Post(() =>
                     {
                         isServiceRunning = false;
@@ -1509,19 +1528,21 @@ namespace LotroTtsGui
                 activeProcess.BeginOutputReadLine();
                 activeProcess.BeginErrorReadLine();
 
-                ThreadPool.QueueUserWorkItem(_ =>
+                serviceVolumeWatcherCts?.Cancel();
+                serviceVolumeWatcherCts = new CancellationTokenSource();
+                var token = serviceVolumeWatcherCts.Token;
+                int svcPid = activeProcess.Id;
+                if (OperatingSystem.IsWindows())
                 {
-                    for (int r = 0; r < 6; r++)
+                    ThreadPool.QueueUserWorkItem(_ =>
                     {
-                        Thread.Sleep(1500);
-                        if (activeProcess == null || activeProcess.HasExited) break;
-                        Dispatcher.UIThread.Post(() =>
+                        while (!token.IsCancellationRequested && activeProcess != null && !activeProcess.HasExited)
                         {
-                            if (activeProcess != null && !activeProcess.HasExited)
-                                ProcessVolumeManager.SetProcessVolume(activeProcess.Id, (int)sliderVolume.Value);
-                        });
-                    }
-                });
+                            ProcessVolumeManager.SetProcessVolume(svcPid, currentVolume);
+                            try { Task.Delay(250, token).Wait(); } catch { break; }
+                        }
+                    });
+                }
 
                 isServiceRunning = true;
                 btnStartStop.Content = "STOP LOTRO-TTS";
@@ -1538,6 +1559,8 @@ namespace LotroTtsGui
         {
             try
             {
+                serviceVolumeWatcherCts?.Cancel();
+                serviceVolumeWatcherCts = null;
                 if (activeProcess != null && !activeProcess.HasExited)
                 {
                     AppendLog("Stopping LOTRO-TTS Service...", amberWarn);
@@ -1693,7 +1716,7 @@ namespace LotroTtsGui
             else if (ttsLang == "es") sampleText = "El mundo ha cambiado. Lo siento en el agua, lo siento en la tierra.";
             else if (ttsLang == "it") sampleText = "Il mondo è cambiato. Lo sento nell'acqua, lo sento nella terra.";
 
-            string args = $"-u \"scripts/tts_speaker.py\" --npc \"Galadriel\" --lang {ttsLang} --text \"{sampleText}\"";
+            string args = $"-u \"scripts/tts_speaker.py\" --npc \"Galadriel\" --lang {ttsLang} --volume {volume} --text \"{sampleText}\"";
             RunBackgroundToolTask($"Testing TTS Voice Output (Galadriel / {ttsLang.ToUpperInvariant()} / Vol: {volume}%)", args);
         }
 
