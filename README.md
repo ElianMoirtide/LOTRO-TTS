@@ -23,7 +23,7 @@ WIP:
 
 - **100% Local & Portable**: No cloud subscriptions, no external APIs, and no telemetry. All inference runs directly on your local hardware inside the project folder.
 - **All-in-One Cross-Platform GUI (`LOTRO-TTS.exe` / `LOTRO-TTS`)**:
-  - Native, modern dark-themed GUI built with **Avalonia UI (.NET 8)** — available as a single-file, self-contained executable on both **Windows** and **Linux**.
+  - Native, modern dark-themed GUI built with **Avalonia UI (.NET 10 LTS)** — available as a single-file, self-contained executable on both **Windows** and **Linux**.
   - One-click first-time setup (installs PyTorch with CUDA 12.6, ROCm, or CPU, OmniVoice, RapidOCR, and dependencies into the embedded Python environment).
   - Automatically installs the in-game Lua plugin (`Plugins\TTS`) into your `The Lord of the Rings Online` user documents folder (supporting Windows Registry, Steam Proton, Lutris, and custom wine prefixes).
   - Automatically builds the local SQLite database (`data/lotro.db`) and pre-warms OCR and TTS GPU kernels on startup.
@@ -229,7 +229,7 @@ LOTRO-TTS/
 │   ├── bat/                  # Windows CLI batch scripts (incl. build_gui.bat)
 │   └── sh/                   # Linux CLI shell scripts (incl. build_gui.sh)
 └── src/
-    ├── LotroTtsGui/          # Cross-Platform Avalonia UI .NET 8 source project
+    ├── LotroTtsGui/          # Cross-Platform Avalonia UI .NET 10 LTS source project
     ├── npc/                  # Extracted LOTRO NPC XMLs, cached races & npc_races_custom.json
     ├── quests/               # Extracted LOTRO Quest XMLs (auto-fetched on first run if missing)
     └── plugins/TTS/          # Lua Plugin for the LOTRO client (in-game UI button)

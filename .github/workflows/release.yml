@@ -44,10 +44,10 @@ jobs:
           echo "TAG=${TAG}" >> $GITHUB_ENV
           echo "Selected package tag: ${TAG}"
 
-      - name: Setup .NET 8
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Build Windows Executable (Self-Contained)
         run: |
@@ -57,6 +57,7 @@ jobs:
             --self-contained true \
             -p:PublishSingleFile=true \
             -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:EnableCompressionInSingleFile=true \
             -o pub_win
 
       - name: Build Linux Executable (Self-Contained)
@@ -67,6 +68,7 @@ jobs:
             --self-contained true \
             -p:PublishSingleFile=true \
             -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:EnableCompressionInSingleFile=true \
             -o pub_linux
 
       - name: Package Windows Zip (x64)

@@ -29,7 +29,7 @@ namespace LotroTtsGui
 
     public class MainWindow : Window
     {
-        public const string AppVersion = "v2.0-rc1";
+        public const string AppVersion = "v2.0-rc2";
 
         private readonly string baseDir;
         private string pythonExe;
@@ -1287,19 +1287,27 @@ namespace LotroTtsGui
                 p.Start();
                 p.BeginOutputReadLine();
                 p.BeginErrorReadLine();
+                using var watcherCts = new CancellationTokenSource();
+                var token = watcherCts.Token;
+                int pid = p.Id;
+
                 if (OperatingSystem.IsWindows())
                 {
-                    int pid = p.Id;
                     ThreadPool.QueueUserWorkItem(_ =>
                     {
-                        while (!p.HasExited)
+                        while (!token.IsCancellationRequested)
                         {
-                            ProcessVolumeManager.SetProcessVolume(pid, currentVolume);
-                            Thread.Sleep(200);
+                            try
+                            {
+                                ProcessVolumeManager.SetProcessVolume(pid, currentVolume);
+                            }
+                            catch { }
+                            try { Task.Delay(200, token).Wait(); } catch { break; }
                         }
                     });
                 }
                 p.WaitForExit();
+                watcherCts.Cancel();
                 return p.ExitCode;
             }
             catch (Exception ex)
@@ -1708,6 +1716,12 @@ namespace LotroTtsGui
 
         private void OnTestSpeechClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
+            if (!IsAiEnvironmentReady())
+            {
+                AppendLog("[ERROR] TTS AI Environment is not set up yet. Please click 'Setup TTS (GPU/CPU)' first.", redStop);
+                return;
+            }
+
             string ttsLang = GetSelectedCode(cmbTtsLang, "de");
             int volume = (int)sliderVolume.Value;
             string sampleText = "Die Welt ist im Wandel. Ich spüre es im Wasser, ich spüre es in der Erde.";
