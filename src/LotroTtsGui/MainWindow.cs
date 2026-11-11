@@ -29,7 +29,7 @@ namespace LotroTtsGui
 
     public class MainWindow : Window
     {
-        public const string AppVersion = "v2.0-rc2";
+        public const string AppVersion = "v2.0-rc3";
 
         private readonly string baseDir;
         private string pythonExe;
@@ -383,7 +383,7 @@ namespace LotroTtsGui
             {
                 Content = new TextBlock
                 {
-                    Text = "Enable Middle Mouse Button (Mouse 3) as In-Game Trigger (in addition to the LOTRO Plugin button)",
+                    Text = "Enable Middle Mouse Button (Mouse 3) as In-Game Trigger / Stop Toggle (in addition to the LOTRO Plugin button)",
                     TextWrapping = TextWrapping.Wrap,
                     Foreground = textLight,
                     FontSize = 12
@@ -748,6 +748,11 @@ namespace LotroTtsGui
                         SelectNarratorVoice(savedNarratorVoice);
                     }
 
+                    if (root.TryGetProperty("middle_mouse", out var mm) && (mm.ValueKind == JsonValueKind.True || mm.ValueKind == JsonValueKind.False))
+                    {
+                        if (chkMiddleMouse != null) chkMiddleMouse.IsChecked = mm.GetBoolean();
+                    }
+
                     if (root.TryGetProperty("include_prereleases", out var ip) && (ip.ValueKind == JsonValueKind.True || ip.ValueKind == JsonValueKind.False))
                     {
                         includePrereleases = ip.GetBoolean();
@@ -852,6 +857,7 @@ namespace LotroTtsGui
                 string gameLang = GetSelectedCode(cmbClientLang, "de");
                 string ttsLang = GetSelectedCode(cmbTtsLang, "de");
                 int volume = (int)sliderVolume.Value;
+                bool middleMouse = chkMiddleMouse?.IsChecked ?? true;
                 bool narratorMode = chkNarratorMode?.IsChecked ?? false;
                 string narratorVoice = GetSelectedVoiceId(cmbNarratorVoice, savedNarratorVoice);
                 savedNarratorVoice = narratorVoice;
@@ -877,6 +883,7 @@ namespace LotroTtsGui
                     tts_lang = ttsLang,
                     volume = volume,
                     stop_hotkey = stopHotkey,
+                    middle_mouse = middleMouse,
                     narrator_mode = narratorMode,
                     narrator_voice = narratorVoice,
                     include_prereleases = includePrereleases,
@@ -1489,7 +1496,7 @@ namespace LotroTtsGui
 
             AppendLog("\n======================================================================", goldAccent);
             AppendLog($"Starting LOTRO-TTS Service [Client: {clientLang.ToUpperInvariant()} | TTS: {ttsLang.ToUpperInvariant()} | Mode: {mode.ToUpperInvariant()} | Vol: {volume}%]...", goldAccent);
-            AppendLog($"[HOTKEY] Press [{stopHotkey.ToUpperInvariant()}] anytime in-game to instantly force-stop dialogue.", goldAccent);
+            AppendLog($"[HOTKEY] Press [{stopHotkey.ToUpperInvariant()}], [ESC], or [MOUSE 3] anytime in-game to instantly force-stop dialogue.", goldAccent);
             if (narratorMode)
             {
                 AppendLog($"[NARRATOR MODE] Active — all dialogue will be read using single narrator voice: '{narratorVoice}'", goldAccent);

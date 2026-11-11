@@ -471,7 +471,7 @@ class LotroPipelineService:
             final_text = scan_result.get("final_text", "").strip()
 
             if not final_text:
-                logger.warning("No dialog or quest text detected in window!")
+                logger.warning("No dialog or quest text detected in window! (Ensure quest parchment is open and visible on screen)")
                 return
 
             logger.info(f"Window: [{window_type.upper()}] '{title}'")
@@ -560,7 +560,7 @@ class LotroPipelineService:
             logger.debug("Stop hotkey pressed (no dialogue currently playing).")
 
     def start_keyboard_listener(self):
-        """Starts background listener for the dialogue force-stop hotkey (default: Pause/Break)."""
+        """Starts background listener for the dialogue force-stop hotkey (default: Pause/Break, Esc)."""
         try:
             from pynput import keyboard
 
@@ -570,15 +570,29 @@ class LotroPipelineService:
                 matched = False
                 k_name = getattr(key, "name", None)
                 k_char = getattr(key, "char", None)
+                k_vk = getattr(key, "vk", None)
 
-                # Pause / Break key support across different keyboards & platforms
+                # 1. Configured stop hotkey (default: pause / break)
                 if target_key_name in ("pause", "break", "pause_break"):
-                    if k_name in ("pause", "pause_break", "media_play_pause") or key == getattr(keyboard.Key, "pause", None):
+                    if (
+                        k_name in ("pause", "pause_break", "media_play_pause")
+                        or key == getattr(keyboard.Key, "pause", None)
+                        or k_vk in (19, 0x13, 3, 0x03)
+                    ):
                         matched = True
                 elif k_name and k_name.lower() == target_key_name:
                     matched = True
                 elif k_char and k_char.lower() == target_key_name:
                     matched = True
+
+                # 2. Universal Escape key support while dialogue is actively speaking
+                if not matched and (self._is_speaking or (self.speaker and self.speaker.is_speaking())):
+                    if (
+                        k_name in ("esc", "escape")
+                        or key == getattr(keyboard.Key, "esc", None)
+                        or k_vk in (27, 0x1B)
+                    ):
+                        matched = True
 
                 if matched:
                     self.force_stop()
@@ -587,7 +601,7 @@ class LotroPipelineService:
             listener.daemon = True
             listener.start()
             logger.info(
-                f"Global keyboard listener activated: Stop Hotkey [{self.stop_hotkey.upper()}] -> Force-stop playback"
+                f"Global keyboard listener activated: Stop Hotkey [{self.stop_hotkey.upper()}] / [ESC] -> Force-stop playback"
             )
         except Exception as e:
             logger.warning(f"Could not start global keyboard listener: {e}")
@@ -599,13 +613,19 @@ class LotroPipelineService:
 
             def on_click(x, y, button, pressed):
                 if pressed and button == mouse.Button.middle:
-                    logger.info("Middle mouse button (Mouse 3) clicked!")
+                    # Smart toggle: If dialogue is currently speaking, Middle Mouse acts as instant stop!
+                    if self._is_speaking or (self.speaker and self.speaker.is_speaking()):
+                        logger.info("Middle mouse button (Mouse 3) clicked while speaking -> Stopping dialogue!")
+                        self.force_stop()
+                        return
+
+                    logger.info("Middle mouse button (Mouse 3) clicked -> Triggering dialogue scan!")
                     threading.Thread(target=self.handle_trigger, daemon=True).start()
 
             listener = mouse.Listener(on_click=on_click)
             listener.daemon = True
             listener.start()
-            logger.info("Global mouse listener activated: Middle Mouse Button (Mouse 3) -> Trigger TTS")
+            logger.info("Global mouse listener activated: Middle Mouse Button (Mouse 3) -> Trigger / Stop TTS")
         except Exception as e:
             logger.warning(f"Could not start global mouse listener: {e}")
 

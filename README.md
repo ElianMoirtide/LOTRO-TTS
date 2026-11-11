@@ -83,17 +83,24 @@ Simply launch the single-file GUI executable for your platform:
 
 ---
 
-## 🎮 Triggering Dialogue In-Game
+## 🎮 In-Game Controls: Starting & Stopping Dialogue
 
-While `LOTRO-TTS.exe` is running in the background, you have **two ways** to trigger voiceover in-game:
+While `LOTRO-TTS.exe` is running in the background, you have full control over starting and stopping speech:
 
+### Starting Dialogue (Trigger)
 1. **In-Game Plugin Button ("Read aloud" / "Vorlesen") — *(Recommended Primary Method)***:
    - Targeting an NPC reveals the in-game button **"Read aloud"** (or **"Vorlesen"** in German).
    - Clicking the button writes `TTS|<LANG>|<NPC_NAME>` to `Script.log`, passing the currently targeted NPC directly to LOTRO-TTS so the **exact matching NPC voice** (1:1 character voice or race/gender profile) is selected.
    - Hold `Ctrl` to drag and reposition the button anywhere on your screen.
-2. **Middle Mouse Button (Mouse 3) — *(Alternative Shortcut)***:
-   - Alternatively, you can press your **Middle Mouse Button (Mouse 3)** whenever a quest or instance dialogue window is open.
+2. **Middle Mouse Button (Mouse 3) — *(Quick Shortcut)***:
+   - Whenever a quest or instance dialogue window is open on screen, press your **Middle Mouse Button (Mouse 3)** to scan and read it aloud.
    - For standard quests in `lotro.db`, LOTRO-TTS automatically resolves the quest's associated NPC from the database; for dynamic instance texts or objects without an NPC, it uses the last logged target or the default narrator voice (`man_male_1`).
+
+### Stopping Dialogue (Instant Cancel)
+You can immediately interrupt and silence voice playback at any time using any of the following:
+- **`ESC` Key**: The most natural way — pressing `ESC` to close the in-game dialogue window automatically silences the voiceover immediately.
+- **`Pause / Break` Key**: Dedicated global stop hotkey (configurable via `"stop_hotkey"` in `config.json`).
+- **Middle Mouse Button (Mouse 3)**: Acts as an intelligent toggle — clicking Mouse 3 while a dialogue is speaking halts playback instantly.
 
 ---
 
