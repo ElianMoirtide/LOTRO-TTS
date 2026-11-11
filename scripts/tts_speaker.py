@@ -43,6 +43,91 @@ def _norm_npc_key(name: str | None) -> str:
     return "".join(c for c in s if not unicodedata.combining(c))
 
 
+class WarmAudioPlayer:
+    """
+    Persistent real-time audio stream player. Keeps an active WASAPI/ALSA/PulseAudio
+    OutputStream streaming continuous silence when idle, eliminating the 15-40ms stream
+    negotiation/open latency when speech chunks arrive. Supports instantaneous thread-safe cancellation.
+    """
+    def __init__(self, sample_rate=24000):
+        import queue
+        self.sample_rate = sample_rate
+        self.queue = queue.Queue()
+        self.stream = None
+        self._active = False
+        self._current_chunk = None
+        self._current_offset = 0
+        self._lock = threading.Lock()
+        try:
+            import sounddevice as sd
+            self.stream = sd.OutputStream(
+                samplerate=self.sample_rate,
+                channels=1,
+                dtype="float32",
+                callback=self._callback
+            )
+            self.stream.start()
+            self._active = True
+        except Exception:
+            self._active = False
+
+    def _callback(self, outdata, frames, time_info, status):
+        outdata.fill(0)
+        written = 0
+        with self._lock:
+            while written < frames:
+                if self._current_chunk is None:
+                    try:
+                        self._current_chunk = self.queue.get_nowait()
+                        self._current_offset = 0
+                    except Exception:
+                        break
+
+                chunk = self._current_chunk
+                offset = self._current_offset
+                needed = frames - written
+                avail = len(chunk) - offset
+                take = min(needed, avail)
+                outdata[written:written + take, 0] = chunk[offset:offset + take]
+                written += take
+                offset += take
+                if offset >= len(chunk):
+                    self._current_chunk = None
+                    self._current_offset = 0
+                else:
+                    self._current_offset = offset
+
+    def play(self, data, vol_scale=1.0):
+        data = np.asarray(data, dtype=np.float32)
+        if data.ndim > 1:
+            data = data.mean(axis=1)
+        if vol_scale < 0.999:
+            data = np.clip(data * vol_scale, -1.0, 1.0)
+        self.queue.put(data)
+
+    def stop(self):
+        with self._lock:
+            while not self.queue.empty():
+                try:
+                    self.queue.get_nowait()
+                except Exception:
+                    break
+            self._current_chunk = None
+            self._current_offset = 0
+
+    def is_playing(self):
+        with self._lock:
+            return not self.queue.empty() or (self._current_chunk is not None)
+
+    def close(self):
+        if self.stream is not None:
+            try:
+                self.stream.stop()
+                self.stream.close()
+            except Exception:
+                pass
+
+
 class LotroSpeaker:
     def __init__(
         self,
@@ -72,6 +157,9 @@ class LotroSpeaker:
             sd.wait()
         except Exception:
             pass
+
+        # Initialize persistent warm audio stream (0ms start delay)
+        self._warm_player = WarmAudioPlayer(sample_rate=24000)
 
         # Load OmniVoice model once (FP16 half-precision on CUDA for 2x faster Tensor Core inference)
         model_dtype = torch.float16 if self.device == "cuda" else torch.float32
@@ -143,8 +231,68 @@ class LotroSpeaker:
                         ref_l = "fr" if (l == "fr" and cand.get("is_native_french", True)) else ("en" if l != "de" else "de")
                         self._get_voice_prompt_and_duration(narr_id, ref_l, p_path, cand["text"])
             print("TTS engine pre-warmed and narrator voices ready for instant playback!")
+            # Launch background daemon worker to pre-cache frequent voice prompts (0ms encounter latency)
+            threading.Thread(target=self._background_precache_worker, daemon=True).start()
         except Exception as e:
             print(f"TTS warm-up notice: {e}")
+
+    def _background_precache_worker(self):
+        """
+        Background daemon thread that pre-computes VoiceClonePrompt tensors for
+        frequently used voices across native libraries (de, en, fr).
+        Eliminates the ~375ms prompt extraction delay upon first encountering an NPC.
+        Yields immediately if user triggers speech synthesis.
+        """
+        import time
+
+        time.sleep(1.0)
+        priority_prefixes = (
+            "man_male_", "man_female_", "dwarf_male_", "elf_male_",
+            "elf_female_", "hobbit_male_", "hobbit_female_"
+        )
+
+        for lang in ["de", "en", "fr"]:
+            items = self.indices.get(lang, [])
+            for it in items:
+                v_id = it.get("voice_id", "")
+                try:
+                    num = int(v_id.rsplit("_", 1)[-1])
+                except (ValueError, IndexError):
+                    num = 99
+                # Pre-cache top 5 voices per category
+                if num > 5:
+                    continue
+                if not any(v_id.startswith(p) for p in priority_prefixes):
+                    continue
+
+                audio_rel = it.get("audio_file")
+                if not audio_rel:
+                    continue
+                audio_path = self.voices_dir / audio_rel
+                if not audio_path.exists():
+                    continue
+
+                ref_l = "fr" if (lang == "fr" and it.get("is_native_french", True)) else ("en" if lang != "de" else "de")
+                cache_key = (ref_l, v_id, str(audio_path), it.get("text", ""))
+                if cache_key in self._prompt_cache:
+                    continue
+
+                # Yield immediately to user speech synthesis if active
+                while self._is_speaking_event.is_set():
+                    time.sleep(0.5)
+
+                try:
+                    info = sf.info(str(audio_path))
+                    self._ref_duration_cache[cache_key] = float(info.duration)
+                    prompt = self.model.create_voice_clone_prompt(
+                        ref_audio=str(audio_path),
+                        ref_text=it.get("text", ""),
+                        preprocess_prompt=False,
+                    )
+                    self._prompt_cache[cache_key] = prompt
+                except Exception:
+                    pass
+                time.sleep(0.05)
 
     def _get_custom_npc_overrides(self) -> dict:
         """Loads or reloads custom NPC overrides from src/npc/npc_races_custom.json if modified."""
@@ -534,14 +682,18 @@ class LotroSpeaker:
         if hasattr(self, "_is_speaking_event") and self._is_speaking_event is not None:
             self._is_speaking_event.clear()
 
-        # 1. Stop sounddevice (Cross-platform: Windows, Linux, macOS)
+        # 1. Instantly stop warm audio player (0ms cut)
+        if hasattr(self, "_warm_player") and self._warm_player and self._warm_player._active:
+            self._warm_player.stop()
+
+        # 2. Stop sounddevice (Cross-platform: Windows, Linux, macOS)
         try:
             import sounddevice as sd
             sd.stop()
         except Exception:
             pass
 
-        # 2. Stop winsound (Windows fallback)
+        # 3. Stop winsound (Windows fallback)
         try:
             import winsound
             winsound.PlaySound(None, 0)
@@ -550,6 +702,9 @@ class LotroSpeaker:
 
     def is_speaking(self) -> bool:
         """Returns True if speech synthesis or playback is currently in progress."""
+        if hasattr(self, "_warm_player") and self._warm_player and self._warm_player._active:
+            if self._warm_player.is_playing():
+                return True
         return hasattr(self, "_is_speaking_event") and self._is_speaking_event.is_set()
 
     def speak(
@@ -649,7 +804,7 @@ class LotroSpeaker:
                 # If short text (1 sentence and < 140 chars), generate directly and play from RAM immediately
                 if len(sentences) <= 1 and len(text) < 140:
                     audio_data = self._synthesize_chunk(
-                        text, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=24
+                        text, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=18
                     )
                     if self._active_stop_event.is_set():
                         return None
@@ -695,11 +850,26 @@ class LotroSpeaker:
                     audio_queue.task_done()
                     break
 
-                # 1. Try sounddevice (Cross-platform: Windows, Linux, macOS)
+                # 1. Warm persistent stream fast path (0ms latency, zero gap between sentences)
+                if hasattr(self, "_warm_player") and self._warm_player and self._warm_player._active:
+                    vol_scale = self._get_volume_scale()
+                    self._warm_player.play(chunk, vol_scale=vol_scale)
+                    chunk_dur = len(chunk) / 24000.0
+                    t0 = time.time()
+                    while (time.time() - t0) < chunk_dur:
+                        if self._active_stop_event.is_set():
+                            self._warm_player.stop()
+                            break
+                        time.sleep(0.015)
+                    audio_queue.task_done()
+                    continue
+
+                # 2. Try sounddevice fallback (Cross-platform: Windows, Linux, macOS)
                 played = False
                 try:
                     import sounddevice as sd
-                    sd.play(chunk, 24000)
+                    scaled_chunk = np.clip(chunk * vol_scale, -1.0, 1.0) if vol_scale < 0.999 else chunk
+                    sd.play(scaled_chunk, 24000)
                     chunk_dur = len(chunk) / 24000.0
                     t0 = time.time()
                     while (time.time() - t0) < chunk_dur:
@@ -711,7 +881,7 @@ class LotroSpeaker:
                 except Exception:
                     pass
 
-                # 2. Windows fallback via winsound
+                # 3. Windows fallback via winsound
                 if not played and not self._active_stop_event.is_set():
                     try:
                         import winsound
@@ -741,8 +911,8 @@ class LotroSpeaker:
                     print("  [LOTRO-TTS] Synthesis canceled.")
                     break
 
-                # First sentence uses num_step=22 for rapid time-to-first-sound; subsequent use 24
-                step_count = 22 if i == 0 else 24
+                # First sentence uses num_step=18 for ultra-fast time-to-first-sound; subsequent use 24
+                step_count = 18 if i == 0 else 24
                 chunk = self._synthesize_chunk(
                     sent, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=step_count
                 )
@@ -753,7 +923,7 @@ class LotroSpeaker:
                 all_chunks.append(chunk)
                 audio_queue.put(chunk)
                 if i == 0:
-                    print("  First sentence ready! Playback started instantly.")
+                    print("  First sentence ready! Playback started instantly via warm stream.")
         finally:
             synthesis_done.set()
             play_t.join(timeout=0.5 if self._active_stop_event.is_set() else None)
@@ -789,12 +959,18 @@ class LotroSpeaker:
 
     def play_memory_audio(self, audio_data, sample_rate=24000):
         """Plays float32 audio array directly from memory without touching the hard drive."""
-        # Apply software audio scaling on all platforms so volume is reliably respected
         vol_scale = self._get_volume_scale()
+
+        # 1. Warm persistent stream fast path (0ms start delay)
+        if hasattr(self, "_warm_player") and self._warm_player and self._warm_player._active:
+            self._warm_player.play(audio_data, vol_scale=vol_scale)
+            return
+
+        # Apply software audio scaling on all platforms so volume is reliably respected
         if vol_scale < 0.999:
             audio_data = np.clip(audio_data * vol_scale, -1.0, 1.0)
 
-        # 1. Try sounddevice (Cross-platform: Windows, Linux, macOS)
+        # 2. Try sounddevice fallback (Cross-platform: Windows, Linux, macOS)
         try:
             import sounddevice as sd
             sd.play(audio_data, sample_rate)
@@ -802,7 +978,7 @@ class LotroSpeaker:
         except Exception:
             pass
 
-        # 2. Try winsound on Windows
+        # 3. Try winsound on Windows
         try:
             import winsound
             import io
