@@ -499,10 +499,11 @@ class LotroPipelineService:
 
             # 3. Cross-language native DB lookup (e.g. EN client -> ES/DE/FR native text by quest_id)
             matched_qid = scan_result.get("quest_id")
+            matched_text_id = scan_result.get("quest_text_id")
             db_target_hint = "" if matched_npc_id else target_name
             if matched_qid and active_tts_lang in ("de", "en", "fr", "es") and active_tts_lang != active_client_lang:
                 direct_text = self.screen_reader.get_quest_text_by_id(
-                    matched_qid, target_npc=db_target_hint, lang=active_tts_lang
+                    matched_qid, target_npc=db_target_hint, lang=active_tts_lang, quest_text_id=matched_text_id
                 )
                 if direct_text:
                     logger.info(f"Using native '{active_tts_lang.upper()}' quest text directly from lotro.db!")
@@ -513,7 +514,7 @@ class LotroPipelineService:
                 # When matched from lotro.db, English text is always available and yields optimal translation
                 if matched_qid:
                     clean_en_text = self.screen_reader.get_quest_text_by_id(
-                        matched_qid, target_npc=db_target_hint, lang="en"
+                        matched_qid, target_npc=db_target_hint, lang="en", quest_text_id=matched_text_id
                     )
                     if clean_en_text:
                         final_text = clean_en_text

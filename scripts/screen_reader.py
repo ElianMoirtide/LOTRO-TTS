@@ -499,36 +499,12 @@ class LotroScreenReader:
 
                 if strip_boxes and not any(self._is_hud_alert(b) for b in strip_boxes):
                     has_level_meta = any(self._is_level_meta(b) for b in strip_boxes)
-                    # Check dark dialog header background so floating world text over bright terrain doesn't spoof cache
                     dark_header_bg = float(strip_crop.mean()) < 95.0
+                    is_inst_hdr = any(re.search(r"^(INSTANZ|INSTANCE)\b", b["text"], re.IGNORECASE) for b in strip_boxes)
 
-                    for b in strip_boxes:
-                        if self._is_level_meta(b) or self._is_objective_hdr(b) or self._is_dialog_btn(b) or self._is_chat_or_hud_noise(b):
-                            continue
-                        clean_t = re.sub(r"^[^\w\s]+|[^\w\s]+$", "", b["text"]).strip()
-                        if len(b["norm"]) < 3:
-                            continue
-
-                        is_inst = bool(re.search(r"^(INSTANZ|INSTANCE)\b", clean_t, re.IGNORECASE))
-                        if self.db_path.exists() and (has_level_meta or is_inst or dark_header_bg):
-                            q_id, db_title, db_text, q_npc_id = self._match_title_in_db_with_npc(clean_t, target_npc=target_npc, lang=lang)
-                            if db_text:
-                                final_title = db_title or clean_t
-                                print(f"[LotroScreenReader] Fast-path DB hit on cached title: '{final_title}' ({lang.upper()})")
-                                return {
-                                    "window_type": "instance" if is_inst else "quest",
-                                    "title": final_title,
-                                    "dialog_text": db_text,
-                                    "db_text": db_text,
-                                    "final_text": db_text,
-                                    "quest_id": q_id,
-                                    "npc_id": q_npc_id,
-                                    "window_box": self.cached_window_box,
-                                }
-
-                    # If dialog header anchors are still at the cached position (e.g. non-DB dynamic/instance dialog),
-                    # scan only the cached dialog panel instead of the entire 4K screen
-                    if has_level_meta or any(re.search(r"^(INSTANZ|INSTANCE)\b", b["text"], re.IGNORECASE) for b in strip_boxes):
+                    # If dialog header anchors or title are present at the cached location,
+                    # scan the cached dialog window (~20ms) to read both the title and current dialogue
+                    if has_level_meta or dark_header_bg or is_inst_hdr:
                         wx1, wy1, wx2, wy2 = self.cached_window_box
                         pad = 25
                         cx1, cy1 = max(0, wx1 - pad), max(0, wy1 - pad)
@@ -541,6 +517,7 @@ class LotroScreenReader:
                             offset=(cx1, cy1),
                         )
                         if res.get("final_text") and res.get("title"):
+                            print(f"[LotroScreenReader] Fast-path cropped dialog scan: '{res['title']}' ({lang.upper()})")
                             return res
 
             # Dialog was moved or closed -> invalidate stale cache before full-screen scan
@@ -774,14 +751,17 @@ class LotroScreenReader:
             score -= intervening * 60.0
 
             clean_t = re.sub(r"^[^\w\s]+|[^\w\s]+$", "", b["text"]).strip()
-            q_id, db_title, db_text, q_npc_id = (None, None, None, None)
+            q_id = None
+            db_title = None
             if self.db_path.exists():
-                q_id, db_title, db_text, q_npc_id = self._match_title_in_db_with_npc(clean_t, target_npc=target_npc, lang=lang)
-                if db_text:
+                matched_qid, matched_raw_t = self._quick_match_title(clean_t, lang=lang)
+                if matched_qid:
+                    q_id = matched_qid
+                    db_title = matched_raw_t
                     score += 160.0
 
             # Never select a window candidate that yields zero readable text (neither DB match nor body lines)
-            if not db_text and not body_lines:
+            if not q_id and not body_lines:
                 continue
 
             # In pre-cropped standalone dialog mode, favor top-center box
@@ -790,12 +770,12 @@ class LotroScreenReader:
 
             if score > best_score:
                 best_score = score
-                best_candidate = (b, clean_t, local_levels, local_objs, local_btns, body_lines, q_id, db_title, db_text, q_npc_id)
+                best_candidate = (b, clean_t, local_levels, local_objs, local_btns, body_lines, q_id, db_title)
 
         if best_candidate is None:
             return empty_res
 
-        title_box, clean_title, local_levels, local_objs, local_btns, body_lines, q_id, db_title, db_text, q_npc_id = best_candidate
+        title_box, clean_title, local_levels, local_objs, local_btns, body_lines, q_id, db_title = best_candidate
         final_title = db_title or clean_title
         is_instance = bool(re.search(r"^(INSTANZ|INSTANCE)\b", final_title, re.IGNORECASE))
         window_type = "instance" if is_instance else "quest"
@@ -812,13 +792,24 @@ class LotroScreenReader:
             cleaned_dialog_lines.append(t)
 
         dialog_text = "\n\n".join(cleaned_dialog_lines)
-        if not db_text and target_npc:
-            fb_qid, fb_title, fb_text, fb_npc_id = self._match_title_in_db_with_npc(
-                clean_title, target_npc=target_npc, lang=lang, dialog_text=dialog_text
+        db_text = None
+        q_npc_id = None
+        q_text_id = None
+
+        # Authoritative dialogue matching: Match screen dialog text against quest rows in lotro.db
+        if self.db_path.exists():
+            matched_qid, matched_title, matched_db_text, matched_npc_id, matched_text_id = (
+                self._match_title_in_db_with_npc(
+                    final_title, target_npc=target_npc, lang=lang, dialog_text=dialog_text
+                )
             )
-            if fb_text:
-                q_id, db_title, db_text, q_npc_id = fb_qid, fb_title, fb_text, fb_npc_id
-                final_title = db_title
+            if matched_db_text:
+                q_id = matched_qid
+                final_title = matched_title or final_title
+                db_text = matched_db_text
+                q_npc_id = matched_npc_id
+                q_text_id = matched_text_id
+
         final_text = db_text if db_text else dialog_text
 
         # Compute tight dialog window bounding box strictly from THIS dialog's constituent boxes
@@ -849,32 +840,150 @@ class LotroScreenReader:
             "db_text": db_text,
             "final_text": final_text,
             "quest_id": q_id,
+            "quest_text_id": q_text_id,
             "npc_id": q_npc_id,
             "window_box": window_box,
             "_title_strip": title_strip,
         }
 
+    def _quick_match_title(self, title: str, lang: str = "de") -> Tuple[Optional[int], Optional[str]]:
+        """Fast title lookup against in-memory quest index for scoring (~0.05ms)."""
+        if not self.db_path.exists():
+            return None, None
+        self._init_quest_index()
+        norm_query = normalize_text_for_matching(title)
+        if not norm_query or len(norm_query) < 3:
+            return None, None
+
+        lang_clean = lang.lower().strip()
+        if lang_clean not in ("en", "de", "fr", "es"):
+            lang_clean = "en"
+        lang_order = [lang_clean] + [l for l in ("en", "de", "fr", "es") if l != lang_clean]
+
+        for l_key in lang_order:
+            exact = self._exact_titles.get(l_key, {}).get(norm_query)
+            if exact:
+                return exact[0]
+
+        if len(norm_query) >= 6:
+            qlen = len(norm_query)
+            best_len = 0
+            best_match = None
+            for l_key in lang_order:
+                for norm_t, tlen, _, qid, raw_t in self._all_titles.get(l_key, ()):
+                    if tlen < 6:
+                        continue
+                    ratio = (qlen / float(tlen)) if qlen <= tlen else (tlen / float(qlen))
+                    if ratio >= 0.75 and (norm_query in norm_t or norm_t in norm_query):
+                        if tlen > best_len:
+                            best_len = tlen
+                            best_match = (qid, raw_t)
+                if best_match:
+                    return best_match
+
+        return None, None
+
+    @staticmethod
+    def _score_dialogue_match(
+        ocr_dialog_text: str,
+        db_raw_text: str,
+        target_npc: str = "",
+        candidate_npc_names: tuple = (),
+        text_type: str = "",
+    ) -> float:
+        """
+        Calculates similarity score (0.0 to 1.5+) between OCR dialogue text and candidate database text.
+        Compares opening sentences, key token overlap, and target NPC affiliation.
+        """
+        if not ocr_dialog_text or not db_raw_text:
+            return 0.0
+
+        clean_db = re.sub(r"\$\{PLAYER[^}]*\}", "", db_raw_text)
+        norm_ocr = normalize_text_for_matching(ocr_dialog_text)
+        norm_db = normalize_text_for_matching(clean_db)
+
+        if not norm_ocr or not norm_db:
+            return 0.0
+
+        # 1. Multi-scale prefix comparison (first 40, 80, 140 normalized characters)
+        seq_scores = []
+        for length in (40, 80, 140):
+            o_sub = norm_ocr[:length]
+            d_sub = norm_db[:length]
+            if o_sub and d_sub:
+                seq_scores.append(SequenceMatcher(None, o_sub, d_sub).ratio())
+        avg_seq = sum(seq_scores) / len(seq_scores) if seq_scores else 0.0
+
+        # 2. Key token overlap on opening sentences (filtering short stop-words)
+        ocr_tokens = [w for w in re.findall(r"\w+", ocr_dialog_text.lower()) if len(w) >= 3][:15]
+        db_tokens = [w for w in re.findall(r"\w+", clean_db.lower()) if len(w) >= 3][:20]
+        token_overlap = 0.0
+        if ocr_tokens and db_tokens:
+            db_tokens_set = set(db_tokens)
+            shared = sum(1 for t in ocr_tokens[:8] if t in db_tokens_set)
+            token_overlap = shared / float(min(8, len(ocr_tokens)))
+
+        # 3. Target NPC matching bonus/penalty
+        npc_bonus = 0.0
+        if target_npc:
+            target_norm = normalize_text_for_matching(target_npc)
+            cand_norms = [normalize_text_for_matching(n) for n in candidate_npc_names if n]
+            if any(target_norm in cn or cn in target_norm for cn in cand_norms):
+                npc_bonus = 0.15
+            elif cand_norms and not any(target_norm in cn or cn in target_norm for cn in cand_norms):
+                npc_bonus = -0.15
+
+        # 4. Dialogue stage preference
+        type_weight = 0.05 if text_type == "dialog" else (0.02 if text_type == "bestower" else 0.0)
+
+        return (avg_seq * 0.6) + (token_overlap * 0.4) + npc_bonus + type_weight
+
+    @staticmethod
+    def _extract_player_name_from_ocr(db_text: str, ocr_text: str) -> str:
+        """Attempts to extract the player character name from OCR text by aligning with ${PLAYER...} in DB text."""
+        if not db_text or not ocr_text or "${PLAYER" not in db_text:
+            return ""
+        parts = re.split(r"\$\{PLAYER[^}]*\}", db_text)
+        if len(parts) >= 2:
+            prefix = parts[0][-20:].strip()
+            suffix = parts[1][:20].strip()
+            if prefix and suffix:
+                reg = re.escape(prefix) + r"\s*([A-Za-zÄÖÜäöüß]+)\s*" + re.escape(suffix)
+                m = re.search(reg, ocr_text, re.IGNORECASE)
+                if m:
+                    return m.group(1).strip()
+            elif prefix:
+                reg = re.escape(prefix) + r"\s*([A-Za-zÄÖÜäöüß]+)"
+                m = re.search(reg, ocr_text, re.IGNORECASE)
+                if m:
+                    return m.group(1).strip()
+        return ""
+
     def _match_title_in_db(
-        self, title: str, target_npc: str = "", lang: str = "de"
+        self, title: str, target_npc: str = "", lang: str = "de", dialog_text: str = ""
     ) -> Tuple[Optional[int], Optional[str], Optional[str]]:
-        q_id, db_title, db_text, _ = self._match_title_in_db_with_npc(title, target_npc=target_npc, lang=lang)
+        q_id, db_title, db_text, _, _ = self._match_title_in_db_with_npc(
+            title, target_npc=target_npc, lang=lang, dialog_text=dialog_text
+        )
         return q_id, db_title, db_text
 
     def _match_title_in_db_with_npc(
         self, title: str, target_npc: str = "", lang: str = "de", dialog_text: str = ""
-    ) -> Tuple[Optional[int], Optional[str], Optional[str], Optional[int]]:
+    ) -> Tuple[Optional[int], Optional[str], Optional[str], Optional[int], Optional[str]]:
         """
         Matches a candidate title against the in-memory quest index (~0.1ms)
-        and fetches full quest dialogue text + associated npc_id from lotro.db (~1ms).
-        Returns (quest_id, matched_db_title, quest_text, npc_id).
+        and fetches the exact matching quest dialogue text + associated npc_id from lotro.db (~1ms).
+        When dialog_text from OCR is provided, matches the exact dialogue row corresponding
+        to the current quest objective rather than defaulting to bestower text.
+        Returns (quest_id, matched_db_title, quest_text, npc_id, quest_text_id).
         """
         if not self.db_path.exists():
-            return None, None, None, None
+            return None, None, None, None, None
 
         self._init_quest_index()
         norm_query = normalize_text_for_matching(title)
         if not norm_query or len(norm_query) < 3:
-            return None, None, None, None
+            return None, None, None, None, None
 
         lang_clean = lang.lower().strip()
         if lang_clean not in ("en", "de", "fr", "es"):
@@ -930,6 +1039,7 @@ class LotroScreenReader:
                 if candidate_matches:
                     break
 
+        # 4. Target NPC Fallback (when title is distorted or not found in index)
         if not candidate_matches and target_npc:
             try:
                 conn = sqlite3.connect(str(self.db_path))
@@ -937,7 +1047,8 @@ class LotroScreenReader:
                 text_col = f"text_{lang_clean}"
                 cur.execute(
                     f"""
-                    SELECT q.id, q.title_{lang_clean}, q.title_en, qt.{text_col}, qt.text_en, qt.npc_id
+                    SELECT q.id, q.title_{lang_clean}, q.title_en, qt.{text_col}, qt.text_en, qt.npc_id, qt.id, qt.text_type,
+                           n.name_de, n.name_en, n.name_fr, n.name_es
                     FROM Quests q
                     JOIN Quest_Texts qt ON q.id = qt.quest_id
                     JOIN NPCs n ON qt.npc_id = n.id
@@ -954,27 +1065,29 @@ class LotroScreenReader:
                 conn.close()
 
                 norm_title_query = normalize_text_for_matching(title)
-                norm_diag_query = normalize_text_for_matching(dialog_text[:80])
-
                 best_q = None
                 best_score = 0.0
-                for qid, q_title, q_title_en, q_text, q_text_en, q_npc_id in rows:
+
+                for qid, q_title, q_title_en, q_text, q_text_en, q_npc_id, q_text_id, q_type, n_de, n_en, n_fr, n_es in rows:
                     raw_t = q_title or q_title_en
                     norm_t = normalize_text_for_matching(raw_t)
                     t_sim = SequenceMatcher(None, norm_title_query, norm_t).ratio()
 
-                    norm_q_text = normalize_text_for_matching((q_text or q_text_en or "")[:80])
-                    d_sim = (
-                        SequenceMatcher(None, norm_diag_query[:40], norm_q_text[:40]).ratio()
-                        if norm_diag_query and norm_q_text
-                        else 0.0
-                    )
+                    d_score = self._score_dialogue_match(
+                        dialog_text,
+                        q_text or q_text_en or "",
+                        target_npc=target_npc,
+                        candidate_npc_names=(n_de, n_en, n_fr, n_es),
+                        text_type=q_type,
+                    ) if dialog_text else 0.0
 
-                    score = t_sim * 0.4 + d_sim * 0.6
-                    if (d_sim >= 0.55 or t_sim >= 0.60) and score > best_score:
+                    score = t_sim * 0.35 + d_score * 0.65
+                    if (d_score >= 0.40 or t_sim >= 0.60) and score > best_score:
                         best_score = score
-                        matched_text = self._format_player_placeholders(q_text or q_text_en, lang_clean)
-                        best_q = (qid, raw_t, matched_text, q_npc_id)
+                        cand_text = q_text or q_text_en
+                        pname = self._extract_player_name_from_ocr(cand_text, dialog_text)
+                        matched_text = self._format_player_placeholders(cand_text, lang_clean, player_name=pname)
+                        best_q = (qid, raw_t, matched_text, q_npc_id, q_text_id)
 
                 if best_q:
                     return best_q
@@ -982,72 +1095,82 @@ class LotroScreenReader:
                 print(f"[LotroScreenReader] NPC fallback error: {e}", file=sys.stderr)
 
         if not candidate_matches:
-            return None, None, None, None
+            return None, None, None, None, None
 
-        # Resolve quest text (preferring the quest ID associated with target_npc when duplicate titles exist)
+        # 5. Resolve quest text for candidate_matches
         try:
             conn = sqlite3.connect(str(self.db_path))
             cur = conn.cursor()
             text_col = f"text_{lang_clean}"
 
-            if target_npc:
-                for qid, raw_t in candidate_matches:
-                    cur.execute(
-                        f"""
-                        SELECT qt.{text_col}, qt.text_en, qt.npc_id
-                        FROM Quest_Texts qt
-                        JOIN NPCs n ON qt.npc_id = n.id
-                        WHERE qt.quest_id = ? AND (
-                            LOWER(COALESCE(n.name_de, '')) = LOWER(?) OR
-                            LOWER(COALESCE(n.name_en, '')) = LOWER(?) OR
-                            LOWER(COALESCE(n.name_fr, '')) = LOWER(?) OR
-                            LOWER(COALESCE(n.name_es, '')) = LOWER(?)
-                        )
-                        LIMIT 1
-                        """,
-                        (qid, target_npc, target_npc, target_npc, target_npc),
-                    )
-                    npc_row = cur.fetchone()
-                    if npc_row and (npc_row[0] or npc_row[1]):
-                        conn.close()
-                        return qid, raw_t, self._format_player_placeholders(npc_row[0] or npc_row[1], lang_clean), npc_row[2]
-
             for qid, raw_t in candidate_matches:
                 cur.execute(
                     f"""
-                    SELECT {text_col}, text_en, npc_id FROM Quest_Texts
-                    WHERE quest_id = ? AND text_type IN ('bestower', 'dialog', 'description')
-                    ORDER BY CASE text_type
-                        WHEN 'bestower' THEN 1
-                        WHEN 'dialog' THEN 2
-                        ELSE 3 END
-                    LIMIT 1
+                    SELECT qt.id, qt.text_type, qt.npc_id, qt.{text_col}, qt.text_en,
+                           n.name_de, n.name_en, n.name_fr, n.name_es
+                    FROM Quest_Texts qt
+                    LEFT JOIN NPCs n ON qt.npc_id = n.id
+                    WHERE qt.quest_id = ? AND qt.text_type IN ('bestower', 'dialog', 'description')
+                    ORDER BY qt.order_index ASC
                     """,
                     (qid,),
                 )
-                text_row = cur.fetchone()
-                if text_row and (text_row[0] or text_row[1]):
-                    matched_npc_id = text_row[2]
-                    if matched_npc_id is None:
-                        cur.execute(
-                            "SELECT npc_id FROM Quest_Texts WHERE quest_id = ? AND npc_id IS NOT NULL LIMIT 1",
-                            (qid,),
+                rows = cur.fetchall()
+                if not rows:
+                    continue
+
+                # 5a. Authoritative: Match against OCR dialogue text from the active window
+                if dialog_text and dialog_text.strip():
+                    best_row = None
+                    best_score = -1.0
+                    for r in rows:
+                        sc = self._score_dialogue_match(
+                            dialog_text,
+                            r[3] or r[4],
+                            target_npc=target_npc,
+                            candidate_npc_names=(r[5], r[6], r[7], r[8]),
+                            text_type=r[1],
                         )
-                        r_npc = cur.fetchone()
-                        if r_npc:
-                            matched_npc_id = r_npc[0]
-                    conn.close()
-                    return qid, raw_t, self._format_player_placeholders(text_row[0] or text_row[1], lang_clean), matched_npc_id
+                        if sc > best_score:
+                            best_score = sc
+                            best_row = r
+
+                    if best_row and best_score >= 0.35:
+                        cand_raw_text = best_row[3] or best_row[4]
+                        extracted_pname = self._extract_player_name_from_ocr(cand_raw_text, dialog_text)
+                        matched_text = self._format_player_placeholders(cand_raw_text, lang_clean, player_name=extracted_pname)
+                        conn.close()
+                        return qid, raw_t, matched_text, best_row[2], best_row[0]
+
+                # 5b. Fallback: Prefer row matching target_npc if known
+                if target_npc:
+                    norm_target = normalize_text_for_matching(target_npc)
+                    for r in rows:
+                        cand_norms = [normalize_text_for_matching(n) for n in (r[5], r[6], r[7], r[8]) if n]
+                        if any(norm_target in cn or cn in norm_target for cn in cand_norms):
+                            matched_text = self._format_player_placeholders(r[3] or r[4], lang_clean)
+                            conn.close()
+                            return qid, raw_t, matched_text, r[2], r[0]
+
+                # 5c. Fallback: Priority by text_type (bestower -> dialog -> description)
+                type_priority = {"bestower": 1, "dialog": 2, "description": 3}
+                sorted_rows = sorted(rows, key=lambda r: type_priority.get(r[1], 99))
+                top_row = sorted_rows[0]
+                matched_text = self._format_player_placeholders(top_row[3] or top_row[4], lang_clean)
+                conn.close()
+                return qid, raw_t, matched_text, top_row[2], top_row[0]
 
             conn.close()
         except Exception as e:
             print(f"[LotroScreenReader] DB lookup error: {e}", file=sys.stderr)
 
-        return None, None, None, None
+        return None, None, None, None, None
 
-    def get_quest_text_by_id(self, quest_id: int, target_npc: str = "", lang: str = "en") -> Optional[str]:
-        """Fetches quest dialogue directly by quest_id for cross-language native DB lookups."""
-        if not self.db_path.exists() or not quest_id:
+    def get_quest_text_by_id(
+        self, quest_id: int, target_npc: str = "", lang: str = "en", quest_text_id: str = ""
+    ) -> Optional[str]:
+        """Fetches quest dialogue directly by quest_text_id or quest_id for cross-language native DB lookups."""
+        if not self.db_path.exists() or (not quest_id and not quest_text_id):
             return None
         lang_clean = lang.lower().strip()
         if lang_clean not in ("en", "de", "fr", "es"):
@@ -1056,6 +1179,19 @@ class LotroScreenReader:
         try:
             conn = sqlite3.connect(str(self.db_path))
             cur = conn.cursor()
+
+            # 1. Authoritative: Exact quest_text_id match
+            if quest_text_id:
+                cur.execute(
+                    f"SELECT {text_col}, text_en FROM Quest_Texts WHERE id = ? LIMIT 1",
+                    (quest_text_id,),
+                )
+                row = cur.fetchone()
+                if row and (row[0] or row[1]):
+                    conn.close()
+                    return self._format_player_placeholders(row[0] or row[1], lang_clean)
+
+            # 2. Target NPC lookup for quest_id
             if target_npc:
                 cur.execute(
                     f"""
@@ -1077,6 +1213,7 @@ class LotroScreenReader:
                     conn.close()
                     return self._format_player_placeholders(row[0] or row[1], lang_clean)
 
+            # 3. Fallback priority by text_type
             cur.execute(
                 f"""
                 SELECT {text_col}, text_en FROM Quest_Texts
@@ -1098,19 +1235,23 @@ class LotroScreenReader:
         return None
 
     def _lookup_quest_in_db(
-        self, title: str, target_npc: str = "", lang: str = "de"
+        self, title: str, target_npc: str = "", lang: str = "de", dialog_text: str = ""
     ) -> Tuple[Optional[int], Optional[str]]:
-        """Queries lotro.db for best matching quest title and fetches bestower text in requested language."""
-        q_id, _, db_text = self._match_title_in_db(title, target_npc=target_npc, lang=lang)
+        """Queries lotro.db for best matching quest title and fetches dialogue text in requested language."""
+        q_id, _, db_text = self._match_title_in_db(title, target_npc=target_npc, lang=lang, dialog_text=dialog_text)
         return q_id, db_text
 
     @staticmethod
-    def _format_player_placeholders(text_candidate: str, lang_clean: str) -> str:
+    def _format_player_placeholders(text_candidate: str, lang_clean: str, player_name: str = "") -> str:
         text = re.sub(r"\$\{PLAYERNAME:([^\[\|]+)[^}]*\}", r"\1", text_candidate)
         default_friend = (
-            "friend"
-            if lang_clean in ("en", "it")
-            else ("ami" if lang_clean == "fr" else ("amigo" if lang_clean == "es" else "Freund"))
+            player_name.strip()
+            if player_name and player_name.strip()
+            else (
+                "friend"
+                if lang_clean in ("en", "it")
+                else ("ami" if lang_clean == "fr" else ("amigo" if lang_clean == "es" else "Freund"))
+            )
         )
         text = re.sub(r"\$\{PLAYER[^}]*\}", default_friend, text)
         return text.strip()
