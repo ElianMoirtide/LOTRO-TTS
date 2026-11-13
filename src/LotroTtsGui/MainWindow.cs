@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -76,6 +77,7 @@ namespace LotroTtsGui
         // Log Console
         private readonly ObservableCollection<LogMessage> logMessages = new();
         private ScrollViewer logScrollViewer = null!;
+        private SelectableTextBlock logTextBlock = null!;
 
         // Process state
         private Process? activeProcess = null;
@@ -486,25 +488,20 @@ namespace LotroTtsGui
 
             logScrollViewer = new ScrollViewer
             {
-                HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
                 VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
             };
 
-            var items = new ItemsControl
+            logTextBlock = new SelectableTextBlock
             {
-                ItemsSource = logMessages,
-                ItemTemplate = new Avalonia.Controls.Templates.FuncDataTemplate<LogMessage>((msg, _) =>
-                    new TextBlock
-                    {
-                        Text = msg.Text,
-                        Foreground = msg.Brush,
-                        FontFamily = FontFamily.Parse("Consolas, monospace"),
-                        FontSize = 12,
-                        TextWrapping = TextWrapping.Wrap
-                    })
+                FontFamily = FontFamily.Parse("Consolas, monospace"),
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = textLight,
+                SelectionBrush = new SolidColorBrush(Color.Parse("#3B6E8C"))
             };
 
-            logScrollViewer.Content = items;
+            logScrollViewer.Content = logTextBlock;
             logBorder.Child = logScrollViewer;
             Grid.SetRow(logBorder, 4);
             rootGrid.Children.Add(logBorder);
@@ -550,7 +547,11 @@ namespace LotroTtsGui
                 Padding = new Thickness(8, 2),
                 Cursor = new Cursor(StandardCursorType.Hand)
             };
-            btnClearLog.Click += (s, e) => logMessages.Clear();
+            btnClearLog.Click += (s, e) =>
+            {
+                logMessages.Clear();
+                logTextBlock.Inlines?.Clear();
+            };
 
             logActions.Children.Add(btnCopyLog);
             logActions.Children.Add(btnClearLog);
@@ -646,10 +647,19 @@ namespace LotroTtsGui
             if (string.IsNullOrEmpty(line)) return;
             Dispatcher.UIThread.Post(() =>
             {
-                logMessages.Add(new LogMessage { Text = line, Brush = color ?? textLight });
+                var brush = color ?? textLight;
+                logMessages.Add(new LogMessage { Text = line, Brush = brush });
                 if (logMessages.Count > 3000)
                 {
                     for (int i = 0; i < 200; i++) logMessages.RemoveAt(0);
+                }
+                if (logTextBlock.Inlines != null)
+                {
+                    logTextBlock.Inlines.Add(new Run { Text = line + "\n", Foreground = brush });
+                    if (logTextBlock.Inlines.Count > 3000)
+                    {
+                        for (int i = 0; i < 200; i++) logTextBlock.Inlines.RemoveAt(0);
+                    }
                 }
                 logScrollViewer.ScrollToEnd();
             });
@@ -899,6 +909,10 @@ namespace LotroTtsGui
 
         private bool IsAiEnvironmentReady()
         {
+            string incompleteMarker = Path.Combine(baseDir, "python", ".setup_incomplete");
+            if (File.Exists(incompleteMarker))
+                return false;
+
             if (OperatingSystem.IsWindows())
             {
                 string sitePackages = Path.Combine(baseDir, "python", "win64", "Lib", "site-packages");
@@ -1054,8 +1068,17 @@ namespace LotroTtsGui
                 }
                 else
                 {
-                    lblEnvStatus.Text = "Not Installed (Click Setup TTS)";
-                    lblEnvStatus.Foreground = amberWarn;
+                    string incompleteMarker = Path.Combine(baseDir, "python", ".setup_incomplete");
+                    if (File.Exists(incompleteMarker))
+                    {
+                        lblEnvStatus.Text = "Incomplete / Failed (Click Setup TTS)";
+                        lblEnvStatus.Foreground = redStop;
+                    }
+                    else
+                    {
+                        lblEnvStatus.Text = "Not Installed (Click Setup TTS)";
+                        lblEnvStatus.Foreground = amberWarn;
+                    }
                 }
 
                 string dbFile = Path.Combine(baseDir, "data", "lotro.db");

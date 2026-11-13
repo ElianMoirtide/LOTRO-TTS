@@ -25,6 +25,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 WIN64_DIR = BASE_DIR / "python" / "win64"
 LINUX64_DIR = BASE_DIR / "python" / "linux64"
+SETUP_MARKER = BASE_DIR / "python" / ".setup_incomplete"
 
 STANDALONE_PYTHON_LINUX_URL = (
     "https://github.com/astral-sh/python-build-standalone/releases/download/20241016/"
@@ -382,19 +383,25 @@ def install_packages(mode: str):
 
     # Verification
     verify_code = (
-        "import torch, soundfile, omnivoice, whisper; "
-        "is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None; "
-        "is_cuda = torch.cuda.is_available(); "
-        "hw = 'ROCm (AMD)' if is_rocm else ('CUDA (NVIDIA)' if is_cuda else 'CPU'); "
-        "dev = torch.cuda.get_device_name(0) if is_cuda else 'CPU'; "
-        "print(f'PyTorch: {torch.__version__} | Acceleration: {hw} | Device: {dev}'); "
-        "if is_cuda or is_rocm: "
-        "    for idx in range(torch.cuda.device_count()): "
-        "        d = torch.device(f'cuda:{idx}'); "
-        "        test = torch.randn(16, 16, device=d); "
-        "        res = test @ test; "
-        "        print(f'  [GPU {idx}] {torch.cuda.get_device_name(idx)}: Tensor computation test OK'); "
-        "print('OmniVoice & Whisper: Successfully loaded!')"
+        "import torch, soundfile, omnivoice, whisper\n"
+        "is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None\n"
+        "is_cuda = torch.cuda.is_available()\n"
+        "hw = 'ROCm (AMD)' if is_rocm else ('CUDA (NVIDIA)' if is_cuda else 'CPU')\n"
+        "dev = torch.cuda.get_device_name(0) if is_cuda else 'CPU'\n"
+        "print(f'PyTorch: {torch.__version__} | Acceleration: {hw} | Device: {dev}')\n"
+        "if is_cuda:\n"
+        "    for idx in range(torch.cuda.device_count()):\n"
+        "        try:\n"
+        "            d = torch.device(f'cuda:{idx}')\n"
+        "            test = torch.randn(16, 16, device=d)\n"
+        "            res = test @ test\n"
+        "            print(f'  [GPU {idx}] {torch.cuda.get_device_name(idx)}: Tensor computation test OK')\n"
+        "        except Exception as e:\n"
+        "            print(f'  [GPU {idx}] Tensor test warning: {e}')\n"
+        "            print('  [INFO] This GPU lacks compatible ROCm/CUDA kernels; LOTRO-TTS will automatically fall back to CPU at runtime.')\n"
+        "elif is_rocm:\n"
+        "    print('  [WARNING] ROCm PyTorch installed, but no compatible ROCm GPU device was detected (falling back to CPU at runtime).')\n"
+        "print('OmniVoice & Whisper: Successfully loaded!')\n"
     )
     verify_cmd = [str(PYTHON_EXE), "-c", verify_code]
     print("\n========================================================", flush=True)
@@ -420,9 +427,16 @@ def main():
     print(f"Target Mode: {args.mode.upper()}")
     print("=" * 60)
 
+    SETUP_MARKER.parent.mkdir(parents=True, exist_ok=True)
+    SETUP_MARKER.write_text("incomplete\n", encoding="utf-8")
+
     enable_site_packages()
     install_pip()
     install_packages(args.mode)
+
+    if SETUP_MARKER.exists():
+        SETUP_MARKER.unlink()
+
     print("\nLOTRO-TTS environment is ready!")
 
 

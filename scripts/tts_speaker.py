@@ -128,6 +128,23 @@ class WarmAudioPlayer:
                 pass
 
 
+def resolve_compute_device(requested_device=None) -> str:
+    """Resolves the compute device ('cuda' or 'cpu') and verifies GPU kernel execution."""
+    if requested_device and requested_device != "auto":
+        if requested_device != "cuda":
+            return requested_device
+    if not torch.cuda.is_available():
+        return "cpu"
+    try:
+        t = torch.randn(4, 4, device="cuda")
+        _ = t @ t
+        torch.cuda.synchronize()
+        return "cuda"
+    except Exception as e:
+        print(f"[WARNING] GPU acceleration test failed ({e}). Falling back to CPU!")
+        return "cpu"
+
+
 class LotroSpeaker:
     def __init__(
         self,
@@ -147,7 +164,7 @@ class LotroSpeaker:
         self._cached_vol_scale = max(0.0, min(1.0, float(self.volume) / 100.0))
         self._config_vol_mtime = None
 
-        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = resolve_compute_device(device)
         print(f"Initializing LOTRO-TTS Speaker Engine on [{self.device}]...")
 
         # Initialize audio backend and register WASAPI audio session with OS mixer immediately (0.01s silent warmup)

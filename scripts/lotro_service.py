@@ -98,12 +98,9 @@ class LotroPipelineService:
         self.narrator_voice = str(narrator_voice).strip() if narrator_voice else "man_male_1"
         self.volume = max(0, min(100, int(volume)))
 
-        # Auto-detect CUDA GPU for maximum performance (e.g. RTX 4090)
-        import torch
-        if mode == "auto":
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-        else:
-            device = mode
+        # Auto-detect CUDA/ROCm GPU and verify kernel execution (falls back to CPU on unsupported GPUs)
+        from tts_speaker import resolve_compute_device
+        device = resolve_compute_device(mode)
 
         logger.info(f"Connecting to Database & Pre-warming OCR: {self.db_path}")
         self.screen_reader = LotroScreenReader(str(self.db_path), eager_init=True)
