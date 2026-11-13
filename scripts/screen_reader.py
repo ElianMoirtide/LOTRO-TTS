@@ -1258,22 +1258,62 @@ class LotroScreenReader:
         return q_id, db_text
 
     @staticmethod
+    def _localize_player_term(term: str, lang_clean: str, gender: str, table: Dict[str, Dict[str, Tuple[str, str]]]) -> str:
+        if not term:
+            return ""
+        entry = table.get(term.casefold())
+        if not entry:
+            return term
+        forms = entry.get(lang_clean) or entry.get("en")
+        if not forms:
+            return term
+        return forms[1] if gender == "f" else forms[0]
+
+    @staticmethod
     def _format_player_placeholders(
         text_candidate: str, lang_clean: str, player_name: str = "", player_info: PlayerInfo = PlayerInfo()
     ) -> str:
         localized_friend = {"fr": "ami", "es": "amigo", "de": "Freund"}
         name = player_info.name or player_name.strip() or localized_friend.get(lang_clean, "friend")
+        gender = player_info.gender.lower()
+
+        race_table = {
+            "man":          {"en": ("Man", "Man"),                   "de": ("Mensch", "Mensch"),           "fr": ("Homme", "Femme"),                     "es": ("Hombre", "Mujer")},
+            "elf":          {"en": ("Elf", "Elf"),                   "de": ("Elb", "Elbin"),               "fr": ("Elfe", "Elfe"),                       "es": ("Elfo", "Elfa")},
+            "dwarf":        {"en": ("Dwarf", "Dwarf"),               "de": ("Zwerg", "Zwergin"),           "fr": ("Nain", "Naine"),                      "es": ("Enano", "Enana")},
+            "hobbit":       {"en": ("Hobbit", "Hobbit"),             "de": ("Hobbit", "Hobbit"),           "fr": ("Hobbit", "Hobbite"),                  "es": ("Hobbit", "Hobbit")},
+            "beorning":     {"en": ("Beorning", "Beorning"),         "de": ("Beorninger", "Beorningerin"), "fr": ("Béornide", "Béornide"),               "es": ("Beórnida", "Beórnida")},
+            "high elf":     {"en": ("High Elf", "High Elf"),         "de": ("Hochelb", "Hochelbin"),       "fr": ("Haut Elfe", "Haute Elfe"),            "es": ("Alto Elfo", "Alta Elfa")},
+            "stout-axe":    {"en": ("Stout-axe", "Stout-axe"),       "de": ("Starkaxt", "Starkaxt"),       "fr": ("Hache robuste", "Hache robuste"),     "es": ("Hacha robusta", "Hacha robusta")},
+            "river hobbit": {"en": ("River Hobbit", "River Hobbit"), "de": ("Fluss-Hobbit", "Fluss-Hobbit"), "fr": ("Hobbit des rivières", "Hobbite des rivières"), "es": ("Hobbit del río", "Hobbit del río")},
+        }
+        class_table = {
+            "burglar":     {"en": ("Burglar", "Burglar"),         "de": ("Schurke", "Schurkin"),             "fr": ("Cambrioleur", "Cambrioleuse"),       "es": ("Saqueador", "Saqueadora")},
+            "captain":     {"en": ("Captain", "Captain"),         "de": ("Hauptmann", "Hauptfrau"),          "fr": ("Capitaine", "Capitaine"),            "es": ("Capitán", "Capitana")},
+            "champion":    {"en": ("Champion", "Champion"),       "de": ("Waffenmeister", "Waffenmeisterin"),"fr": ("Champion", "Championne"),            "es": ("Campeón", "Campeona")},
+            "guardian":    {"en": ("Guardian", "Guardian"),       "de": ("Wächter", "Wächterin"),            "fr": ("Gardien", "Gardienne"),              "es": ("Guardián", "Guardiana")},
+            "hunter":      {"en": ("Hunter", "Hunter"),           "de": ("Jäger", "Jägerin"),                "fr": ("Chasseur", "Chasseuse"),             "es": ("Cazador", "Cazadora")},
+            "lore-master": {"en": ("Lore-Master", "Lore-Master"), "de": ("Kundiger", "Kundige"),             "fr": ("Maître du savoir", "Maîtresse du savoir"), "es": ("Maestro del saber", "Maestra del saber")},
+            "minstrel":    {"en": ("Minstrel", "Minstrel"),       "de": ("Barde", "Bardin"),                 "fr": ("Ménestrel", "Ménestrel"),            "es": ("Juglar", "Juglar")},
+            "rune-keeper": {"en": ("Rune-keeper", "Rune-keeper"), "de": ("Runenbewahrer", "Runenbewahrerin"),"fr": ("Gardien des runes", "Gardienne des runes"), "es": ("Guardián de runas", "Guardiana de runas")},
+            "warden":      {"en": ("Warden", "Warden"),           "de": ("Hüter", "Hüterin"),                "fr": ("Sentinelle", "Sentinelle"),          "es": ("Centinela", "Centinela")},
+            "beorning":    {"en": ("Beorning", "Beorning"),       "de": ("Beorninger", "Beorningerin"),      "fr": ("Béornide", "Béornide"),              "es": ("Beórnida", "Beórnida")},
+            "brawler":     {"en": ("Brawler", "Brawler"),         "de": ("Schläger", "Schlägerin"),          "fr": ("Bagarreur", "Bagarreuse"),           "es": ("Luchador", "Luchadora")},
+            "mariner":     {"en": ("Mariner", "Mariner"),         "de": ("Seefahrer", "Seefahrerin"),        "fr": ("Marin", "Marine"),                   "es": ("Marinero", "Marinera")},
+        }
+
+        localized_race = LotroScreenReader._localize_player_term(player_info.race, lang_clean, gender, race_table)
+        localized_class = LotroScreenReader._localize_player_term(player_info.player_class, lang_clean, gender, class_table)
 
         def select_variant(match):
             options = match[2].split("|")
-            gender = player_info.gender.lower()
             race = {
                 "man": "U", "beorning": "B",
                 "dwarf": "D", "stout-axe": "D",
                 "elf": "L", "high elf": "L",
                 "hobbit": "O", "river hobbit": "O",
             }.get(player_info.race.casefold())
-            word = player_info.player_class if match[1] == "CLASS" else name
+            word = localized_class if match[1] == "CLASS" else name
             initial = unicodedata.normalize("NFD", word.casefold())[:1]
             vowel_tag = ("v" if initial in "aeiouy" else "!v") if initial else None
             default = None
@@ -1294,11 +1334,12 @@ class LotroScreenReader:
                 return default
             return options[0].split("[", 1)[0]
 
-        text = re.sub(r"\$\{(PLAYERNAME|PLAYER|PLAYER_NAME|CLASS|RACE):([^}]+)\}", select_variant, text_candidate)
+        text = re.sub(r"\$\{(PLAYERNAME|PLAYER|PLAYER_NAME|CLASS|RACE|\d+):([^}]+)\}", select_variant, text_candidate)
+        fallback_term = localized_friend.get(lang_clean, "friend")
         values = {
             "PLAYER": name,
             "PLAYER_NAME": name,
-            "RACE": player_info.race,
-            "CLASS": player_info.player_class,
+            "RACE": localized_race or fallback_term,
+            "CLASS": localized_class or fallback_term,
         }
-        return re.sub(r"\$\{(PLAYER|PLAYER_NAME|RACE|CLASS)\}", lambda match: values[match[1]] or match[0], text).strip()
+        return re.sub(r"\$\{(PLAYER|PLAYER_NAME|RACE|CLASS)\}", lambda match: values[match[1]], text).strip()

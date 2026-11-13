@@ -130,9 +130,9 @@ local function CreateOptionsPanel()
         return txt;
     end
 
-    local txtLeft  = CreateSettingInput(optionsPanel, 20, "Position X (Links):", settings.left);
-    local txtTop   = CreateSettingInput(optionsPanel, 50, "Position Y (Oben):", settings.top);
-    local txtWidth = CreateSettingInput(optionsPanel, 80, "Breite:", settings.width);
+    local txtLeft  = CreateSettingInput(optionsPanel, 20, "Position X (Left):", settings.left);
+    local txtTop   = CreateSettingInput(optionsPanel, 50, "Position Y (Top):", settings.top);
+    local txtWidth = CreateSettingInput(optionsPanel, 80, "Width:", settings.width);
 
     local male = Turbine.UI.Lotro.CheckBox();
     male:SetParent(optionsPanel);
@@ -167,7 +167,7 @@ local function CreateOptionsPanel()
     btnSave:SetParent(optionsPanel);
     btnSave:SetPosition(20, 145);
     btnSave:SetSize(120, 25);
-    btnSave:SetText("Übernehmen");
+    btnSave:SetText("Apply");
 
     btnSave.Click = function()
         settings.gender = female:IsChecked() and "F" or "M";

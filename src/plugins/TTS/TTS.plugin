@@ -4,7 +4,7 @@
   <Information>
     <Name>TTS</Name>
     <Author>Bahaco</Author>
-    <Version>2.0</Version>
+    <Version>v2.0-rc3</Version>
     <Description>Writes language and NPC name in Script.log for LOTRO-TTS</Description>
   </Information>
   <Package>TTS.Main</Package>
