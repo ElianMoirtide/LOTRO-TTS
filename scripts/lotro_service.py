@@ -45,7 +45,7 @@ if sys.platform.startswith("win"):
 base_dir = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(base_dir / "scripts"))
 
-from screen_reader import LotroScreenReader
+from screen_reader import LotroScreenReader, PlayerInfo
 from tts_speaker import LotroSpeaker
 from translator import LotroTranslator
 
@@ -119,8 +119,19 @@ class LotroPipelineService:
             self.translator.preload(self.tts_lang, src_lang=self.game_lang)
 
         self.last_log_pos = 0
-        if self.script_log_path.exists():
-            self.last_log_pos = self.script_log_path.stat().st_size
+        self.log_identity = None
+        self.player_info = PlayerInfo()
+        try:
+            with self.script_log_path.open("rb") as log:
+                stat = os.fstat(log.fileno())
+                self.log_identity = (stat.st_dev, stat.st_ino)
+                for raw_line in log:
+                    if not raw_line.endswith(b"\n"):
+                        break
+                    self.last_log_pos += len(raw_line)
+                    self._consume_player_info(raw_line.decode("utf-8", errors="replace").strip())
+        except FileNotFoundError:
+            pass
 
         self.last_detected_client_lang = self.game_lang.upper()
         self.last_detected_target = ""
@@ -417,8 +428,12 @@ class LotroPipelineService:
             img = np.ascontiguousarray(np.array(screenshot)[:, :, :3])
             return img
 
-    def handle_trigger(self, plugin_client_lang: str = "", target_name: str = ""):
+    def handle_trigger(
+        self, plugin_client_lang: str = "", target_name: str = "", player_info: Optional[PlayerInfo] = None
+    ):
         """Executes full workflow upon plugin button click or hotkey."""
+        if player_info is None:
+            player_info = self.player_info
         with self._lock:
             if self._is_scanning:
                 logger.info("OCR scan already running, debouncing trigger...")
@@ -460,7 +475,7 @@ class LotroPipelineService:
             ocr_lang = active_client_lang.upper()
             logger.info(f"Scanning screen for quest / instance dialog (OCR lang: {ocr_lang})...")
             scan_result = self.screen_reader.scan_screen_with_cache(
-                screen_img, target_npc=target_name, lang=ocr_lang
+                screen_img, target_npc=target_name, lang=ocr_lang, player_info=player_info
             )
 
             window_type = scan_result.get("window_type", "unknown")
@@ -500,7 +515,8 @@ class LotroPipelineService:
             db_target_hint = "" if matched_npc_id else target_name
             if matched_qid and active_tts_lang in ("de", "en", "fr", "es") and active_tts_lang != active_client_lang:
                 direct_text = self.screen_reader.get_quest_text_by_id(
-                    matched_qid, target_npc=db_target_hint, lang=active_tts_lang, quest_text_id=matched_text_id
+                    matched_qid, target_npc=db_target_hint, lang=active_tts_lang,
+                    quest_text_id=matched_text_id, player_info=player_info
                 )
                 if direct_text:
                     logger.info(f"Using native '{active_tts_lang.upper()}' quest text directly from lotro.db!")
@@ -511,7 +527,8 @@ class LotroPipelineService:
                 # When matched from lotro.db, English text is always available and yields optimal translation
                 if matched_qid:
                     clean_en_text = self.screen_reader.get_quest_text_by_id(
-                        matched_qid, target_npc=db_target_hint, lang="en", quest_text_id=matched_text_id
+                        matched_qid, target_npc=db_target_hint, lang="en",
+                        quest_text_id=matched_text_id, player_info=player_info
                     )
                     if clean_en_text:
                         final_text = clean_en_text
@@ -626,8 +643,18 @@ class LotroPipelineService:
         except Exception as e:
             logger.warning(f"Could not start global mouse listener: {e}")
 
+    def _consume_player_info(self, line: str) -> bool:
+        if not line.startswith("TTS:INFO|"):
+            return False
+        fields = [field.strip() for field in line.split("|")]
+        if len(fields) == 5:
+            _, name, race, gender, player_class = fields
+            if name and gender in ("M", "F"):
+                self.player_info = PlayerInfo(name, race, gender, player_class)
+        return True
+
     def watch_script_log(self, poll_interval: float = 0.03):
-        """Watches Script.log for new lines formatted as: TTS|<CLIENT_LANG>|<TARGET>."""
+        """Watches Script.log for read requests and character info."""
         logger.info(f"Watching '{self.script_log_path}' for plugin triggers...")
 
         self.start_keyboard_listener()
@@ -637,20 +664,22 @@ class LotroPipelineService:
         while True:
             try:
                 if self.script_log_path.exists():
-                    current_size = self.script_log_path.stat().st_size
-                    if current_size < self.last_log_pos:
-                        # Log file was truncated / rotated
+                    stat = self.script_log_path.stat()
+                    identity = (stat.st_dev, stat.st_ino)
+                    if identity != self.log_identity or stat.st_size < self.last_log_pos:
+                        self.log_identity = identity
                         self.last_log_pos = 0
+                        self.player_info = PlayerInfo()
 
-                    if current_size > self.last_log_pos:
-                        with open(self.script_log_path, "r", encoding="utf-8", errors="replace") as f:
+                    if stat.st_size > self.last_log_pos:
+                        with self.script_log_path.open("rb") as f:
                             f.seek(self.last_log_pos)
-                            new_lines = f.readlines()
-                            self.last_log_pos = f.tell()
+                            new_lines = f.read().split(b"\n")[:-1]
 
-                        for line in new_lines:
-                            line = line.strip()
-                            if not line:
+                        for raw_line in new_lines:
+                            self.last_log_pos += len(raw_line) + 1
+                            line = raw_line.decode("utf-8", errors="replace").strip()
+                            if self._consume_player_info(line):
                                 continue
                             if line.startswith("TTS|"):
                                 parts = line.split("|")
@@ -660,14 +689,18 @@ class LotroPipelineService:
                                     self.last_detected_client_lang = lang_code
                                     self.last_detected_target = target_name
                                     threading.Thread(
-                                        target=self.handle_trigger, args=(lang_code, target_name), daemon=True
+                                        target=self.handle_trigger, args=(lang_code, target_name, self.player_info), daemon=True
                                     ).start()
                                 elif len(parts) == 2:
                                     lang_code = parts[1].strip()
                                     self.last_detected_client_lang = lang_code
                                     threading.Thread(
-                                        target=self.handle_trigger, args=(lang_code, ""), daemon=True
+                                        target=self.handle_trigger, args=(lang_code, "", self.player_info), daemon=True
                                     ).start()
+                else:
+                    self.log_identity = None
+                    self.last_log_pos = 0
+                    self.player_info = PlayerInfo()
                 time.sleep(poll_interval)
             except KeyboardInterrupt:
                 logger.info("Stopping LOTRO-TTS Service...")

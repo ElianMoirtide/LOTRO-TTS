@@ -17,7 +17,8 @@ end
 local defaults = {
     left = (Turbine.UI.Display:GetWidth() - 100) / 2,
     top = (Turbine.UI.Display:GetHeight() - 20) / 2,
-    width = 100
+    width = 100,
+    gender = "M"
 };
 
 -- Einstellungen laden (auf Charakter-Ebene)
@@ -37,6 +38,39 @@ for k, v in pairs(defaults) do
     if settings[k] == nil then
         settings[k] = v;
     end
+end
+
+local localPlayer = nil;
+
+local function GetDisplayName(enum, value, displayNames)
+    if value == nil then return "" end
+    for name, id in pairs(enum) do
+        if id == value then
+            return displayNames[name] or name;
+        end
+    end
+    return tostring(value);
+end
+
+local raceNames = {
+    HighElf = "High Elf",
+    RiverHobbit = "River Hobbit",
+    StoutAxe = "Stout-axe"
+};
+local classNames = {
+    LoreMaster = "Lore-Master",
+    RuneKeeper = "Rune-keeper",
+    Corsair = "Mariner"
+};
+
+local function PublishPlayerInfo()
+    if localPlayer == nil then return end
+    local gender = settings.gender == "F" and "F" or "M";
+    local race = GetDisplayName(Turbine.Gameplay.Race, localPlayer:GetRace(), raceNames);
+    local class = GetDisplayName(Turbine.Gameplay.Class, localPlayer:GetClass(), classNames);
+    Turbine.Engine.ScriptLog(table.concat({
+        "TTS:INFO", localPlayer:GetName(), race, gender, class
+    }, "|"));
 end
 
 -- Funktion zum Speichern
@@ -100,14 +134,45 @@ local function CreateOptionsPanel()
     local txtTop   = CreateSettingInput(optionsPanel, 50, "Position Y (Oben):", settings.top);
     local txtWidth = CreateSettingInput(optionsPanel, 80, "Breite:", settings.width);
 
+    local male = Turbine.UI.Lotro.CheckBox();
+    male:SetParent(optionsPanel);
+    male:SetPosition(20, 110);
+    male:SetSize(110, 22);
+    male:SetText("Male (M)");
+    male:SetChecked(settings.gender ~= "F");
+
+    local female = Turbine.UI.Lotro.CheckBox();
+    female:SetParent(optionsPanel);
+    female:SetPosition(150, 110);
+    female:SetSize(120, 22);
+    female:SetText("Female (F)");
+    female:SetChecked(settings.gender == "F");
+
+    local updatingGender = false;
+    local function SelectGender(selected, other)
+        if updatingGender then return end
+        updatingGender = true;
+        selected:SetChecked(true);
+        other:SetChecked(false);
+        updatingGender = false;
+    end
+    male.CheckedChanged = function()
+        SelectGender(male, female);
+    end;
+    female.CheckedChanged = function()
+        SelectGender(female, male);
+    end;
+
     local btnSave = Turbine.UI.Lotro.Button();
     btnSave:SetParent(optionsPanel);
-    btnSave:SetPosition(20, 120);
+    btnSave:SetPosition(20, 145);
     btnSave:SetSize(120, 25);
     btnSave:SetText("Übernehmen");
 
     btnSave.Click = function()
+        settings.gender = female:IsChecked() and "F" or "M";
         ApplySettings(txtLeft:GetText(), txtTop:GetText(), txtWidth:GetText());
+        PublishPlayerInfo();
     end
 
     optionsPanel.UpdateFields = function()
@@ -215,8 +280,6 @@ local function RemoveCallback(object, event, callback)
     end
 end
 
-local localPlayer = nil;
-
 local function RefreshButtonVisibility()
     local hasTarget = false;
     if localPlayer ~= nil then
@@ -239,6 +302,7 @@ local function SetupTargetListener()
     if localPlayer ~= nil then
         AddCallback(localPlayer, "TargetChanged", OnTargetChanged);
         RefreshButtonVisibility();
+        PublishPlayerInfo();
         return true;
     end
     return false;

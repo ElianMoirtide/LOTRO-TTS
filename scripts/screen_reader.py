@@ -14,6 +14,7 @@ import unicodedata
 from collections import defaultdict
 from difflib import SequenceMatcher
 from pathlib import Path
+from dataclasses import dataclass
 from typing import Optional, Tuple, Dict, Any, List, Set
 
 
@@ -121,6 +122,14 @@ CHAT_LINE_RE = re.compile(
     r"(To\s+\w+\s*:|Say\s*:|Screenshot\s*\[)|\d+\s*FPS\b)",
     re.IGNORECASE,
 )
+
+
+@dataclass(frozen=True)
+class PlayerInfo:
+    name: str = ""
+    race: str = ""
+    gender: str = ""
+    player_class: str = ""
 
 
 class LotroScreenReader:
@@ -474,7 +483,9 @@ class LotroScreenReader:
 
         return self._merge_same_line_fragments(boxes)
 
-    def scan_screen_with_cache(self, full_screen_img, target_npc: str = "", lang: str = "de") -> Dict[str, Any]:
+    def scan_screen_with_cache(
+        self, full_screen_img, target_npc: str = "", lang: str = "de", player_info: PlayerInfo = PlayerInfo()
+    ) -> Dict[str, Any]:
         """
         Scans using cached title-strip geometry first (~0.03s) when the dialog stays at the same position.
         Automatically detects moved/closed windows and falls back to full-screen anchor scan (~0.20s).
@@ -515,6 +526,7 @@ class LotroScreenReader:
                             lang=lang,
                             require_anchors=False,
                             offset=(cx1, cy1),
+                            player_info=player_info,
                         )
                         if res.get("final_text") and res.get("title"):
                             print(f"[LotroScreenReader] Fast-path cropped dialog scan: '{res['title']}' ({lang.upper()})")
@@ -531,6 +543,7 @@ class LotroScreenReader:
             lang=lang,
             require_anchors=True,
             offset=(0, 0),
+            player_info=player_info,
         )
         if res.get("final_text") and res.get("window_box") and res.get("_title_strip"):
             self.cached_window_box = res["window_box"]
@@ -579,6 +592,7 @@ class LotroScreenReader:
         lang: str = "de",
         require_anchors: bool = True,
         offset: Tuple[int, int] = (0, 0),
+        player_info: PlayerInfo = PlayerInfo(),
     ) -> Dict[str, Any]:
         empty_res = {
             "window_type": "unknown",
@@ -800,7 +814,7 @@ class LotroScreenReader:
         if self.db_path.exists():
             matched_qid, matched_title, matched_db_text, matched_npc_id, matched_text_id = (
                 self._match_title_in_db_with_npc(
-                    final_title, target_npc=target_npc, lang=lang, dialog_text=dialog_text
+                    final_title, target_npc=target_npc, lang=lang, dialog_text=dialog_text, player_info=player_info
                 )
             )
             if matched_db_text:
@@ -968,7 +982,8 @@ class LotroScreenReader:
         return q_id, db_title, db_text
 
     def _match_title_in_db_with_npc(
-        self, title: str, target_npc: str = "", lang: str = "de", dialog_text: str = ""
+        self, title: str, target_npc: str = "", lang: str = "de", dialog_text: str = "",
+        player_info: PlayerInfo = PlayerInfo()
     ) -> Tuple[Optional[int], Optional[str], Optional[str], Optional[int], Optional[str]]:
         """
         Matches a candidate title against the in-memory quest index (~0.1ms)
@@ -1086,7 +1101,7 @@ class LotroScreenReader:
                         best_score = score
                         cand_text = q_text or q_text_en
                         pname = self._extract_player_name_from_ocr(cand_text, dialog_text)
-                        matched_text = self._format_player_placeholders(cand_text, lang_clean, player_name=pname)
+                        matched_text = self._format_player_placeholders(cand_text, lang_clean, player_name=pname, player_info=player_info)
                         best_q = (qid, raw_t, matched_text, q_npc_id, q_text_id)
 
                 if best_q:
@@ -1138,7 +1153,7 @@ class LotroScreenReader:
                     if best_row and best_score >= 0.35:
                         cand_raw_text = best_row[3] or best_row[4]
                         extracted_pname = self._extract_player_name_from_ocr(cand_raw_text, dialog_text)
-                        matched_text = self._format_player_placeholders(cand_raw_text, lang_clean, player_name=extracted_pname)
+                        matched_text = self._format_player_placeholders(cand_raw_text, lang_clean, player_name=extracted_pname, player_info=player_info)
                         conn.close()
                         return qid, raw_t, matched_text, best_row[2], best_row[0]
 
@@ -1148,7 +1163,7 @@ class LotroScreenReader:
                     for r in rows:
                         cand_norms = [normalize_text_for_matching(n) for n in (r[5], r[6], r[7], r[8]) if n]
                         if any(norm_target in cn or cn in norm_target for cn in cand_norms):
-                            matched_text = self._format_player_placeholders(r[3] or r[4], lang_clean)
+                            matched_text = self._format_player_placeholders(r[3] or r[4], lang_clean, player_info=player_info)
                             conn.close()
                             return qid, raw_t, matched_text, r[2], r[0]
 
@@ -1156,7 +1171,7 @@ class LotroScreenReader:
                 type_priority = {"bestower": 1, "dialog": 2, "description": 3}
                 sorted_rows = sorted(rows, key=lambda r: type_priority.get(r[1], 99))
                 top_row = sorted_rows[0]
-                matched_text = self._format_player_placeholders(top_row[3] or top_row[4], lang_clean)
+                matched_text = self._format_player_placeholders(top_row[3] or top_row[4], lang_clean, player_info=player_info)
                 conn.close()
                 return qid, raw_t, matched_text, top_row[2], top_row[0]
 
@@ -1167,7 +1182,8 @@ class LotroScreenReader:
         return None, None, None, None, None
 
     def get_quest_text_by_id(
-        self, quest_id: int, target_npc: str = "", lang: str = "en", quest_text_id: str = ""
+        self, quest_id: int, target_npc: str = "", lang: str = "en", quest_text_id: str = "",
+        player_info: PlayerInfo = PlayerInfo()
     ) -> Optional[str]:
         """Fetches quest dialogue directly by quest_text_id or quest_id for cross-language native DB lookups."""
         if not self.db_path.exists() or (not quest_id and not quest_text_id):
@@ -1189,7 +1205,7 @@ class LotroScreenReader:
                 row = cur.fetchone()
                 if row and (row[0] or row[1]):
                     conn.close()
-                    return self._format_player_placeholders(row[0] or row[1], lang_clean)
+                    return self._format_player_placeholders(row[0] or row[1], lang_clean, player_info=player_info)
 
             # 2. Target NPC lookup for quest_id
             if target_npc:
@@ -1211,7 +1227,7 @@ class LotroScreenReader:
                 row = cur.fetchone()
                 if row and (row[0] or row[1]):
                     conn.close()
-                    return self._format_player_placeholders(row[0] or row[1], lang_clean)
+                    return self._format_player_placeholders(row[0] or row[1], lang_clean, player_info=player_info)
 
             # 3. Fallback priority by text_type
             cur.execute(
@@ -1229,7 +1245,7 @@ class LotroScreenReader:
             row = cur.fetchone()
             conn.close()
             if row and (row[0] or row[1]):
-                return self._format_player_placeholders(row[0] or row[1], lang_clean)
+                return self._format_player_placeholders(row[0] or row[1], lang_clean, player_info=player_info)
         except Exception as e:
             print(f"[LotroScreenReader] DB ID lookup error: {e}", file=sys.stderr)
         return None
@@ -1242,16 +1258,47 @@ class LotroScreenReader:
         return q_id, db_text
 
     @staticmethod
-    def _format_player_placeholders(text_candidate: str, lang_clean: str, player_name: str = "") -> str:
-        text = re.sub(r"\$\{PLAYERNAME:([^\[\|]+)[^}]*\}", r"\1", text_candidate)
-        default_friend = (
-            player_name.strip()
-            if player_name and player_name.strip()
-            else (
-                "friend"
-                if lang_clean in ("en", "it")
-                else ("ami" if lang_clean == "fr" else ("amigo" if lang_clean == "es" else "Freund"))
-            )
-        )
-        text = re.sub(r"\$\{PLAYER[^}]*\}", default_friend, text)
-        return text.strip()
+    def _format_player_placeholders(
+        text_candidate: str, lang_clean: str, player_name: str = "", player_info: PlayerInfo = PlayerInfo()
+    ) -> str:
+        localized_friend = {"fr": "ami", "es": "amigo", "de": "Freund"}
+        name = player_info.name or player_name.strip() or localized_friend.get(lang_clean, "friend")
+
+        def select_variant(match):
+            options = match[2].split("|")
+            gender = player_info.gender.lower()
+            race = {
+                "man": "U", "beorning": "B",
+                "dwarf": "D", "stout-axe": "D",
+                "elf": "L", "high elf": "L",
+                "hobbit": "O", "river hobbit": "O",
+            }.get(player_info.race.casefold())
+            word = player_info.player_class if match[1] == "CLASS" else name
+            initial = unicodedata.normalize("NFD", word.casefold())[:1]
+            vowel_tag = ("v" if initial in "aeiouy" else "!v") if initial else None
+            default = None
+            for option in options:
+                variant = re.fullmatch(r"(.*?)\[([mf]|!?v|[BUDLO](?:,[BUDLO])*)\]", option, re.DOTALL)
+                if not variant:
+                    if default is None:
+                        default = option
+                    continue
+                if variant[2] in (gender, vowel_tag) or (race and race in variant[2].split(",")):
+                    return variant[1]
+            if race == "B":
+                for option in options:
+                    variant = re.fullmatch(r"(.*?)\[([UDLO](?:,[UDLO])*)\]", option, re.DOTALL)
+                    if variant and "U" in variant[2].split(","):
+                        return variant[1]
+            if default is not None:
+                return default
+            return options[0].split("[", 1)[0]
+
+        text = re.sub(r"\$\{(PLAYERNAME|PLAYER|PLAYER_NAME|CLASS|RACE):([^}]+)\}", select_variant, text_candidate)
+        values = {
+            "PLAYER": name,
+            "PLAYER_NAME": name,
+            "RACE": player_info.race,
+            "CLASS": player_info.player_class,
+        }
+        return re.sub(r"\$\{(PLAYER|PLAYER_NAME|RACE|CLASS)\}", lambda match: values[match[1]] or match[0], text).strip()
