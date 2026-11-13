@@ -1261,31 +1261,40 @@ class LotroScreenReader:
     def _format_player_placeholders(
         text_candidate: str, lang_clean: str, player_name: str = "", player_info: PlayerInfo = PlayerInfo()
     ) -> str:
+        localized_friend = {"fr": "ami", "es": "amigo", "de": "Freund"}
+        name = player_info.name or player_name.strip() or localized_friend.get(lang_clean, "friend")
+
         def select_variant(match):
-            options = match[1].split("|")
+            options = match[2].split("|")
             gender = player_info.gender.lower()
             race = {
-                "man": "U", "beorning": "U",
+                "man": "U", "beorning": "B",
                 "dwarf": "D", "stout-axe": "D",
                 "elf": "L", "high elf": "L",
                 "hobbit": "O", "river hobbit": "O",
             }.get(player_info.race.casefold())
+            word = player_info.player_class if match[1] == "CLASS" else name
+            initial = unicodedata.normalize("NFD", word.casefold())[:1]
+            vowel_tag = ("v" if initial in "aeiouy" else "!v") if initial else None
             default = None
             for option in options:
-                variant = re.fullmatch(r"(.*?)\[([mf]|[UDLO](?:,[UDLO])*)\]", option, re.DOTALL)
+                variant = re.fullmatch(r"(.*?)\[([mf]|!?v|[BUDLO](?:,[BUDLO])*)\]", option, re.DOTALL)
                 if not variant:
                     if default is None:
                         default = option
                     continue
-                if variant[2] == gender or (race and race in variant[2].split(",")):
+                if variant[2] in (gender, vowel_tag) or (race and race in variant[2].split(",")):
                     return variant[1]
+            if race == "B":
+                for option in options:
+                    variant = re.fullmatch(r"(.*?)\[([UDLO](?:,[UDLO])*)\]", option, re.DOTALL)
+                    if variant and "U" in variant[2].split(","):
+                        return variant[1]
             if default is not None:
                 return default
             return options[0].split("[", 1)[0]
 
-        text = re.sub(r"\$\{(?:PLAYERNAME|PLAYER|PLAYER_NAME|CLASS|RACE):([^}]+)\}", select_variant, text_candidate)
-        localized_friend = {"fr": "ami", "es": "amigo", "de": "Freund"}
-        name = player_info.name or player_name.strip() or localized_friend.get(lang_clean, "friend")
+        text = re.sub(r"\$\{(PLAYERNAME|PLAYER|PLAYER_NAME|CLASS|RACE):([^}]+)\}", select_variant, text_candidate)
         values = {
             "PLAYER": name,
             "PLAYER_NAME": name,
