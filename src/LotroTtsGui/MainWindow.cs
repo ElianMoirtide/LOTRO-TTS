@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Formats.Tar;
 using System.IO;
@@ -22,15 +21,9 @@ using Avalonia.Threading;
 
 namespace LotroTtsGui
 {
-    public class LogMessage
-    {
-        public string Text { get; set; } = "";
-        public IBrush Brush { get; set; } = Brushes.White;
-    }
-
     public class MainWindow : Window
     {
-        public const string AppVersion = "v2.0-rc3";
+        public const string AppVersion = "v2.0-rc4";
 
         private readonly string baseDir;
         private string pythonExe;
@@ -53,6 +46,7 @@ namespace LotroTtsGui
         private Slider sliderVolume = null!;
         private TextBlock lblVolumeTitle = null!;
         private volatile int currentVolume = 80;
+        private CancellationTokenSource? volumeDebounceCts;
         private CancellationTokenSource? serviceVolumeWatcherCts;
         private CheckBox chkMiddleMouse = null!;
         private CheckBox chkNarratorMode = null!;
@@ -75,7 +69,6 @@ namespace LotroTtsGui
         private bool isCheckingUpdates = false;
 
         // Log Console
-        private readonly ObservableCollection<LogMessage> logMessages = new();
         private ScrollViewer logScrollViewer = null!;
         private SelectableTextBlock logTextBlock = null!;
 
@@ -156,6 +149,7 @@ namespace LotroTtsGui
 
             this.Closing += (s, e) =>
             {
+                try { volumeDebounceCts?.Cancel(); } catch (ObjectDisposedException) { }
                 SaveConfig();
                 StopActiveProcess();
             };
@@ -166,14 +160,21 @@ namespace LotroTtsGui
             AppendLog("Ready. Click 'START LOTRO-TTS' to launch.", textLight);
 
             string dbFile = Path.Combine(baseDir, "data", "lotro.db");
-            if (File.Exists(dbFile) && AreDatabaseSourcesNewer(dbFile))
+            _ = Task.Run(() =>
             {
-                AppendLog("[NOTICE] Updated quest/NPC source files detected. Click 'Build Quest DB' to update your quest database.", amberWarn);
-            }
-            if (IsPluginUpdateAvailable())
-            {
-                AppendLog("[NOTICE] Updated LOTRO Lua Plugin detected. Click 'Install LOTRO Plugin' to update your in-game plugin.", amberWarn);
-            }
+                bool dbOutdated = File.Exists(dbFile) && AreDatabaseSourcesNewer(dbFile);
+                bool pluginOutdated = IsPluginUpdateAvailable();
+                if (dbOutdated || pluginOutdated)
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (dbOutdated)
+                            AppendLog("[NOTICE] Updated quest/NPC source files detected. Click 'Build Quest DB' to update your quest database.", amberWarn);
+                        if (pluginOutdated)
+                            AppendLog("[NOTICE] Updated LOTRO Lua Plugin detected. Click 'Install LOTRO Plugin' to update your in-game plugin.", amberWarn);
+                    });
+                }
+            });
 
             // Background update check after UI is loaded
             this.Loaded += async (s, e) =>
@@ -339,6 +340,7 @@ namespace LotroTtsGui
                 "cuda — GPU (NVIDIA / AMD)",
                 "cpu — CPU Only"
             });
+            cmbComputeMode.SelectionChanged += (s, e) => SaveConfig();
 
             // Slider: Volume
             var volPanel = new StackPanel();
@@ -363,11 +365,28 @@ namespace LotroTtsGui
                     int v = (int)sliderVolume.Value;
                     currentVolume = v;
                     lblVolumeTitle.Text = $"TTS Volume: {v}%";
-                    SaveConfig();
-                    int targetPid = (activeProcess != null && !activeProcess.HasExited) ? activeProcess.Id : -1;
-                    ThreadPool.QueueUserWorkItem(_ =>
+                    if (isLoadingConfig) return;
+
+                    try { volumeDebounceCts?.Cancel(); } catch (ObjectDisposedException) { }
+                    var cts = new CancellationTokenSource();
+                    volumeDebounceCts = cts;
+                    var token = cts.Token;
+
+                    _ = Task.Run(async () =>
                     {
-                        ProcessVolumeManager.SetProcessVolume(targetPid, v);
+                        try
+                        {
+                            await Task.Delay(120, token);
+                            if (token.IsCancellationRequested) return;
+                            Dispatcher.UIThread.Post(SaveConfig);
+                            int targetPid = (activeProcess != null && !activeProcess.HasExited) ? activeProcess.Id : -1;
+                            ProcessVolumeManager.SetProcessVolume(targetPid, v);
+                        }
+                        catch (OperationCanceledException) { }
+                        finally
+                        {
+                            cts.Dispose();
+                        }
                     });
                 }
             };
@@ -393,6 +412,7 @@ namespace LotroTtsGui
                 IsChecked = true,
                 Margin = new Thickness(0, 6, 0, 0)
             };
+            chkMiddleMouse.IsCheckedChanged += (s, e) => SaveConfig();
             Grid.SetRow(chkMiddleMouse, 1);
             settingsPanel.Children.Add(chkMiddleMouse);
 
@@ -528,7 +548,14 @@ namespace LotroTtsGui
             btnCopyLog.Click += async (s, e) =>
             {
                 var sb = new StringBuilder();
-                foreach (var m in logMessages) sb.AppendLine(m.Text);
+                if (logTextBlock.Inlines != null)
+                {
+                    foreach (var inline in logTextBlock.Inlines)
+                    {
+                        if (inline is Run r && !string.IsNullOrEmpty(r.Text))
+                            sb.Append(r.Text);
+                    }
+                }
                 if (Clipboard != null)
                 {
                     var dt = new DataTransfer();
@@ -549,7 +576,6 @@ namespace LotroTtsGui
             };
             btnClearLog.Click += (s, e) =>
             {
-                logMessages.Clear();
                 logTextBlock.Inlines?.Clear();
             };
 
@@ -648,11 +674,6 @@ namespace LotroTtsGui
             Dispatcher.UIThread.Post(() =>
             {
                 var brush = color ?? textLight;
-                logMessages.Add(new LogMessage { Text = line, Brush = brush });
-                if (logMessages.Count > 3000)
-                {
-                    for (int i = 0; i < 200; i++) logMessages.RemoveAt(0);
-                }
                 if (logTextBlock.Inlines != null)
                 {
                     logTextBlock.Inlines.Add(new Run { Text = line + "\n", Foreground = brush });
@@ -732,6 +753,9 @@ namespace LotroTtsGui
 
                     if (root.TryGetProperty("tts_lang", out var t))
                         SelectByPrefix(cmbTtsLang, t.GetString()?.ToLowerInvariant() ?? "de");
+
+                    if (root.TryGetProperty("compute_mode", out var cm))
+                        SelectByPrefix(cmbComputeMode, cm.GetString()?.ToLowerInvariant() ?? "auto");
 
                     if (root.TryGetProperty("volume", out var v) && v.TryGetInt32(out int vol))
                     {
@@ -866,6 +890,7 @@ namespace LotroTtsGui
             {
                 string gameLang = GetSelectedCode(cmbClientLang, "de");
                 string ttsLang = GetSelectedCode(cmbTtsLang, "de");
+                string computeMode = GetSelectedCode(cmbComputeMode, "auto");
                 int volume = (int)sliderVolume.Value;
                 bool middleMouse = chkMiddleMouse?.IsChecked ?? true;
                 bool narratorMode = chkNarratorMode?.IsChecked ?? false;
@@ -891,6 +916,7 @@ namespace LotroTtsGui
                     version = AppVersion,
                     game_lang = gameLang,
                     tts_lang = ttsLang,
+                    compute_mode = computeMode,
                     volume = volume,
                     stop_hotkey = stopHotkey,
                     middle_mouse = middleMouse,
@@ -1085,16 +1111,23 @@ namespace LotroTtsGui
                 if (IsDatabaseReady())
                 {
                     long mb = new FileInfo(dbFile).Length / (1024 * 1024);
-                    if (AreDatabaseSourcesNewer(dbFile))
+                    lblDbStatus.Text = $"Ready ({mb} MB / 190 Voices)";
+                    lblDbStatus.Foreground = greenOk;
+
+                    _ = Task.Run(() =>
                     {
-                        lblDbStatus.Text = "Update Available (Click Build DB)";
-                        lblDbStatus.Foreground = amberWarn;
-                    }
-                    else
-                    {
-                        lblDbStatus.Text = $"Ready ({mb} MB / 190 Voices)";
-                        lblDbStatus.Foreground = greenOk;
-                    }
+                        if (AreDatabaseSourcesNewer(dbFile))
+                        {
+                            Dispatcher.UIThread.Post(() =>
+                            {
+                                if (IsDatabaseReady())
+                                {
+                                    lblDbStatus.Text = "Update Available (Click Build DB)";
+                                    lblDbStatus.Foreground = amberWarn;
+                                }
+                            });
+                        }
+                    });
                 }
                 else
                 {
@@ -1136,6 +1169,8 @@ namespace LotroTtsGui
                 cmbTtsLang.IsEnabled = enabled;
                 cmbComputeMode.IsEnabled = enabled;
                 chkMiddleMouse.IsEnabled = enabled;
+                chkNarratorMode.IsEnabled = enabled;
+                cmbNarratorVoice.IsEnabled = enabled && (chkNarratorMode.IsChecked ?? false);
             });
         }
 
@@ -1167,6 +1202,9 @@ namespace LotroTtsGui
                     try { File.Delete(legacyPluginDescriptor); } catch { }
                 }
 
+                // Repair any TTS_WindowPos.plugindata files corrupted by DE/FR Turbine.PluginData.Save decimal commas
+                SanitizeLegacyPluginDataFiles(lotroDocs);
+
                 AppendLog($"[OK] LOTRO Lua Plugin installed to: {targetTtsDir}", greenOk);
                 RefreshSystemStatus();
             }
@@ -1174,6 +1212,51 @@ namespace LotroTtsGui
             {
                 AppendLog($"[ERROR] Could not install LOTRO Lua Plugin: {ex.Message}", redStop);
             }
+        }
+
+        private void SanitizeLegacyPluginDataFiles(string lotroDocs)
+        {
+            try
+            {
+                string pluginDataDir = Path.Combine(lotroDocs, "PluginData");
+                if (!Directory.Exists(pluginDataDir)) return;
+
+                foreach (string file in Directory.EnumerateFiles(pluginDataDir, "TTS_WindowPos.plugindata", SearchOption.AllDirectories))
+                {
+                    try
+                    {
+                        string raw = File.ReadAllText(file, Encoding.UTF8);
+                        bool hasCommaNumbers = Regex.IsMatch(raw, @"\[\s*-?\d+,\d+\s*\]") || Regex.IsMatch(raw, @"=\s*-?\d+,\d+");
+                        bool hasUnquotedNumbers = Regex.IsMatch(raw, @"\[\""(?:left|top|width)\""\]\s*=\s*-?\d");
+                        if (!hasCommaNumbers && !hasUnquotedNumbers) continue;
+
+                        var mLeft = Regex.Match(raw, @"\[\""left\""\]\s*=\s*\""?(-?\d+)");
+                        var mTop = Regex.Match(raw, @"\[\""top\""\]\s*=\s*\""?(-?\d+)");
+                        var mWidth = Regex.Match(raw, @"\[\""width\""\]\s*=\s*\""?(-?\d+)");
+                        var mGender = Regex.Match(raw, @"\[\""gender\""\]\s*=\s*\""([MF])\""");
+
+                        if (mLeft.Success || mTop.Success || mWidth.Success)
+                        {
+                            var lines = new List<string>();
+                            if (mLeft.Success) lines.Add($"\t[\"left\"] = \"{mLeft.Groups[1].Value}\"");
+                            if (mTop.Success) lines.Add($"\t[\"top\"] = \"{mTop.Groups[1].Value}\"");
+                            if (mWidth.Success) lines.Add($"\t[\"width\"] = \"{mWidth.Groups[1].Value}\"");
+                            if (mGender.Success) lines.Add($"\t[\"gender\"] = \"{mGender.Groups[1].Value}\"");
+
+                            string repaired = "return\n{\n" + string.Join(",\n", lines) + "\n}\n";
+                            File.WriteAllText(file, repaired, new UTF8Encoding(false));
+                            AppendLog($"[FIX] Repaired legacy TTS_WindowPos.plugindata: {file}", amberWarn);
+                        }
+                        else
+                        {
+                            File.Delete(file);
+                            AppendLog($"[FIX] Removed corrupted TTS_WindowPos.plugindata: {file}", amberWarn);
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
         }
 
         private async void OnStartStopClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -1753,15 +1836,17 @@ namespace LotroTtsGui
             }
 
             string ttsLang = GetSelectedCode(cmbTtsLang, "de");
+            string mode = GetSelectedCode(cmbComputeMode, "auto");
             int volume = (int)sliderVolume.Value;
             string sampleText = "Die Welt ist im Wandel. Ich spüre es im Wasser, ich spüre es in der Erde.";
             if (ttsLang == "en") sampleText = "The world is changed. I feel it in the water, I feel it in the earth.";
             else if (ttsLang == "fr") sampleText = "Le monde a changé. Je le sens dans l'eau, je le sens dans la terre.";
             else if (ttsLang == "es") sampleText = "El mundo ha cambiado. Lo siento en el agua, lo siento en la tierra.";
             else if (ttsLang == "it") sampleText = "Il mondo è cambiato. Lo sento nell'acqua, lo sento nella terra.";
+            else if (ttsLang == "nl") sampleText = "De wereld is veranderd. Ik voel het in het water, ik voel het in de aarde.";
 
-            string args = $"-u \"scripts/tts_speaker.py\" --npc \"Galadriel\" --lang {ttsLang} --volume {volume} --text \"{sampleText}\"";
-            RunBackgroundToolTask($"Testing TTS Voice Output (Galadriel / {ttsLang.ToUpperInvariant()} / Vol: {volume}%)", args);
+            string args = $"-u \"scripts/tts_speaker.py\" --npc \"Galadriel\" --lang {ttsLang} --device {mode} --volume {volume} --text \"{sampleText}\"";
+            RunBackgroundToolTask($"Testing TTS Voice Output (Galadriel / {ttsLang.ToUpperInvariant()} / Mode: {mode.ToUpperInvariant()} / Vol: {volume}%)", args);
         }
 
         private async void OnUpdateBadgeClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

@@ -114,7 +114,7 @@ namespace LotroTtsGui
             var cardAmd = CreateOptionCard(
                 amdTitle,
                 redAmd,
-                "For modern Radeon RX 7000 / 9000 Series (RDNA 3/4) & Ryzen 700M / 800M APUs (780M, 890M).",
+                "For modern Radeon RX 7000 / 9000 Series (RDNA 3/4) & Ryzen 700M / 800M APUs (780M, 890M).\nUnsupported APUs/iGPUs automatically fall back to CPU at runtime if ROCm kernels are missing.",
                 "Important: Older AMD GPUs (Radeon RX 5000 / 6000 Series) are not supported by Windows ROCm.\nPlease select 'CPU Mode' instead!",
                 () => SelectAndClose("amd")
             );
@@ -242,6 +242,73 @@ namespace LotroTtsGui
                     }
                 }
                 catch { }
+            }
+
+            // 3. Fallback on Linux: lspci / sysfs DRM vendor IDs
+            if (string.IsNullOrEmpty(gpuName) && OperatingSystem.IsLinux())
+            {
+                try
+                {
+                    var psi = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "lspci",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+                    using var p = System.Diagnostics.Process.Start(psi);
+                    if (p != null)
+                    {
+                        string output = p.StandardOutput.ReadToEnd();
+                        p.WaitForExit(1500);
+                        foreach (var raw in output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            string line = raw.Trim();
+                            if (!System.Text.RegularExpressions.Regex.IsMatch(line, @"\b(VGA|3D|Display)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                                continue;
+                            if (System.Text.RegularExpressions.Regex.IsMatch(line, @"NVIDIA|GeForce|RTX|GTX", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                            {
+                                gpuName = line;
+                                isNvidia = true;
+                                isBlackwell = System.Text.RegularExpressions.Regex.IsMatch(line, @"RTX\s*50\d\d", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                break;
+                            }
+                            else if (System.Text.RegularExpressions.Regex.IsMatch(line, @"AMD|Radeon|Advanced Micro Devices", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                            {
+                                gpuName = line;
+                                isAmd = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                if (string.IsNullOrEmpty(gpuName))
+                {
+                    try
+                    {
+                        foreach (string drmCard in System.IO.Directory.GetDirectories("/sys/class/drm", "card*"))
+                        {
+                            string vendorPath = System.IO.Path.Combine(drmCard, "device", "vendor");
+                            if (!System.IO.File.Exists(vendorPath)) continue;
+                            string vendor = System.IO.File.ReadAllText(vendorPath).Trim().ToLowerInvariant();
+                            if (vendor == "0x1002")
+                            {
+                                gpuName = "AMD Radeon GPU (DRM)";
+                                isAmd = true;
+                                break;
+                            }
+                            if (vendor == "0x10de")
+                            {
+                                gpuName = "NVIDIA GPU (DRM)";
+                                isNvidia = true;
+                                break;
+                            }
+                        }
+                    }
+                    catch { }
+                }
             }
 
             return (gpuName, computeCap, isBlackwell, isNvidia, isAmd);

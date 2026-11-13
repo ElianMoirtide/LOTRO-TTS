@@ -337,6 +337,7 @@ def install_packages(mode: str):
         "openai-whisper",
         "soundfile",
         "sounddevice",
+        "imageio-ffmpeg",
         "scipy",
         "librosa",
         "transformers",
@@ -381,7 +382,55 @@ def install_packages(mode: str):
         except Exception as e:
             print(f"Notice: ONNX Runtime GPU installation notice: {e}", flush=True)
 
-    # Verification
+    # Provision portable ffmpeg binary into python environment so pydub/audio tools find it without system install
+    provision_code = (
+        "import shutil, sys; from pathlib import Path; "
+        "import imageio_ffmpeg; "
+        "src = Path(imageio_ffmpeg.get_ffmpeg_exe()); "
+        "py_dir = Path(sys.executable).resolve().parent; "
+        "dst_dir = (py_dir / 'Scripts') if sys.platform.startswith('win') else py_dir; "
+        "dst_dir.mkdir(parents=True, exist_ok=True); "
+        "dst = dst_dir / ('ffmpeg.exe' if sys.platform.startswith('win') else 'ffmpeg'); "
+        "shutil.copy2(src, dst) if (src.is_file() and not dst.exists()) else None; "
+        "(dst.chmod(0o755) if (not sys.platform.startswith('win') and dst.exists()) else None); "
+        "print(f'Portable FFmpeg ready: {dst}')"
+    )
+    try:
+        subprocess.run([str(PYTHON_EXE), "-c", provision_code], check=False)
+    except Exception as e:
+        print(f"Notice: Portable FFmpeg provisioning notice: {e}", flush=True)
+
+    # Linux host system library diagnostics (portaudio / wmctrl / pactl)
+    if sys.platform.startswith("linux"):
+        import ctypes.util
+        import shutil
+        if not ctypes.util.find_library("portaudio"):
+            print(
+                "\n[WARNING] System library 'libportaudio.so.2' (PortAudio) was not found!\n"
+                "  'sounddevice' real-time streaming needs PortAudio on Linux (fallback CLI players will be used otherwise).\n"
+                "  Recommended install:\n"
+                "    - Ubuntu/Debian/Mint: sudo apt install libportaudio2\n"
+                "    - Arch/SteamOS:       sudo pacman -S portaudio\n"
+                "    - Fedora:             sudo dnf install portaudio",
+                flush=True,
+            )
+        if not shutil.which("wmctrl") and not shutil.which("xdotool"):
+            print(
+                "[NOTICE] Neither 'wmctrl' nor 'xdotool' found on PATH (needed for LOTRO window detection on Linux).\n"
+                "  Recommended: sudo apt install wmctrl  (or xdotool)",
+                flush=True,
+            )
+        if not shutil.which("pactl"):
+            print(
+                "[NOTICE] 'pactl' not found on PATH (optional, needed for live slider volume adjustments on PipeWire/PulseAudio).",
+                flush=True,
+            )
+
+    # Verification with portable ffmpeg bin/Scripts prepended to PATH
+    verify_env = os.environ.copy()
+    ff_bin_dir = str((WIN64_DIR / "Scripts") if not sys.platform.startswith("linux") else (LINUX64_DIR / "bin"))
+    verify_env["PATH"] = ff_bin_dir + os.pathsep + verify_env.get("PATH", "")
+
     verify_code = (
         "import torch, soundfile, omnivoice, whisper\n"
         "is_rocm = hasattr(torch.version, 'hip') and torch.version.hip is not None\n"
@@ -407,7 +456,7 @@ def install_packages(mode: str):
     print("\n========================================================", flush=True)
     print("Verifying Installation:", flush=True)
     print("========================================================", flush=True)
-    subprocess.run(verify_cmd, check=True)
+    subprocess.run(verify_cmd, check=True, env=verify_env)
 
 
 def main():

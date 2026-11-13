@@ -385,7 +385,7 @@ if exist ""%~3\python\win64"" (
 
 :: 2. Robocopy files into base directory (excluding runtime, user cache, user db, custom npc overrides, logs)
 if exist ""%~2\src\npc\npc_races_custom.json"" copy /y ""%~2\src\npc\npc_races_custom.json"" ""%~2\_custom_npc.tmp"" >nul
-robocopy ""%~3"" ""%~2"" /E /XD python cache logs .git scratch _update_temp /XF config.json lotro.db npc_races_custom.json *.log /R:5 /W:1 >nul
+robocopy ""%~3"" ""%~2"" /E /XD python cache logs .git scratch _update_temp /XF config.json lotro.db translation_cache.db *.db-wal *.db-shm *.db-journal npc_races_custom.json *.log /R:5 /W:1 >nul
 if exist ""%~2\_custom_npc.tmp"" move /y ""%~2\_custom_npc.tmp"" ""%~2\src\npc\npc_races_custom.json"" >nul
 
 :: If config.json did not exist in target, copy default
@@ -442,13 +442,28 @@ if [ -d ""$PAYLOAD_DIR/python/linux64"" ]; then
     fi
 fi
 
-# 2. Copy application files excluding python, cache, config.json, lotro.db, .git, logs, npc_races_custom.json
+# 2. Copy application files while preserving user config, DBs, cache, logs, and custom npc overrides
 if [ -f ""$BASE_DIR/src/npc/npc_races_custom.json"" ]; then
     cp -f ""$BASE_DIR/src/npc/npc_races_custom.json"" ""$BASE_DIR/_custom_npc.tmp""
 fi
-find ""$PAYLOAD_DIR"" -mindepth 1 -maxdepth 1 ! -name 'python' ! -name 'cache' ! -name 'config.json' ! -name 'lotro.db' ! -name '.git' ! -name 'logs' -exec cp -rf {{}} ""$BASE_DIR""/ \;
+if [ -f ""$BASE_DIR/data/lotro.db"" ]; then
+    cp -f ""$BASE_DIR/data/lotro.db"" ""$BASE_DIR/_lotro_db.tmp""
+fi
+if [ -f ""$BASE_DIR/data/translation_cache.db"" ]; then
+    cp -f ""$BASE_DIR/data/translation_cache.db"" ""$BASE_DIR/_translation_cache.tmp""
+fi
+find ""$PAYLOAD_DIR"" -mindepth 1 -maxdepth 1 ! -name 'python' ! -name 'cache' ! -name 'config.json' ! -name 'lotro.db' ! -name 'translation_cache.db' ! -name '.git' ! -name 'logs' -exec cp -rf {{}} ""$BASE_DIR""/ \;
 if [ -f ""$BASE_DIR/_custom_npc.tmp"" ]; then
+    mkdir -p ""$BASE_DIR/src/npc""
     mv -f ""$BASE_DIR/_custom_npc.tmp"" ""$BASE_DIR/src/npc/npc_races_custom.json""
+fi
+if [ -f ""$BASE_DIR/_lotro_db.tmp"" ]; then
+    mkdir -p ""$BASE_DIR/data""
+    mv -f ""$BASE_DIR/_lotro_db.tmp"" ""$BASE_DIR/data/lotro.db""
+fi
+if [ -f ""$BASE_DIR/_translation_cache.tmp"" ]; then
+    mkdir -p ""$BASE_DIR/data""
+    mv -f ""$BASE_DIR/_translation_cache.tmp"" ""$BASE_DIR/data/translation_cache.db""
 fi
 
 chmod +x ""$BASE_DIR/LOTRO-TTS"" 2>/dev/null

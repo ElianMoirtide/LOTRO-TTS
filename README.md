@@ -2,7 +2,7 @@
 
 A modern, local, and fully offline Text-to-Speech (TTS) system for **The Lord of the Rings Online** (*LOTRO*).
 
-LOTRO-TTS breathes life into quest dialogues and instance scenarios using authentic voice models tailored to each NPC's race, lineage, and gender (Elves, Dwarves, Hobbits, Men, Orcs, Ents, etc.) — supporting both **English** and **German** game clients. (and maybe French if requested lol)
+LOTRO-TTS breathes life into quest dialogues and instance scenarios using authentic voice models tailored to each NPC's race, lineage, and gender (Elves, Dwarves, Hobbits, Men, Orcs, Ents, etc.) — supporting **English, German, and French** game clients with spoken TTS output in **English, German, French, Spanish, Italian, and Dutch**.
 
 ---
 
@@ -24,7 +24,7 @@ WIP:
 - **100% Local & Portable**: No cloud subscriptions, no external APIs, and no telemetry. All inference runs directly on your local hardware inside the project folder.
 - **All-in-One Cross-Platform GUI (`LOTRO-TTS.exe` / `LOTRO-TTS`)**:
   - Native, modern dark-themed GUI built with **Avalonia UI (.NET 10 LTS)** — available as a single-file, self-contained executable on both **Windows** and **Linux**.
-  - One-click first-time setup (installs PyTorch with CUDA 12.6, ROCm, or CPU, OmniVoice, RapidOCR, and dependencies into the embedded Python environment).
+  - One-click first-time setup (installs PyTorch with CUDA 12.6/13.0, ROCm, or CPU, OmniVoice, RapidOCR, portable `ffmpeg`, and dependencies into the embedded Python environment).
   - Automatically installs the in-game Lua plugin (`Plugins\TTS`) into your `The Lord of the Rings Online` user documents folder (supporting Windows Registry, Steam Proton, Lutris, and custom wine prefixes).
   - Automatically builds the local SQLite database (`data/lotro.db`) and pre-warms OCR and TTS GPU kernels on startup.
   - **Integrated Auto-Updater**: Checks for updates on startup, supports one-click automated updates with rollback backups, and includes an optional toggle for **Pre-Releases / Beta Versions**.
@@ -55,12 +55,12 @@ WIP:
 ## 🛠️ Requirements & System Compatibility
 
 - **Hardware Acceleration (Pick one)**:
-  - **NVIDIA GPU (Recommended)**: GeForce RTX (2000 / 3000 / 4000 / 5000 Series, including Blackwell) or GTX 1600 series with CUDA 12.6.
-  - **AMD GPU**: Modern Radeon RX 7000 / 9000 Series (RDNA 3/4) & Ryzen 700M / 800M APUs with ROCm.
+  - **NVIDIA GPU (Recommended)**: GeForce RTX (2000 / 3000 / 4000 / 5000 Series, including Blackwell with CUDA 12.6 / 13.0) or GTX 1600 series.
+  - **AMD GPU**: Modern Radeon RX 7000 / 9000 Series (RDNA 3/4) & compatible Ryzen 700M / 800M APUs with ROCm (unsupported iGPUs fall back cleanly to CPU mode).
   - **CPU Mode (Universal Compatibility)**: Highly optimized with multi-threading and AVX2/AVX-512 instructions (runs on any Intel Core, AMD Ryzen, or handhelds like Steam Deck).
 - **Operating Systems**:
   - **Windows 10 / 11 (64-bit)**
-  - **Linux (64-bit / SteamOS / Steam Deck)**: Compatible with Proton, Lutris, and native wine prefixes. Recommended tools: `pipewire-pulse` / `pulseaudio-utils` (for process volume control) and `wmctrl` or `xdotool` (for window detection).
+  - **Linux (64-bit / SteamOS / Steam Deck)**: Compatible with Proton, Lutris, and native Wine prefixes. Recommended packages: `libportaudio2` / `portaudio` (for audio output), `pipewire-pulse` / `pulseaudio-utils` (`pactl` for process volume control & `pw-cat`/`paplay`), and `wmctrl` or `xdotool` (for window detection).
 - **The Lord of the Rings Online**: Standard game installation (English, German, or French game client).
 
 ---
@@ -129,7 +129,7 @@ You can easily override or define metadata for any NPC by editing **`src/npc/npc
   * `"race"`: `Man`, `Elf`, `Dwarf`, `Hobbit`, `Orc`, `Ent`, `Troll`, `Dead`, etc.
   * `"gender"`: `Male` or `Female`.
   * `"voice_id"`: (Optional) Directly assign any specific voice profile ID from `data/voices/` (e.g. `hobbit_female_9`, `man_male_1`, `elf_female_3`).
-* **Applying Changes**: Click **`Tools` → `Rebuild Database`** in the GUI (or run `scripts/generate_db.py`). The generator immediately applies your custom definitions when compiling `data/lotro.db`.
+* **Applying Changes**: Click **`Build Quest DB`** in the GUI (or run `scripts/generate_db.py`). The generator immediately applies your custom definitions when compiling `data/lotro.db`.
 * **Safe Across Updates**: `src/npc/npc_races_custom.json` is user-managed and will never be overwritten or erased when updating LOTRO-TTS.
 
 ---
@@ -200,9 +200,13 @@ python\win64\python.exe scripts\lotro_service.py [OPTIONS]
 | :--- | :--- | :--- |
 | `--client-lang` | `config.json` | LOTRO game client language for OCR: `de`, `en`, or `fr`. |
 | `--tts-lang` | `config.json` | Spoken TTS voice output language: `de`, `en`, `fr`, `es`, `it`, or `nl`. |
-| `--mode` | `auto` | Compute mode: `auto` (auto-detects CUDA/RTX GPU), `cuda`, or `cpu`. |
-| `--docs-dir` | *Auto* | Path to LOTRO user documents directory (auto-detected via Windows Registry). |
+| `--mode` | `auto` | Compute mode: `auto` (auto-detects GPU), `cuda`, or `cpu`. |
+| `--docs-dir` | *Auto* | Path to LOTRO user documents directory (auto-detected via Registry / Steam / Wine). |
 | `--no-mouse` | *disabled* | Disables the global middle mouse button trigger (in-game button only). |
+| `--narrator-mode` | *disabled* | Replaces NPC race/gender voices with a single unified narrator voice. |
+| `--narrator-voice` | `man_male_1` | Voice ID from `data/voices` to use when Narrator Mode is active. |
+| `--stop-hotkey` | `pause` | Global hotkey to force-stop active dialogue playback (`esc` and mouse back button also cancel). |
+| `--volume` | `100` | TTS speech playback volume percentage (`0`-`100`). |
 | `--config` | *disabled* | Forces interactive language configuration in console mode. |
 
 ---

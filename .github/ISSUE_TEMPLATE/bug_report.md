@@ -26,7 +26,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Environment(please complete the following information):**
  - OS: [e.g. Windows 11 / Linux]
- - LOTRO-TTS Version [e.g. v2.0-rc3]
+ - LOTRO-TTS Version [e.g. v2.0-rc4]
  - LOTRO Client Language
  - TTS Language
  - GPU (NVIDIA/AMD) or CPU

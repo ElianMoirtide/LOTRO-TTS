@@ -47,21 +47,25 @@ echo "Using Python: $LINUX_PY ($("$LINUX_PY" --version))"
 echo ""
 
 echo "Please select the compute mode for AI voices:"
-echo "  [1] NVIDIA GPU (Recommended - GeForce RTX / GTX with CUDA)"
-echo "  [2] AMD GPU (ROCm 6.x - Radeon RX 7000/9000 & newer RDNA GPUs)"
-echo "  [3] CPU (CPU-only / Universal compatibility for all Linux PCs & Steam Deck)"
+echo "  [1] Auto-Detect (Recommended - NVIDIA CUDA / AMD ROCm / CPU)"
+echo "  [2] NVIDIA GPU (GeForce RTX / GTX with CUDA)"
+echo "  [3] AMD GPU (ROCm - Radeon RX 7000/9000 & newer RDNA GPUs)"
+echo "  [4] CPU (CPU-only / Universal compatibility for all Linux PCs & Steam Deck)"
 echo ""
 
-read -rp "Your choice (1, 2 or 3, Default: 1): " CHOICE
+read -rp "Your choice (1, 2, 3 or 4, Default: 1): " CHOICE
 case "$CHOICE" in
     2)
-        MODE="amd"
+        MODE="nvidia"
         ;;
     3)
+        MODE="amd"
+        ;;
+    4)
         MODE="cpu"
         ;;
     *)
-        MODE="nvidia"
+        MODE="auto"
         ;;
 esac
 

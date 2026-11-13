@@ -7,6 +7,8 @@ Clones speech dynamically from authentic LOTRO reference audio files in voices/{
 import os
 import sys
 import json
+import hashlib
+import shutil
 import sqlite3
 import argparse
 import random
@@ -25,8 +27,39 @@ warnings.filterwarnings("ignore", message=".*unauthenticated requests.*")
 warnings.filterwarnings("ignore", message=".*HF_TOKEN.*")
 warnings.filterwarnings("ignore", module="huggingface_hub.*")
 
+
+def _ensure_ffmpeg_in_path():
+    """Ensures pydub/torchaudio find a portable ffmpeg binary (suppresses RuntimeWarning)."""
+    exe_name = "ffmpeg.exe" if sys.platform.startswith("win") else "ffmpeg"
+    py_dir = Path(sys.executable).resolve().parent
+    candidate_dirs = [py_dir / "Scripts", py_dir]
+    for cdir in candidate_dirs:
+        if (cdir / exe_name).is_file():
+            os.environ["PATH"] = str(cdir) + os.pathsep + os.environ.get("PATH", "")
+            return
+    if shutil.which("ffmpeg") or shutil.which("avconv"):
+        return
+    try:
+        import imageio_ffmpeg
+        src_ffmpeg = Path(imageio_ffmpeg.get_ffmpeg_exe())
+        if src_ffmpeg.is_file():
+            target_dir = py_dir / "Scripts" if sys.platform.startswith("win") else py_dir
+            target_dir.mkdir(parents=True, exist_ok=True)
+            dst_ffmpeg = target_dir / exe_name
+            if not dst_ffmpeg.exists():
+                try:
+                    shutil.copy2(src_ffmpeg, dst_ffmpeg)
+                except Exception:
+                    target_dir = src_ffmpeg.parent
+            os.environ["PATH"] = str(target_dir) + os.pathsep + os.environ.get("PATH", "")
+    except Exception:
+        pass
+
+
+_ensure_ffmpeg_in_path()
+
 try:
-    from omnivoice import OmniVoice
+    from omnivoice import OmniVoice, VoiceClonePrompt
 except ImportError:
     print("Error: omnivoice is not installed. Please install it in the python environment.")
     sys.exit(1)
@@ -154,6 +187,7 @@ class LotroSpeaker:
         narrator_mode: bool = False,
         narrator_voice: str = "man_male_1",
         volume: int = 80,
+        active_lang: str | None = None,
     ):
         self.base_dir = Path(__file__).resolve().parent.parent
         self.voices_dir = self.base_dir / voices_dir
@@ -161,8 +195,10 @@ class LotroSpeaker:
         self.narrator_mode = bool(narrator_mode)
         self.narrator_voice = str(narrator_voice).strip() if narrator_voice else "man_male_1"
         self.volume = max(0, min(100, int(volume)))
+        self.active_lang = active_lang.lower().strip() if active_lang else None
         self._cached_vol_scale = max(0.0, min(1.0, float(self.volume) / 100.0))
         self._config_vol_mtime = None
+        self._db_local = threading.local()
 
         self.device = resolve_compute_device(device)
         print(f"Initializing LOTRO-TTS Speaker Engine on [{self.device}]...")
@@ -229,6 +265,57 @@ class LotroSpeaker:
         # and pre-cache default narrator voice prompts so quest dialogues start with 0ms prompt latency.
         self._warmup_engine()
 
+    def _get_target_voice_libraries(self) -> list[str]:
+        """Determines which voice libraries to pre-warm based on active_lang."""
+        if self.active_lang in ("de", "en", "fr"):
+            return [self.active_lang]
+        if self.active_lang in ("es", "it", "nl"):
+            return ["en"]
+        return ["de", "en", "fr"]
+
+    def _get_db_conn(self) -> sqlite3.Connection | None:
+        """Returns a persistent thread-local read-only SQLite connection with mmap enabled."""
+        if not self.db_path.exists():
+            return None
+        try:
+            st = self.db_path.stat()
+            sig = (st.st_mtime_ns, st.st_size)
+        except OSError:
+            return None
+
+        conn = getattr(self._db_local, "conn", None)
+        conn_sig = getattr(self._db_local, "sig", None)
+        if conn is not None and conn_sig == sig:
+            return conn
+
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            self._db_local.conn = None
+
+        try:
+            conn = sqlite3.connect(f"{self.db_path.resolve().as_uri()}?mode=ro", uri=True, check_same_thread=False)
+            conn.execute("PRAGMA mmap_size=268435456;")
+        except Exception:
+            conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
+        self._db_local.conn = conn
+        self._db_local.sig = sig
+        return conn
+
+    def close(self):
+        """Closes warm audio player and cached SQLite connection."""
+        if hasattr(self, "_warm_player") and self._warm_player:
+            self._warm_player.close()
+        conn = getattr(self._db_local, "conn", None)
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            self._db_local.conn = None
+
     def _warmup_engine(self):
         """Performs a silent mini-generation to pre-warm CUDA kernels and pre-caches narrator voice prompts."""
         try:
@@ -239,9 +326,11 @@ class LotroSpeaker:
                 num_step=16,
                 postprocess_output=False
             )
-            # Pre-cache narrator voice prompts so narrator/object quests have 0ms prompt encoding delay
-            for l, narr_id in [("de", "man_male_1"), ("en", "man_male_1"), ("fr", "man_male_15")]:
-                if l in self.indices and narr_id in self.by_voice_id.get(l, {}):
+            # Pre-cache narrator voice prompts for active language(s) so dialogues start with 0ms prompt delay
+            narrator_defaults = [("de", "man_male_1"), ("en", "man_male_1"), ("fr", "man_male_15")]
+            active_libs = set(self._get_target_voice_libraries())
+            for l, narr_id in narrator_defaults:
+                if l in active_libs and l in self.indices and narr_id in self.by_voice_id.get(l, {}):
                     cand = self.by_voice_id[l][narr_id]
                     p_path = self.voices_dir / cand["audio_file"]
                     if p_path.exists():
@@ -255,8 +344,8 @@ class LotroSpeaker:
 
     def _background_precache_worker(self):
         """
-        Background daemon thread that pre-computes VoiceClonePrompt tensors for
-        frequently used voices across native libraries (de, en, fr).
+        Background daemon thread that pre-computes (or loads from disk cache) VoiceClonePrompt tensors
+        for frequently used voices in the active language library.
         Eliminates the ~375ms prompt extraction delay upon first encountering an NPC.
         Yields immediately if user triggers speech synthesis.
         """
@@ -264,11 +353,12 @@ class LotroSpeaker:
 
         time.sleep(1.0)
         priority_prefixes = (
-            "man_male_", "man_female_", "dwarf_male_", "elf_male_",
-            "elf_female_", "hobbit_male_", "hobbit_female_"
+            "man_male_", "man_female_", "dwarf_male_", "dwarf_female_",
+            "elf_male_", "elf_female_", "hobbit_male_", "hobbit_female_",
+            "orc_", "dead_"
         )
 
-        for lang in ["de", "en", "fr"]:
+        for lang in self._get_target_voice_libraries():
             items = self.indices.get(lang, [])
             for it in items:
                 v_id = it.get("voice_id", "")
@@ -276,8 +366,8 @@ class LotroSpeaker:
                     num = int(v_id.rsplit("_", 1)[-1])
                 except (ValueError, IndexError):
                     num = 99
-                # Pre-cache top 5 voices per category
-                if num > 5:
+                # Pre-cache top 10 voices per category (instant on repeat runs via disk cache)
+                if num > 10:
                     continue
                 if not any(v_id.startswith(p) for p in priority_prefixes):
                     continue
@@ -299,17 +389,10 @@ class LotroSpeaker:
                     time.sleep(0.5)
 
                 try:
-                    info = sf.info(str(audio_path))
-                    self._ref_duration_cache[cache_key] = float(info.duration)
-                    prompt = self.model.create_voice_clone_prompt(
-                        ref_audio=str(audio_path),
-                        ref_text=it.get("text", ""),
-                        preprocess_prompt=False,
-                    )
-                    self._prompt_cache[cache_key] = prompt
+                    self._get_voice_prompt_and_duration(v_id, ref_l, audio_path, it.get("text", ""))
                 except Exception:
                     pass
-                time.sleep(0.05)
+                time.sleep(0.02)
 
     def _get_custom_npc_overrides(self) -> dict:
         """Loads or reloads custom NPC overrides from src/npc/npc_races_custom.json if modified."""
@@ -379,8 +462,8 @@ class LotroSpeaker:
         )
 
         row = None
-        if self.db_path.exists():
-            conn = sqlite3.connect(str(self.db_path))
+        conn = self._get_db_conn()
+        if conn is not None:
             c = conn.cursor()
             if isinstance(npc_name_or_id, int) or (isinstance(npc_name_or_id, str) and npc_name_or_id.isdigit()):
                 c.execute("SELECT name_en, race, gender, voice_id FROM NPCs WHERE id = ?", (int(npc_name_or_id),))
@@ -389,12 +472,13 @@ class LotroSpeaker:
                 name_query = raw_key
                 c.execute(
                     "SELECT name_en, race, gender, voice_id FROM NPCs "
-                    "WHERE name_en = ? OR name_de = ? OR name_fr = ? OR name_es = ? "
+                    "WHERE LOWER(name_en) = LOWER(?) OR LOWER(name_de) = LOWER(?) "
+                    "OR LOWER(name_fr) = LOWER(?) OR LOWER(name_es) = LOWER(?) "
                     "ORDER BY CASE WHEN race IS NOT NULL AND length(race) > 0 THEN 0 ELSE 1 END, id ASC LIMIT 1",
                     (name_query, name_query, name_query, name_query)
                 )
                 row = c.fetchone()
-                if not row:
+                if not row and len(name_query) >= 4:
                     c.execute(
                         "SELECT name_en, race, gender, voice_id FROM NPCs "
                         "WHERE name_en LIKE ? OR name_de LIKE ? OR name_fr LIKE ? OR name_es LIKE ? "
@@ -402,7 +486,6 @@ class LotroSpeaker:
                         (f"%{name_query}%", f"%{name_query}%", f"%{name_query}%", f"%{name_query}%")
                     )
                     row = c.fetchone()
-            conn.close()
 
         if row:
             db_name, db_race, db_gender, db_voice_id = row
@@ -521,19 +604,41 @@ class LotroSpeaker:
 
     def _get_voice_prompt_and_duration(self, voice_id, ref_lang, ref_audio_path, ref_text):
         """
-        Builds and caches the VoiceClonePrompt with preprocess_prompt=False so
-        OmniVoice's aggressive silence stripper does not shrink reference duration
-        or clip reference phonemes.
+        Builds and caches (RAM + persistent disk cache) the VoiceClonePrompt with
+        preprocess_prompt=False so OmniVoice's silence stripper does not shrink reference
+        duration or clip reference phonemes.
         """
         cache_key = (ref_lang, voice_id, str(ref_audio_path), ref_text)
         if cache_key not in self._prompt_cache:
             info = sf.info(str(ref_audio_path))
             self._ref_duration_cache[cache_key] = float(info.duration)
-            prompt = self.model.create_voice_clone_prompt(
-                ref_audio=str(ref_audio_path),
-                ref_text=ref_text,
-                preprocess_prompt=False
-            )
+
+            prompt_dir = self.base_dir / "cache" / "prompts"
+            ref_mtime = int(ref_audio_path.stat().st_mtime) if ref_audio_path.exists() else 0
+            text_sig = hashlib.md5((ref_text or "").encode("utf-8")).hexdigest()[:8]
+            prompt_file = prompt_dir / f"{SPEAKER_ENGINE_VERSION}_{ref_lang}_{voice_id}_{ref_mtime}_{text_sig}.pt"
+
+            prompt = None
+            if prompt_file.exists():
+                try:
+                    prompt = VoiceClonePrompt.load(str(prompt_file), map_location=self.device)
+                except Exception:
+                    prompt = None
+
+            if prompt is None:
+                prompt = self.model.create_voice_clone_prompt(
+                    ref_audio=str(ref_audio_path),
+                    ref_text=ref_text,
+                    preprocess_prompt=False
+                )
+                try:
+                    prompt_dir.mkdir(parents=True, exist_ok=True)
+                    tmp_file = prompt_file.with_suffix(f".pt.{os.getpid()}.{threading.get_ident()}.tmp")
+                    prompt.save(str(tmp_file))
+                    os.replace(tmp_file, prompt_file)
+                except Exception:
+                    pass
+
             self._prompt_cache[cache_key] = prompt
         return self._prompt_cache[cache_key], self._ref_duration_cache[cache_key]
 
@@ -687,7 +792,33 @@ class LotroSpeaker:
             merged[1] = merged[0] + " " + merged[1]
             merged.pop(0)
 
-        return merged
+        # Gently split extraordinarily long sentences (> 220 chars) at clause delimiters
+        # (; — – or balanced commas) so time-to-first-sound remains responsive without hurting prosody
+        final_chunks = []
+        for chunk in merged:
+            if len(chunk) <= 220:
+                final_chunks.append(chunk)
+                continue
+            clauses = re.split(r'(?<=[;—–])\s+', chunk)
+            if len(clauses) == 1 and len(chunk) > 260:
+                clauses = re.split(r'(?<=,)\s+', chunk)
+            buf = ""
+            for cl in clauses:
+                cl = cl.strip()
+                if not cl:
+                    continue
+                if buf and len(buf) >= 75 and (len(buf) + 1 + len(cl)) > 200:
+                    final_chunks.append(buf)
+                    buf = cl
+                else:
+                    buf = f"{buf} {cl}".strip() if buf else cl
+            if buf:
+                if final_chunks and len(buf) < 55:
+                    final_chunks[-1] = f"{final_chunks[-1]} {buf}"
+                else:
+                    final_chunks.append(buf)
+
+        return final_chunks
 
     def stop(self):
         """
@@ -739,8 +870,6 @@ class LotroSpeaker:
         Includes persistent disk cache and sentence-level streaming for instant playback.
         Supports thread-safe instant interruption via stop() and optional single-narrator mode.
         """
-        import hashlib
-
         text = text.strip()
         if not text:
             return None
@@ -867,9 +996,11 @@ class LotroSpeaker:
                     audio_queue.task_done()
                     break
 
+                vol_scale = self._get_volume_scale()
+                scaled_chunk = np.clip(chunk * vol_scale, -1.0, 1.0) if vol_scale < 0.999 else chunk
+
                 # 1. Warm persistent stream fast path (0ms latency, zero gap between sentences)
                 if hasattr(self, "_warm_player") and self._warm_player and self._warm_player._active:
-                    vol_scale = self._get_volume_scale()
                     self._warm_player.play(chunk, vol_scale=vol_scale)
                     chunk_dur = len(chunk) / 24000.0
                     t0 = time.time()
@@ -885,9 +1016,8 @@ class LotroSpeaker:
                 played = False
                 try:
                     import sounddevice as sd
-                    scaled_chunk = np.clip(chunk * vol_scale, -1.0, 1.0) if vol_scale < 0.999 else chunk
                     sd.play(scaled_chunk, 24000)
-                    chunk_dur = len(chunk) / 24000.0
+                    chunk_dur = len(scaled_chunk) / 24000.0
                     t0 = time.time()
                     while (time.time() - t0) < chunk_dur:
                         if self._active_stop_event.is_set():
@@ -899,13 +1029,13 @@ class LotroSpeaker:
                     pass
 
                 # 3. Windows fallback via winsound
-                if not played and not self._active_stop_event.is_set():
+                if not played and not self._active_stop_event.is_set() and sys.platform.startswith("win"):
                     try:
                         import winsound
                         import io
                         import wave
 
-                        int16_data = (np.clip(chunk, -1.0, 1.0) * 32767.0).astype(np.int16)
+                        int16_data = (np.clip(scaled_chunk, -1.0, 1.0) * 32767.0).astype(np.int16)
                         mem_wav = io.BytesIO()
                         with wave.open(mem_wav, "wb") as wf:
                             wf.setnchannels(1)
@@ -914,8 +1044,40 @@ class LotroSpeaker:
                             wf.writeframes(int16_data.tobytes())
                         wav_bytes = mem_wav.getvalue()
                         winsound.PlaySound(wav_bytes, winsound.SND_MEMORY)
+                        played = True
                     except Exception:
                         pass
+
+                # 4. Linux / macOS CLI player fallback (e.g. if libportaudio2 is not installed)
+                if not played and not self._active_stop_event.is_set() and (sys.platform.startswith("linux") or sys.platform == "darwin"):
+                    import tempfile
+                    import subprocess
+                    tmp_path = None
+                    try:
+                        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                            tmp_path = tmp.name
+                        sf.write(tmp_path, scaled_chunk, 24000)
+                        candidates = [["pw-cat", "-p"], ["paplay"], ["aplay", "-q"]] if sys.platform.startswith("linux") else [["afplay"]]
+                        for player in candidates:
+                            try:
+                                proc = subprocess.Popen(player + [tmp_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                while proc.poll() is None:
+                                    if self._active_stop_event.is_set():
+                                        proc.terminate()
+                                        break
+                                    time.sleep(0.02)
+                                played = True
+                                break
+                            except FileNotFoundError:
+                                continue
+                    except Exception:
+                        pass
+                    finally:
+                        if tmp_path:
+                            try:
+                                os.unlink(tmp_path)
+                            except Exception:
+                                pass
 
                 audio_queue.task_done()
 
@@ -1064,8 +1226,8 @@ if __name__ == "__main__":
     parser.add_argument("--lang", type=str, choices=["de", "en", "fr", "es", "it", "nl"], default="de", help="Language code")
     parser.add_argument("--output", type=str, default=None, help="Output wav file path")
     parser.add_argument("--volume", type=int, default=80, help="Volume percentage (0-100)")
-    parser.add_argument("--device", type=str, choices=["cuda", "cpu"], default=None, help="Compute device (default: auto-detect cuda/cpu)")
+    parser.add_argument("--device", type=str, choices=["auto", "cuda", "cpu"], default=None, help="Compute device (default: auto-detect cuda/cpu)")
 
     args = parser.parse_args()
-    speaker = LotroSpeaker(device=args.device, volume=args.volume)
+    speaker = LotroSpeaker(device=args.device, volume=args.volume, active_lang=args.lang)
     speaker.speak(args.text, npc_name_or_category=args.npc, lang=args.lang, output_path=args.output)

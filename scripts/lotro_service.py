@@ -113,6 +113,7 @@ class LotroPipelineService:
             narrator_mode=self.narrator_mode,
             narrator_voice=self.narrator_voice,
             volume=self.volume,
+            active_lang=self.tts_lang,
         )
         self.translator = LotroTranslator(device=device)
         if self.tts_lang in ("it", "nl"):
@@ -137,6 +138,7 @@ class LotroPipelineService:
         self.last_detected_target = ""
         self._is_scanning = False
         self._is_speaking = False
+        self._trigger_gen = 0
         self._lock = threading.Lock()
 
     def get_lotro_window(self) -> Optional[Dict[str, Any]]:
@@ -383,8 +385,8 @@ class LotroPipelineService:
 
         win_info = self.get_lotro_window()
 
-        # 1. Direct process DWM surface snapshot (works even when other windows cover LOTRO)
-        if win_info and win_info["width"] > 400 and win_info["height"] > 400:
+        # 1. Direct Windows DWM surface snapshot (works even when other windows cover LOTRO)
+        if sys.platform.startswith("win") and win_info and win_info["width"] > 400 and win_info["height"] > 400:
             try:
                 direct_img = self._capture_window_surface_win32(
                     win_info["hwnd"], win_info["width"], win_info["height"]
@@ -439,6 +441,8 @@ class LotroPipelineService:
                 logger.info("OCR scan already running, debouncing trigger...")
                 return
             self._is_scanning = True
+            self._trigger_gen += 1
+            my_gen = self._trigger_gen
 
         # If previous speech is still generating or playing, interrupt it immediately
         if self.speaker and (self._is_speaking or self.speaker.is_speaking()):
@@ -513,6 +517,7 @@ class LotroPipelineService:
             matched_qid = scan_result.get("quest_id")
             matched_text_id = scan_result.get("quest_text_id")
             db_target_hint = "" if matched_npc_id else target_name
+            direct_text = None
             if matched_qid and active_tts_lang in ("de", "en", "fr", "es") and active_tts_lang != active_client_lang:
                 direct_text = self.screen_reader.get_quest_text_by_id(
                     matched_qid, target_npc=db_target_hint, lang=active_tts_lang,
@@ -522,8 +527,19 @@ class LotroPipelineService:
                     logger.info(f"Using native '{active_tts_lang.upper()}' quest text directly from lotro.db!")
                     final_text = direct_text
 
-            # 4. On-demand MarianMT Translation (e.g. for Italian 'it' or Dutch 'nl')
-            if active_tts_lang in ("it", "nl"):
+            # 4. On-demand MarianMT Translation (for Italian 'it', Dutch 'nl', or DB-missing Spanish/English fallback)
+            needs_translation = (
+                active_tts_lang in ("it", "nl")
+                or (active_tts_lang == "es" and not direct_text and active_client_lang != "es")
+                or (active_tts_lang == "en" and not direct_text and active_client_lang in ("de", "fr"))
+            )
+            if needs_translation:
+                with self._lock:
+                    if my_gen != self._trigger_gen:
+                        logger.info("Dialogue trigger canceled before translation.")
+                        return
+
+                src_lang = active_client_lang
                 # When matched from lotro.db, English text is always available and yields optimal translation
                 if matched_qid:
                     clean_en_text = self.screen_reader.get_quest_text_by_id(
@@ -532,15 +548,22 @@ class LotroPipelineService:
                     )
                     if clean_en_text:
                         final_text = clean_en_text
-                        active_client_lang = "en"
-                final_text = self.translator.translate(final_text, src_lang=active_client_lang, target_lang=active_tts_lang)
+                        src_lang = "en"
+                try:
+                    final_text = self.translator.translate(final_text, src_lang=src_lang, target_lang=active_tts_lang)
+                except Exception as e:
+                    logger.warning(f"Translation fallback ({src_lang} -> {active_tts_lang}): {e}. Using original text.")
 
         finally:
             with self._lock:
-                self._is_scanning = False
+                if my_gen == self._trigger_gen:
+                    self._is_scanning = False
 
-        # 5. Speak through TTS
+        # 5. Speak through TTS (abort immediately if canceled during OCR/translation)
         with self._lock:
+            if my_gen != self._trigger_gen:
+                logger.info("Dialogue trigger canceled before playback.")
+                return
             self._is_speaking = True
         try:
             if self.narrator_mode:
@@ -557,11 +580,12 @@ class LotroPipelineService:
                 self._is_speaking = False
 
     def force_stop(self):
-        """Immediately halts any running dialogue playback and cancels active speech synthesis."""
+        """Immediately halts any running dialogue playback, active scan, and speech synthesis."""
         was_active = False
         with self._lock:
-            if self._is_speaking or (self.speaker and self.speaker.is_speaking()):
+            if self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking()):
                 was_active = True
+            self._trigger_gen += 1
             self._is_speaking = False
             self._is_scanning = False
 
@@ -599,8 +623,8 @@ class LotroPipelineService:
                 elif k_char and k_char.lower() == target_key_name:
                     matched = True
 
-                # 2. Universal Escape key support while dialogue is actively speaking
-                if not matched and (self._is_speaking or (self.speaker and self.speaker.is_speaking())):
+                # 2. Universal Escape key support while dialogue is actively scanning or speaking
+                if not matched and (self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking())):
                     if (
                         k_name in ("esc", "escape")
                         or key == getattr(keyboard.Key, "esc", None)
@@ -627,9 +651,9 @@ class LotroPipelineService:
 
             def on_click(x, y, button, pressed):
                 if pressed and button == mouse.Button.middle:
-                    # Smart toggle: If dialogue is currently speaking, Middle Mouse acts as instant stop!
-                    if self._is_speaking or (self.speaker and self.speaker.is_speaking()):
-                        logger.info("Middle mouse button (Mouse 3) clicked while speaking -> Stopping dialogue!")
+                    # Smart toggle: If dialogue is currently scanning or speaking, Middle Mouse acts as instant stop!
+                    if self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking()):
+                        logger.info("Middle mouse button (Mouse 3) clicked while active -> Stopping dialogue!")
                         self.force_stop()
                         return
 
@@ -669,7 +693,6 @@ class LotroPipelineService:
                     if identity != self.log_identity or stat.st_size < self.last_log_pos:
                         self.log_identity = identity
                         self.last_log_pos = 0
-                        self.player_info = PlayerInfo()
 
                     if stat.st_size > self.last_log_pos:
                         with self.script_log_path.open("rb") as f:
@@ -700,12 +723,14 @@ class LotroPipelineService:
                 else:
                     self.log_identity = None
                     self.last_log_pos = 0
-                    self.player_info = PlayerInfo()
                 time.sleep(poll_interval)
             except KeyboardInterrupt:
                 logger.info("Stopping LOTRO-TTS Service...")
                 if self.speaker:
                     self.speaker.stop()
+                    self.speaker.close()
+                if self.screen_reader:
+                    self.screen_reader.close()
                 break
             except Exception as e:
                 logger.error(f"Error watching log: {e}")
@@ -824,7 +849,7 @@ def load_or_prompt_config(base_dir: Path, force_prompt: bool = False) -> tuple[s
 
     # Save atomically to config.json so an empty 0 KB file can never be left behind
     try:
-        payload = json.dumps({"version": "v2.0-rc3", "game_lang": game_lang, "tts_lang": tts_lang}, indent=2) + "\n"
+        payload = json.dumps({"version": "v2.0-rc4", "game_lang": game_lang, "tts_lang": tts_lang}, indent=2) + "\n"
         tmp_file = config_file.with_suffix(".json.tmp")
         tmp_file.write_text(payload, encoding="utf-8")
         os.replace(str(tmp_file), str(config_file))

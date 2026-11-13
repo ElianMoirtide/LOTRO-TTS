@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import sqlite3
+import threading
 import unicodedata
 from collections import defaultdict
 from difflib import SequenceMatcher
@@ -144,6 +145,8 @@ class LotroScreenReader:
         self._ocr_on_cuda = False
         self.cached_window_box: Optional[Tuple[int, int, int, int]] = None
         self.cached_title_strip: Optional[Tuple[int, int, int, int]] = None
+        self._db_local = threading.local()
+        self._db_sig: Optional[Tuple[int, int]] = None
 
         # Pre-indexed quest titles in RAM for O(1) sub-millisecond matching
         self._quest_index_loaded = False
@@ -165,6 +168,47 @@ class LotroScreenReader:
         if eager_init:
             self._init_ocr()
 
+    def _get_db_conn(self) -> Optional[sqlite3.Connection]:
+        """Returns a persistent thread-local read-only SQLite connection with mmap enabled."""
+        if not self.db_path.exists():
+            return None
+        try:
+            st = self.db_path.stat()
+            sig = (st.st_mtime_ns, st.st_size)
+        except OSError:
+            return None
+
+        conn = getattr(self._db_local, "conn", None)
+        conn_sig = getattr(self._db_local, "sig", None)
+        if conn is not None and conn_sig == sig:
+            return conn
+
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            self._db_local.conn = None
+
+        try:
+            conn = sqlite3.connect(f"{self.db_path.resolve().as_uri()}?mode=ro", uri=True, check_same_thread=False)
+            conn.execute("PRAGMA mmap_size=268435456;")
+        except Exception:
+            conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
+        self._db_local.conn = conn
+        self._db_local.sig = sig
+        return conn
+
+    def close(self):
+        """Closes cached thread-local SQLite connection if open."""
+        conn = getattr(self._db_local, "conn", None)
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            self._db_local.conn = None
+
     @staticmethod
     def _trigrams(s: str) -> Set[str]:
         if len(s) < 3:
@@ -176,9 +220,10 @@ class LotroScreenReader:
         if self._quest_index_loaded or not self.db_path.exists():
             return
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = self._get_db_conn()
+            if conn is None:
+                return
             rows = conn.execute("SELECT id, title_de, title_en, title_fr, title_es FROM Quests").fetchall()
-            conn.close()
 
             col_langs = ((1, "de"), (2, "en"), (3, "fr"), (4, "es"))
             for row in rows:
@@ -487,7 +532,8 @@ class LotroScreenReader:
         self, full_screen_img, target_npc: str = "", lang: str = "de", player_info: PlayerInfo = PlayerInfo()
     ) -> Dict[str, Any]:
         """
-        Scans using cached title-strip geometry first (~0.03s) when the dialog stays at the same position.
+        Scans using the cached dialog window bounding box in a single OCR pass (~30ms)
+        when the dialog stays open at the same position.
         Automatically detects moved/closed windows and falls back to full-screen anchor scan (~0.20s).
         """
         import numpy as np
@@ -498,39 +544,27 @@ class LotroScreenReader:
 
         h, w = full_screen_img.shape[:2]
 
-        # 1. Fast-Path: Check cached Title Bar + Quest Level strip (~30ms)
-        if self.cached_title_strip and self.cached_window_box:
-            sx1, sy1, sx2, sy2 = self.cached_title_strip
-            sx1, sy1 = max(0, sx1), max(0, sy1)
-            sx2, sy2 = min(w, sx2), min(h, sy2)
+        # 1. Single-pass Fast-Path on cached dialog bounding box
+        if self.cached_window_box:
+            wx1, wy1, wx2, wy2 = self.cached_window_box
+            pad = 25
+            cx1, cy1 = max(0, wx1 - pad), max(0, wy1 - pad)
+            cx2, cy2 = min(w, wx2 + pad), min(h, wy2 + pad)
 
-            if sx2 - sx1 > 80 and sy2 - sy1 > 25:
-                strip_crop = full_screen_img[sy1:sy2, sx1:sx2]
-                strip_boxes = self._detect_and_recognize(strip_crop, max_det_width=1920)
-
-                if strip_boxes and not any(self._is_hud_alert(b) for b in strip_boxes):
-                    has_level_meta = any(self._is_level_meta(b) for b in strip_boxes)
-                    dark_header_bg = float(strip_crop.mean()) < 95.0
-                    is_inst_hdr = any(re.search(r"^(INSTANZ|INSTANCE)\b", b["text"], re.IGNORECASE) for b in strip_boxes)
-
-                    # If dialog header anchors or title are present at the cached location,
-                    # scan the cached dialog window (~20ms) to read both the title and current dialogue
-                    if has_level_meta or dark_header_bg or is_inst_hdr:
-                        wx1, wy1, wx2, wy2 = self.cached_window_box
-                        pad = 25
-                        cx1, cy1 = max(0, wx1 - pad), max(0, wy1 - pad)
-                        cx2, cy2 = min(w, wx2 + pad), min(h, wy2 + pad)
-                        res = self._scan_array(
-                            full_screen_img[cy1:cy2, cx1:cx2],
-                            target_npc=target_npc,
-                            lang=lang,
-                            require_anchors=False,
-                            offset=(cx1, cy1),
-                            player_info=player_info,
-                        )
-                        if res.get("final_text") and res.get("title"):
-                            print(f"[LotroScreenReader] Fast-path cropped dialog scan: '{res['title']}' ({lang.upper()})")
-                            return res
+            if cx2 - cx1 > 120 and cy2 - cy1 > 80:
+                win_crop = full_screen_img[cy1:cy2, cx1:cx2]
+                res = self._scan_array(
+                    win_crop,
+                    target_npc=target_npc,
+                    lang=lang,
+                    require_anchors=False,
+                    cropped_fast_path=True,
+                    offset=(cx1, cy1),
+                    player_info=player_info,
+                )
+                if res.get("final_text") and res.get("title"):
+                    print(f"[LotroScreenReader] Fast-path cropped dialog scan: '{res['title']}' ({lang.upper()})")
+                    return res
 
             # Dialog was moved or closed -> invalidate stale cache before full-screen scan
             self.cached_window_box = None
@@ -591,6 +625,7 @@ class LotroScreenReader:
         target_npc: str = "",
         lang: str = "de",
         require_anchors: bool = True,
+        cropped_fast_path: bool = False,
         offset: Tuple[int, int] = (0, 0),
         player_info: PlayerInfo = PlayerInfo(),
     ) -> Dict[str, Any]:
@@ -608,6 +643,10 @@ class LotroScreenReader:
         boxes = self._detect_and_recognize(img, max_det_width=1920, filter_cpu_hud=require_anchors)
         if not boxes:
             return empty_res
+
+        if cropped_fast_path and any(self._is_hud_alert(b) for b in boxes):
+            return empty_res
+        dark_header_bg = (float(img[:min(h, 90), :].mean()) < 95.0) if cropped_fast_path else False
 
         # Identify Chat Window bounding region (if 2+ chat lines exist) to prevent wrapped chat continuation lines
         chat_boxes = [b for b in boxes if CHAT_LINE_RE.search(b["text"]) and not re.search(r"\b\d+\s*FPS\b", b["text"], re.IGNORECASE)]
@@ -778,6 +817,10 @@ class LotroScreenReader:
             if not q_id and not body_lines:
                 continue
 
+            # In single-pass fast-path crop mode, still verify the cropped region still holds an active dialog
+            if cropped_fast_path and not (has_dialog_anchor or q_id or dark_header_bg):
+                continue
+
             # In pre-cropped standalone dialog mode, favor top-center box
             if not require_anchors and b["y_min"] < h * 0.20 and 0.15 * w < tx < 0.85 * w:
                 score += 80.0
@@ -912,7 +955,7 @@ class LotroScreenReader:
         if not ocr_dialog_text or not db_raw_text:
             return 0.0
 
-        clean_db = re.sub(r"\$\{PLAYER[^}]*\}", "", db_raw_text)
+        clean_db = re.sub(r"\$\{[^}]*\}", "", db_raw_text)
         norm_ocr = normalize_text_for_matching(ocr_dialog_text)
         norm_db = normalize_text_for_matching(clean_db)
 
@@ -957,21 +1000,40 @@ class LotroScreenReader:
         """Attempts to extract the player character name from OCR text by aligning with ${PLAYER...} in DB text."""
         if not db_text or not ocr_text or "${PLAYER" not in db_text:
             return ""
-        parts = re.split(r"\$\{PLAYER[^}]*\}", db_text)
-        if len(parts) >= 2:
-            prefix = parts[0][-20:].strip()
-            suffix = parts[1][:20].strip()
-            if prefix and suffix:
-                reg = re.escape(prefix) + r"\s*([A-Za-zÄÖÜäöüß]+)\s*" + re.escape(suffix)
-                m = re.search(reg, ocr_text, re.IGNORECASE)
-                if m:
-                    return m.group(1).strip()
-            elif prefix:
-                reg = re.escape(prefix) + r"\s*([A-Za-zÄÖÜäöüß]+)"
-                m = re.search(reg, ocr_text, re.IGNORECASE)
-                if m:
-                    return m.group(1).strip()
-        return ""
+        sentinel = "\x01"
+        sanitized = re.sub(r"\$\{(?!PLAYER)[^}]*\}", sentinel, db_text)
+        parts = re.split(r"\$\{PLAYER[^}]*\}", sanitized)
+        if len(parts) < 2:
+            return ""
+
+        def _compile_fragment(frag: str) -> str:
+            frag = re.sub(r"\s+", " ", frag).strip()
+            if not frag:
+                return ""
+            chunks = frag.split(sentinel)
+            escaped_chunks = [re.sub(r"\\ ", r"\\s+", re.escape(c)) for c in chunks]
+            return r"\S+(?:\s+\S+){0,3}?".join(escaped_chunks)
+
+        prefix_raw = parts[0][-30:].strip()
+        suffix_raw = parts[1][:30].strip()
+        has_fixed_prefix = bool(prefix_raw.replace(sentinel, "").strip())
+        has_fixed_suffix = bool(suffix_raw.replace(sentinel, "").strip())
+        if not has_fixed_prefix and not has_fixed_suffix:
+            return ""
+
+        prefix_pat = _compile_fragment(prefix_raw) if has_fixed_prefix else ""
+        suffix_pat = _compile_fragment(suffix_raw) if has_fixed_suffix else ""
+        name_core = r"([A-Za-zÀ-ÖØ-öø-ÿĀ-ž'-]+)"
+
+        if prefix_pat and suffix_pat:
+            reg = prefix_pat + r"\s*" + name_core + r"\s*" + suffix_pat
+        elif prefix_pat:
+            reg = prefix_pat + r"\s*" + name_core
+        else:
+            reg = r"(?:^|\s)" + name_core + r"\s*" + suffix_pat
+
+        m = re.search(reg, ocr_text, re.IGNORECASE)
+        return m.group(1).strip() if m else ""
 
     def _match_title_in_db(
         self, title: str, target_npc: str = "", lang: str = "de", dialog_text: str = ""
@@ -1057,7 +1119,9 @@ class LotroScreenReader:
         # 4. Target NPC Fallback (when title is distorted or not found in index)
         if not candidate_matches and target_npc:
             try:
-                conn = sqlite3.connect(str(self.db_path))
+                conn = self._get_db_conn()
+                if conn is None:
+                    return None, None, None, None, None
                 cur = conn.cursor()
                 text_col = f"text_{lang_clean}"
                 cur.execute(
@@ -1077,7 +1141,6 @@ class LotroScreenReader:
                     (target_npc, target_npc, target_npc, target_npc),
                 )
                 rows = cur.fetchall()
-                conn.close()
 
                 norm_title_query = normalize_text_for_matching(title)
                 best_q = None
@@ -1114,7 +1177,9 @@ class LotroScreenReader:
 
         # 5. Resolve quest text for candidate_matches
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = self._get_db_conn()
+            if conn is None:
+                return None, None, None, None, None
             cur = conn.cursor()
             text_col = f"text_{lang_clean}"
 
@@ -1154,7 +1219,6 @@ class LotroScreenReader:
                         cand_raw_text = best_row[3] or best_row[4]
                         extracted_pname = self._extract_player_name_from_ocr(cand_raw_text, dialog_text)
                         matched_text = self._format_player_placeholders(cand_raw_text, lang_clean, player_name=extracted_pname, player_info=player_info)
-                        conn.close()
                         return qid, raw_t, matched_text, best_row[2], best_row[0]
 
                 # 5b. Fallback: Prefer row matching target_npc if known
@@ -1164,7 +1228,6 @@ class LotroScreenReader:
                         cand_norms = [normalize_text_for_matching(n) for n in (r[5], r[6], r[7], r[8]) if n]
                         if any(norm_target in cn or cn in norm_target for cn in cand_norms):
                             matched_text = self._format_player_placeholders(r[3] or r[4], lang_clean, player_info=player_info)
-                            conn.close()
                             return qid, raw_t, matched_text, r[2], r[0]
 
                 # 5c. Fallback: Priority by text_type (bestower -> dialog -> description)
@@ -1172,10 +1235,7 @@ class LotroScreenReader:
                 sorted_rows = sorted(rows, key=lambda r: type_priority.get(r[1], 99))
                 top_row = sorted_rows[0]
                 matched_text = self._format_player_placeholders(top_row[3] or top_row[4], lang_clean, player_info=player_info)
-                conn.close()
                 return qid, raw_t, matched_text, top_row[2], top_row[0]
-
-            conn.close()
         except Exception as e:
             print(f"[LotroScreenReader] DB lookup error: {e}", file=sys.stderr)
 
@@ -1193,7 +1253,9 @@ class LotroScreenReader:
             lang_clean = "en"
         text_col = f"text_{lang_clean}"
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = self._get_db_conn()
+            if conn is None:
+                return None
             cur = conn.cursor()
 
             # 1. Authoritative: Exact quest_text_id match
@@ -1204,7 +1266,6 @@ class LotroScreenReader:
                 )
                 row = cur.fetchone()
                 if row and (row[0] or row[1]):
-                    conn.close()
                     return self._format_player_placeholders(row[0] or row[1], lang_clean, player_info=player_info)
 
             # 2. Target NPC lookup for quest_id
@@ -1226,7 +1287,6 @@ class LotroScreenReader:
                 )
                 row = cur.fetchone()
                 if row and (row[0] or row[1]):
-                    conn.close()
                     return self._format_player_placeholders(row[0] or row[1], lang_clean, player_info=player_info)
 
             # 3. Fallback priority by text_type
@@ -1243,7 +1303,6 @@ class LotroScreenReader:
                 (quest_id,),
             )
             row = cur.fetchone()
-            conn.close()
             if row and (row[0] or row[1]):
                 return self._format_player_placeholders(row[0] or row[1], lang_clean, player_info=player_info)
         except Exception as e:

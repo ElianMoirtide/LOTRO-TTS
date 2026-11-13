@@ -13,31 +13,53 @@ elseif lang == Turbine.Language.French then
     label = "Lire à haute voix";
 end
 
+local function ParseNum(val, fallback)
+    if type(val) == "number" then
+        return math.floor(val + 0.5);
+    end
+    if type(val) == "string" then
+        local clean = string.gsub(val, ",", ".");
+        local n = tonumber(clean);
+        if n ~= nil then
+            return math.floor(n + 0.5);
+        end
+    end
+    return fallback;
+end
+
 -- Standard-Einstellungen
 local defaults = {
-    left = (Turbine.UI.Display:GetWidth() - 100) / 2,
-    top = (Turbine.UI.Display:GetHeight() - 20) / 2,
+    left = math.floor((Turbine.UI.Display:GetWidth() - 100) / 2),
+    top = math.floor((Turbine.UI.Display:GetHeight() - 20) / 2),
     width = 100,
     gender = "M"
 };
 
--- Einstellungen laden (auf Charakter-Ebene)
-local settings = nil;
+-- Einstellungen laden (auf Charakter-Ebene; Zahlen werden wegen DE/FR-Komma-Bug als Strings gespeichert)
+local rawSettings = nil;
 pcall(function()
-    settings = Turbine.PluginData.Load(Turbine.DataScope.Character, "TTS_WindowPos", function(data)
-        if type(data) == "table" then
-            settings = data;
-        end
-    end);
+    rawSettings = Turbine.PluginData.Load(Turbine.DataScope.Character, "TTS_WindowPos");
 end);
 
-if type(settings) ~= "table" then
-    settings = {};
-end
-for k, v in pairs(defaults) do
-    if settings[k] == nil then
-        settings[k] = v;
+local settings = {
+    left = defaults.left,
+    top = defaults.top,
+    width = defaults.width,
+    gender = defaults.gender
+};
+local needsMigration = false;
+if type(rawSettings) == "table" then
+    if rawSettings[1] ~= nil
+        or (rawSettings.left ~= nil and type(rawSettings.left) ~= "string")
+        or (rawSettings.top ~= nil and type(rawSettings.top) ~= "string")
+        or (rawSettings.width ~= nil and type(rawSettings.width) ~= "string")
+    then
+        needsMigration = true;
     end
+    settings.left = ParseNum(rawSettings.left, defaults.left);
+    settings.top = ParseNum(rawSettings.top, defaults.top);
+    settings.width = math.max(20, ParseNum(rawSettings.width, defaults.width));
+    settings.gender = (rawSettings.gender == "F") and "F" or "M";
 end
 
 local localPlayer = nil;
@@ -64,6 +86,9 @@ local classNames = {
 };
 
 local function PublishPlayerInfo()
+    if localPlayer == nil then
+        localPlayer = Turbine.Gameplay.LocalPlayer.GetInstance();
+    end
     if localPlayer == nil then return end
     local gender = settings.gender == "F" and "F" or "M";
     local race = GetDisplayName(Turbine.Gameplay.Race, localPlayer:GetRace(), raceNames);
@@ -73,11 +98,21 @@ local function PublishPlayerInfo()
     }, "|"));
 end
 
--- Funktion zum Speichern
+-- Funktion zum Speichern (alle Werte als Strings speichern, um den DE/FR-Komma-Bug von PluginData.Save zu umgehen)
 local function SaveSettings()
+    local out = {
+        left = tostring(ParseNum(settings.left, defaults.left)),
+        top = tostring(ParseNum(settings.top, defaults.top)),
+        width = tostring(math.max(20, ParseNum(settings.width, defaults.width))),
+        gender = (settings.gender == "F") and "F" or "M"
+    };
     pcall(function()
-        Turbine.PluginData.Save(Turbine.DataScope.Character, "TTS_WindowPos", settings, function() end);
+        Turbine.PluginData.Save(Turbine.DataScope.Character, "TTS_WindowPos", out, function() end);
     end);
+end
+
+if needsMigration then
+    SaveSettings();
 end
 
 -- Hauptfenster als Container
@@ -96,9 +131,9 @@ _G.TTS.button:SetVisible(false);
 
 -- Hilfsfunktion: Aktualisiert Position und Breite
 local function ApplySettings(left, top, width)
-    settings.left = tonumber(left) or settings.left;
-    settings.top = tonumber(top) or settings.top;
-    settings.width = math.max(20, tonumber(width) or settings.width);
+    settings.left = ParseNum(left, settings.left);
+    settings.top = ParseNum(top, settings.top);
+    settings.width = math.max(20, ParseNum(width, settings.width));
 
     _G.TTS.window:SetPosition(settings.left, settings.top);
     _G.TTS.window:SetSize(settings.width, 20);
@@ -222,7 +257,9 @@ end;
 _G.TTS.button.Click = function(sender, args)
     if isDragging then return end
 
-    local player = Turbine.Gameplay.LocalPlayer.GetInstance();
+    PublishPlayerInfo();
+
+    local player = localPlayer or Turbine.Gameplay.LocalPlayer.GetInstance();
     local name = "";
     if player ~= nil then
         local target = player:GetTarget();
