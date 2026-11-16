@@ -1706,7 +1706,8 @@ namespace LotroTtsGui
 
             AppendLog("\n======================================================================", goldAccent);
             AppendLog($"Starting LOTRO-TTS Service [Client: {clientLang.ToUpperInvariant()} | TTS: {ttsLang.ToUpperInvariant()} | Mode: {mode.ToUpperInvariant()} | Vol: {volume}% | Speed: {speed}%]...", goldAccent);
-            AppendLog($"[HOTKEY] Press [{stopHotkey.ToUpperInvariant()}], [ESC], or [MOUSE 3] anytime in-game to instantly force-stop dialogue.", goldAccent);
+            string stopHint = useMouse ? $"[{stopHotkey.ToUpperInvariant()}] or [MOUSE 3]" : $"[{stopHotkey.ToUpperInvariant()}]";
+            AppendLog($"[HOTKEY] Press {stopHint} anytime in-game to instantly force-stop dialogue.", goldAccent);
             if (narratorMode)
             {
                 AppendLog($"[NARRATOR MODE] Active — all dialogue will be read using single narrator voice: '{narratorVoice}'", goldAccent);

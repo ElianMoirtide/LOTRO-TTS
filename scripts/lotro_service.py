@@ -820,7 +820,7 @@ class LotroPipelineService:
             logger.debug("Stop hotkey pressed (no dialogue currently playing).")
 
     def start_keyboard_listener(self):
-        """Starts background listener for the dialogue force-stop hotkey (default: Pause/Break, Esc)."""
+        """Starts background listener for the dialogue force-stop hotkey (default: Pause/Break)."""
         try:
             from pynput import keyboard
 
@@ -832,7 +832,7 @@ class LotroPipelineService:
                 k_char = getattr(key, "char", None)
                 k_vk = getattr(key, "vk", None)
 
-                # 1. Configured stop hotkey (default: pause / break)
+                # Configured stop hotkey (default: pause / break)
                 if target_key_name in ("pause", "break", "pause_break"):
                     if (
                         k_name in ("pause", "pause_break", "media_play_pause")
@@ -840,19 +840,17 @@ class LotroPipelineService:
                         or k_vk in (19, 0x13, 3, 0x03)
                     ):
                         matched = True
-                elif k_name and k_name.lower() == target_key_name:
-                    matched = True
-                elif k_char and k_char.lower() == target_key_name:
-                    matched = True
-
-                # 2. Universal Escape key support while dialogue is actively scanning or speaking
-                if not matched and (self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking())):
+                elif target_key_name in ("esc", "escape"):
                     if (
                         k_name in ("esc", "escape")
                         or key == getattr(keyboard.Key, "esc", None)
                         or k_vk in (27, 0x1B)
                     ):
                         matched = True
+                elif k_name and k_name.lower() == target_key_name:
+                    matched = True
+                elif k_char and k_char.lower() == target_key_name:
+                    matched = True
 
                 if matched:
                     self.force_stop()
@@ -861,7 +859,7 @@ class LotroPipelineService:
             listener.daemon = True
             listener.start()
             logger.info(
-                f"Global keyboard listener activated: Stop Hotkey [{self.stop_hotkey.upper()}] / [ESC] -> Force-stop playback"
+                f"Global keyboard listener activated: Stop Hotkey [{self.stop_hotkey.upper()}] -> Force-stop playback"
             )
         except Exception as e:
             logger.warning(f"Could not start global keyboard listener: {e}")
@@ -934,9 +932,10 @@ class LotroPipelineService:
         if should_warn:
             display_name = resolved_name or "lotroclient64.exe"
             hotkey_label = self.stop_hotkey.upper()
+            hotkeys_desc = f"Mouse 3 / {hotkey_label}" if self.enable_mouse else hotkey_label
             logger.warning(
                 f"LOTRO ({display_name}) is running with Administrator/elevated privileges while LOTRO-TTS is not! "
-                f"Windows UIPI blocks global hotkeys (Mouse 3 / {hotkey_label} / ESC) while LOTRO is focused. "
+                f"Windows UIPI blocks global hotkeys ({hotkeys_desc}) while LOTRO is focused. "
                 "Fix: Run LOTRO-TTS.exe as Administrator, or disable 'Run as administrator' on LOTRO / Steam."
             )
 

@@ -98,9 +98,8 @@ While `LOTRO-TTS.exe` is running in the background, you have full control over s
 
 ### Stopping Dialogue (Instant Cancel)
 You can immediately interrupt and silence voice playback at any time using any of the following:
-- **`ESC` Key**: The most natural way — pressing `ESC` to close the in-game dialogue window automatically silences the voiceover immediately.
-- **`Pause / Break` Key**: Dedicated global stop hotkey (configurable via `"stop_hotkey"` in `config.json`).
-- **Middle Mouse Button (Mouse 3)**: Acts as an intelligent toggle — clicking Mouse 3 while a dialogue is speaking halts playback instantly.
+- **`Pause / Break` Key**: Dedicated global stop hotkey (configurable via `"stop_hotkey"` in `config.json` or `--stop-hotkey`).
+- **Middle Mouse Button (Mouse 3)**: Acts as an intelligent toggle — clicking Mouse 3 while a dialogue is scanning or speaking halts playback instantly.
 
 ---
 
@@ -205,7 +204,7 @@ python\win64\python.exe scripts\lotro_service.py [OPTIONS]
 | `--no-mouse` | *disabled* | Disables the global middle mouse button trigger (in-game button only). |
 | `--narrator-mode` | *disabled* | Replaces NPC race/gender voices with a single unified narrator voice. |
 | `--narrator-voice` | `man_male_1` | Voice ID from `data/voices` to use when Narrator Mode is active. |
-| `--stop-hotkey` | `pause` | Global hotkey to force-stop active dialogue playback (`esc` and mouse back button also cancel). |
+| `--stop-hotkey` | `pause` | Global hotkey to force-stop active dialogue playback (`Mouse 3` also cancels when enabled). |
 | `--volume` | `100` | TTS speech playback volume percentage (`0`-`100`). |
 | `--config` | *disabled* | Forces interactive language configuration in console mode. |
 
