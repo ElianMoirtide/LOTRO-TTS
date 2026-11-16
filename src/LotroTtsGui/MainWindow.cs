@@ -741,7 +741,25 @@ namespace LotroTtsGui
             if (string.IsNullOrEmpty(line)) return;
             Dispatcher.UIThread.Post(() =>
             {
-                var brush = color ?? textLight;
+                var brush = color;
+                if (brush == null)
+                {
+                    if (line.Contains("] WARNING:", StringComparison.Ordinal) ||
+                        line.StartsWith("WARNING:", StringComparison.Ordinal))
+                    {
+                        brush = amberWarn;
+                    }
+                    else if (line.Contains("] ERROR:", StringComparison.Ordinal) ||
+                             line.Contains("] CRITICAL:", StringComparison.Ordinal) ||
+                             line.StartsWith("ERROR:", StringComparison.Ordinal))
+                    {
+                        brush = redStop;
+                    }
+                    else
+                    {
+                        brush = textLight;
+                    }
+                }
                 if (logTextBlock.Inlines != null)
                 {
                     logTextBlock.Inlines.Add(new Run { Text = line + "\n", Foreground = brush });

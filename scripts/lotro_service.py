@@ -70,6 +70,215 @@ for noisy in (
     logging.getLogger(noisy).setLevel(logging.ERROR)
 
 
+LOTRO_CLIENT_BINARIES = ("lotroclient64.exe", "lotroclient.exe", "lotroclient_awesomium.exe")
+
+_WIN_PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+_WIN_TOKEN_QUERY = 0x0008
+_WIN_TOKEN_ELEVATION = 20
+_WIN_TOKEN_INTEGRITY_LEVEL = 25
+_WIN_TOKEN_UIACCESS = 26
+_WIN_SECURITY_MANDATORY_HIGH_RID = 0x3000
+_WIN_ERROR_ACCESS_DENIED = 5
+_WIN32_API_LOCK = threading.Lock()
+_WIN32_SECURITY_APIS = None
+
+
+def _get_win32_security_apis():
+    """Lazily initializes Win32 DLL bindings with explicit argtypes/restypes for elevation checks."""
+    global _WIN32_SECURITY_APIS
+    with _WIN32_API_LOCK:
+        if _WIN32_SECURITY_APIS is not None:
+            return _WIN32_SECURITY_APIS
+
+        import ctypes
+        from ctypes import wintypes
+
+        k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        k32.GetCurrentProcess.argtypes = []
+        k32.GetCurrentProcess.restype = wintypes.HANDLE
+        k32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        k32.OpenProcess.restype = wintypes.HANDLE
+        k32.CloseHandle.argtypes = [wintypes.HANDLE]
+        k32.CloseHandle.restype = wintypes.BOOL
+        k32.QueryFullProcessImageNameW.argtypes = [
+            wintypes.HANDLE,
+            wintypes.DWORD,
+            wintypes.LPWSTR,
+            ctypes.POINTER(wintypes.DWORD),
+        ]
+        k32.QueryFullProcessImageNameW.restype = wintypes.BOOL
+
+        adv = ctypes.WinDLL("advapi32", use_last_error=True)
+        adv.OpenProcessToken.argtypes = [wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE)]
+        adv.OpenProcessToken.restype = wintypes.BOOL
+        adv.GetTokenInformation.argtypes = [
+            wintypes.HANDLE,
+            ctypes.c_int,
+            ctypes.c_void_p,
+            wintypes.DWORD,
+            ctypes.POINTER(wintypes.DWORD),
+        ]
+        adv.GetTokenInformation.restype = wintypes.BOOL
+        adv.GetSidSubAuthorityCount.argtypes = [ctypes.c_void_p]
+        adv.GetSidSubAuthorityCount.restype = ctypes.POINTER(ctypes.c_ubyte)
+        adv.GetSidSubAuthority.argtypes = [ctypes.c_void_p, wintypes.DWORD]
+        adv.GetSidSubAuthority.restype = ctypes.POINTER(wintypes.DWORD)
+
+        u32 = ctypes.WinDLL("user32", use_last_error=True)
+        u32.GetForegroundWindow.argtypes = []
+        u32.GetForegroundWindow.restype = wintypes.HWND
+        u32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+        u32.GetWindowThreadProcessId.restype = wintypes.DWORD
+
+        _WIN32_SECURITY_APIS = (k32, adv, u32)
+        return _WIN32_SECURITY_APIS
+
+
+def _read_token_privileges_win32(apis, h_token) -> tuple[bool, Optional[int], bool]:
+    """Reads (is_elevated, integrity_rid, has_ui_access) from an open Win32 access token."""
+    import ctypes
+    from ctypes import wintypes
+
+    _, adv, _ = apis
+    ret_len = wintypes.DWORD(0)
+
+    elev = wintypes.DWORD(0)
+    is_elevated = bool(
+        adv.GetTokenInformation(
+            h_token, _WIN_TOKEN_ELEVATION, ctypes.byref(elev), ctypes.sizeof(elev), ctypes.byref(ret_len)
+        )
+        and elev.value != 0
+    )
+
+    ui_access = wintypes.DWORD(0)
+    has_ui_access = bool(
+        adv.GetTokenInformation(
+            h_token, _WIN_TOKEN_UIACCESS, ctypes.byref(ui_access), ctypes.sizeof(ui_access), ctypes.byref(ret_len)
+        )
+        and ui_access.value != 0
+    )
+
+    integrity_rid: Optional[int] = None
+    ret_len.value = 0
+    adv.GetTokenInformation(h_token, _WIN_TOKEN_INTEGRITY_LEVEL, None, 0, ctypes.byref(ret_len))
+    if ret_len.value > 0:
+        buf = ctypes.create_string_buffer(ret_len.value)
+        if adv.GetTokenInformation(h_token, _WIN_TOKEN_INTEGRITY_LEVEL, buf, ret_len.value, ctypes.byref(ret_len)):
+            psid = ctypes.c_void_p.from_buffer(buf).value
+            if psid:
+                count_ptr = adv.GetSidSubAuthorityCount(psid)
+                if count_ptr and count_ptr[0] > 0:
+                    rid_ptr = adv.GetSidSubAuthority(psid, count_ptr[0] - 1)
+                    if rid_ptr:
+                        integrity_rid = int(rid_ptr[0])
+
+    return is_elevated, integrity_rid, has_ui_access
+
+
+def _get_own_token_privileges_win32() -> Optional[tuple[bool, Optional[int], bool]]:
+    """Returns (is_elevated, integrity_rid, has_ui_access) for the current process on Windows."""
+    if not sys.platform.startswith("win"):
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    try:
+        apis = _get_win32_security_apis()
+        k32, adv, _ = apis
+        h_tok = wintypes.HANDLE()
+        if not adv.OpenProcessToken(k32.GetCurrentProcess(), _WIN_TOKEN_QUERY, ctypes.byref(h_tok)):
+            return None
+        try:
+            return _read_token_privileges_win32(apis, h_tok)
+        finally:
+            k32.CloseHandle(h_tok)
+    except Exception:
+        return None
+
+
+def _lookup_lotro_proc_name_psutil(pid: int) -> Optional[str]:
+    """Finds executable name for pid via process snapshot if it belongs to a LOTRO client."""
+    try:
+        import psutil
+
+        for proc in psutil.process_iter(["name", "pid"]):
+            if proc.info.get("pid") == pid:
+                name = (proc.info.get("name") or "").lower()
+                return name if name in LOTRO_CLIENT_BINARIES else None
+    except Exception:
+        pass
+    return None
+
+
+def _inspect_target_pid_elevation_win32(
+    pid: int,
+    own_privs: tuple[bool, Optional[int], bool],
+    known_lotro_name: Optional[str] = None,
+) -> tuple[Optional[str], Optional[bool]]:
+    """
+    Checks whether a target Windows PID is a LOTRO client process running at higher
+    integrity / elevation than the current process (which causes Windows UIPI hook blocks).
+
+    Returns (proc_name, is_mismatched) where is_mismatched is True/False, or None if transient.
+    """
+    own_elevated, own_integrity, own_ui_access = own_privs
+    if own_ui_access or (own_elevated and (own_integrity is None or own_integrity >= _WIN_SECURITY_MANDATORY_HIGH_RID)):
+        return known_lotro_name, False
+
+    import ctypes
+    from ctypes import wintypes
+
+    apis = _get_win32_security_apis()
+    k32, adv, _ = apis
+
+    h_proc = k32.OpenProcess(_WIN_PROCESS_QUERY_LIMITED_INFORMATION, False, int(pid))
+    if not h_proc:
+        err = ctypes.get_last_error()
+        if err == _WIN_ERROR_ACCESS_DENIED:
+            matched_name = known_lotro_name or _lookup_lotro_proc_name_psutil(pid)
+            if matched_name:
+                return matched_name, True
+            return None, False
+        return known_lotro_name, None
+
+    try:
+        proc_name = known_lotro_name
+        if proc_name is None:
+            size = wintypes.DWORD(1024)
+            buf = ctypes.create_unicode_buffer(size.value)
+            if not k32.QueryFullProcessImageNameW(h_proc, 0, buf, ctypes.byref(size)):
+                err = ctypes.get_last_error()
+                if err == _WIN_ERROR_ACCESS_DENIED:
+                    matched_name = _lookup_lotro_proc_name_psutil(pid)
+                    return (matched_name, True) if matched_name else (None, False)
+                return None, None
+            proc_name = os.path.basename(buf.value).lower()
+            if proc_name not in LOTRO_CLIENT_BINARIES:
+                return proc_name, False
+
+        h_tok = wintypes.HANDLE()
+        if not adv.OpenProcessToken(h_proc, _WIN_TOKEN_QUERY, ctypes.byref(h_tok)):
+            err = ctypes.get_last_error()
+            if err == _WIN_ERROR_ACCESS_DENIED:
+                # Medium-integrity processes receive ERROR_ACCESS_DENIED when opening
+                # an elevated (High-integrity) process token with TOKEN_QUERY.
+                return proc_name, True
+            return proc_name, None
+
+        try:
+            target_elevated, target_integrity, _ = _read_token_privileges_win32(apis, h_tok)
+        finally:
+            k32.CloseHandle(h_tok)
+
+        if target_integrity is not None and own_integrity is not None and target_integrity > own_integrity:
+            return proc_name, True
+        if target_elevated and not own_elevated:
+            return proc_name, True
+        return proc_name, False
+    finally:
+        k32.CloseHandle(h_proc)
+
+
 class LotroPipelineService:
     def __init__(
         self,
@@ -147,6 +356,10 @@ class LotroPipelineService:
         self._is_speaking = False
         self._trigger_gen = 0
         self._lock = threading.Lock()
+        self._uipi_lock = threading.Lock()
+        self._uipi_checked_pids: Dict[int, bool] = {}
+        self._uipi_warned_pids: set[int] = set()
+        self._own_token_privileges = _get_own_token_privileges_win32() if sys.platform.startswith("win") else None
 
     def get_lotro_window(self) -> Optional[Dict[str, Any]]:
         """
@@ -175,16 +388,17 @@ class LotroPipelineService:
         except Exception:
             desk = None
 
-        LOTRO_BINARIES = ("lotroclient64.exe", "lotroclient.exe", "lotroclient_awesomium.exe")
-        lotro_pids = set()
+        lotro_procs: Dict[int, str] = {}
         for p in psutil.process_iter(["name", "pid"]):
             try:
-                if p.info["name"] and p.info["name"].lower() in LOTRO_BINARIES:
-                    lotro_pids.add(p.info["pid"])
+                if p.info["name"]:
+                    pname = p.info["name"].lower()
+                    if pname in LOTRO_CLIENT_BINARIES:
+                        lotro_procs[p.info["pid"]] = pname
             except Exception:
                 pass
 
-        if not lotro_pids:
+        if not lotro_procs:
             return None
 
         found_windows = []
@@ -192,7 +406,7 @@ class LotroPipelineService:
         def enum_desk_cb(hwnd, lparam):
             pid = wintypes.DWORD()
             user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-            if pid.value in lotro_pids and user32.IsWindowVisible(hwnd) and not user32.IsIconic(hwnd):
+            if pid.value in lotro_procs and user32.IsWindowVisible(hwnd) and not user32.IsIconic(hwnd):
                 length = user32.GetWindowTextLengthW(hwnd)
                 if length > 0:
                     buf = ctypes.create_unicode_buffer(length + 1)
@@ -204,7 +418,7 @@ class LotroPipelineService:
                     w = right - left
                     h = bottom - top
                     if w > 200 and h > 200:
-                        found_windows.append((hwnd, title, int(left), int(top), int(w), int(h)))
+                        found_windows.append((hwnd, title, int(left), int(top), int(w), int(h), int(pid.value)))
             return True
 
         DESKENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
@@ -217,7 +431,8 @@ class LotroPipelineService:
 
         if found_windows:
             best = max(found_windows, key=lambda it: it[4] * it[5])
-            hwnd, title, left, top, w, h = best
+            hwnd, title, left, top, w, h, best_pid = best
+            self._check_pid_uipi_mismatch(best_pid, proc_name=lotro_procs.get(best_pid))
             logger.debug(f"Targeting LOTRO Window: '{title}' (hwnd={hwnd}, {w}x{h} at [{left},{top}])")
             return {
                 "hwnd": hwnd,
@@ -684,6 +899,91 @@ class LotroPipelineService:
                 self.player_info = PlayerInfo(name, race, gender, player_class)
         return True
 
+    def _check_pid_uipi_mismatch(self, pid: int, proc_name: Optional[str] = None) -> bool:
+        """
+        Checks once per LOTRO PID whether the target client is elevated while LOTRO-TTS is not.
+        Logs an actionable UIPI warning once per mismatched PID and returns True if mismatched.
+        """
+        if not sys.platform.startswith("win") or not pid or self._own_token_privileges is None:
+            return False
+
+        with self._uipi_lock:
+            cached_is_lotro = self._uipi_checked_pids.get(pid)
+            if cached_is_lotro is not None and (proc_name is None or cached_is_lotro):
+                return pid in self._uipi_warned_pids
+
+        try:
+            resolved_name, mismatched = _inspect_target_pid_elevation_win32(
+                pid, self._own_token_privileges, known_lotro_name=proc_name
+            )
+        except Exception as e:
+            logger.debug(f"UIPI elevation check skipped for pid={pid}: {e}")
+            return False
+
+        is_lotro = bool(resolved_name and resolved_name in LOTRO_CLIENT_BINARIES)
+        should_warn = False
+        with self._uipi_lock:
+            if mismatched is not None:
+                if len(self._uipi_checked_pids) > 512:
+                    self._uipi_checked_pids.clear()
+                self._uipi_checked_pids[pid] = is_lotro
+            if mismatched is True and pid not in self._uipi_warned_pids:
+                self._uipi_warned_pids.add(pid)
+                should_warn = True
+
+        if should_warn:
+            display_name = resolved_name or "lotroclient64.exe"
+            hotkey_label = self.stop_hotkey.upper()
+            logger.warning(
+                f"LOTRO ({display_name}) is running with Administrator/elevated privileges while LOTRO-TTS is not! "
+                f"Windows UIPI blocks global hotkeys (Mouse 3 / {hotkey_label} / ESC) while LOTRO is focused. "
+                "Fix: Run LOTRO-TTS.exe as Administrator, or disable 'Run as administrator' on LOTRO / Steam."
+            )
+
+        return bool(mismatched)
+
+    def check_lotro_elevation_mismatch(self, check_foreground_only: bool = False) -> None:
+        """Detects Windows UIPI privilege mismatches between LOTRO and LOTRO-TTS."""
+        if not sys.platform.startswith("win") or self._own_token_privileges is None:
+            return
+
+        own_elevated, own_integrity, own_ui_access = self._own_token_privileges
+        if own_ui_access or (
+            own_elevated and (own_integrity is None or own_integrity >= _WIN_SECURITY_MANDATORY_HIGH_RID)
+        ):
+            return
+
+        if check_foreground_only:
+            import ctypes
+            from ctypes import wintypes
+
+            try:
+                _, _, u32 = _get_win32_security_apis()
+                fg_hwnd = u32.GetForegroundWindow()
+                if not fg_hwnd:
+                    return
+                fg_pid = wintypes.DWORD(0)
+                u32.GetWindowThreadProcessId(fg_hwnd, ctypes.byref(fg_pid))
+                if fg_pid.value:
+                    self._check_pid_uipi_mismatch(int(fg_pid.value))
+            except Exception as e:
+                logger.debug(f"Foreground UIPI elevation check failed: {e}")
+            return
+
+        try:
+            import psutil
+
+            for proc in psutil.process_iter(["name", "pid"]):
+                try:
+                    name = (proc.info.get("name") or "").lower()
+                    pid = proc.info.get("pid")
+                    if pid and name in LOTRO_CLIENT_BINARIES:
+                        self._check_pid_uipi_mismatch(int(pid), proc_name=name)
+                except Exception:
+                    pass
+        except Exception as e:
+            logger.debug(f"Startup UIPI elevation scan failed: {e}")
+
     def watch_script_log(self, poll_interval: float = 0.03):
         """Watches Script.log for read requests and character info."""
         logger.info(f"Watching '{self.script_log_path}' for plugin triggers...")
@@ -691,9 +991,17 @@ class LotroPipelineService:
         self.start_keyboard_listener()
         if self.enable_mouse:
             self.start_mouse_listener()
+        self.check_lotro_elevation_mismatch(check_foreground_only=False)
+
+        last_uipi_check = time.monotonic()
 
         while True:
             try:
+                now = time.monotonic()
+                if now - last_uipi_check >= 2.0:
+                    last_uipi_check = now
+                    self.check_lotro_elevation_mismatch(check_foreground_only=True)
+
                 if self.script_log_path.exists():
                     stat = self.script_log_path.stat()
                     identity = (stat.st_dev, stat.st_ino)
