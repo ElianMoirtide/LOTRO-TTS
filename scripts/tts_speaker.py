@@ -5,8 +5,10 @@ Uses local OmniVoice Zero-Shot Voice Cloning on NVIDIA RTX GPU.
 Clones speech dynamically from authentic LOTRO reference audio files in voices/{lang}/{category}/.
 """
 import os
+import re
 import sys
 import json
+import time
 import hashlib
 import shutil
 import sqlite3
@@ -241,6 +243,7 @@ class LotroSpeaker:
         speed: int = 100,
         active_lang: str | None = None,
         low_vram: bool | None = None,
+        emit_duck_events: bool = False,
     ):
         self.base_dir = Path(__file__).resolve().parent.parent
         self.voices_dir = self.base_dir / voices_dir
@@ -298,6 +301,16 @@ class LotroSpeaker:
         self._synthesis_lock = threading.Lock()
         self._active_stop_event = threading.Event()
         self._is_speaking_event = threading.Event()
+        self.emit_duck_events = bool(emit_duck_events)
+        self._duck_active = False
+        self._duck_lock = threading.Lock()
+
+        # Pronunciation dictionary (hot-reloaded from data/pronunciation*.json via mtime)
+        self.pronunciation_path = self.base_dir / "data" / "pronunciation.json"
+        self.pronunciation_custom_path = self.base_dir / "data" / "pronunciation_custom.json"
+        self._pronunciation_lock = threading.Lock()
+        self._pronunciation_mtimes = None
+        self._pronunciation_compiled = {}
 
         # Load voice indexes for all supported native voice libraries (de, en, fr)
         self.indices = {}
@@ -895,6 +908,94 @@ class LotroSpeaker:
 
         return final_chunks
 
+    def _set_audio_duck(self, active: bool):
+        """Notifies GUI host (when enabled) to duck or restore LOTRO game audio."""
+        if not getattr(self, "emit_duck_events", False):
+            return
+        state = bool(active)
+        with self._duck_lock:
+            if state == self._duck_active:
+                return
+            self._duck_active = state
+        print(f"[AUDIO_DUCK:{1 if state else 0}]", flush=True)
+
+    @staticmethod
+    def _extract_dict_entries(section) -> dict[str, str]:
+        if not isinstance(section, dict):
+            return {}
+        return {
+            str(k).strip(): str(v).strip()
+            for k, v in section.items()
+            if isinstance(k, str)
+            and isinstance(v, str)
+            and k.strip()
+            and v.strip()
+            and not k.startswith("_")
+        }
+
+    def _get_compiled_pronunciation(self, lang: str = "de"):
+        """
+        Loads & compiles pronunciation rules from data/pronunciation.json + data/pronunciation_custom.json,
+        reloading automatically when either file's modification time changes.
+        """
+        lang_key = (lang or "de").lower().strip()
+        p_base = getattr(self, "pronunciation_path", self.base_dir / "data" / "pronunciation.json")
+        p_custom = getattr(self, "pronunciation_custom_path", self.base_dir / "data" / "pronunciation_custom.json")
+
+        try:
+            m_base = p_base.stat().st_mtime_ns if p_base.exists() else None
+        except OSError:
+            m_base = None
+        try:
+            m_custom = p_custom.stat().st_mtime_ns if p_custom.exists() else None
+        except OSError:
+            m_custom = None
+
+        cur_mtimes = (m_base, m_custom)
+        with self._pronunciation_lock:
+            if cur_mtimes != self._pronunciation_mtimes:
+                self._pronunciation_compiled.clear()
+                self._pronunciation_mtimes = cur_mtimes
+
+            if lang_key in self._pronunciation_compiled:
+                return self._pronunciation_compiled[lang_key]
+
+            merged: dict[str, str] = {}
+            for path in (p_base, p_custom):
+                if not path.exists():
+                    continue
+                try:
+                    raw = json.loads(path.read_text(encoding="utf-8"))
+                    if not isinstance(raw, dict):
+                        continue
+                    merged.update(self._extract_dict_entries(raw.get("common")))
+                    merged.update(self._extract_dict_entries(raw.get(lang_key)))
+                except Exception as e:
+                    print(f"[WARNING] Could not load pronunciation dictionary '{path.name}': {e}", file=sys.stderr)
+
+            if not merged:
+                self._pronunciation_compiled[lang_key] = None
+                return None
+
+            # Longest keys first so multi-word names match before prefixes; optional trailing 's' keeps German genitives intact
+            sorted_keys = sorted(merged.keys(), key=len, reverse=True)
+            alternation = "|".join(re.escape(k) for k in sorted_keys)
+            pattern = re.compile(rf"(?<!\w)(?:{alternation})(?=s?(?!\w))", re.IGNORECASE)
+            lower_map = {k.lower(): v for k, v in merged.items()}
+            compiled = (pattern, lower_map)
+            self._pronunciation_compiled[lang_key] = compiled
+            return compiled
+
+    def apply_pronunciation(self, text: str, lang: str = "de") -> str:
+        """Applies whole-word pronunciation dictionary substitutions right before TTS synthesis."""
+        if not text:
+            return text
+        compiled = self._get_compiled_pronunciation(lang)
+        if not compiled:
+            return text
+        pattern, lower_map = compiled
+        return pattern.sub(lambda m: lower_map.get(m.group(0).lower(), m.group(0)), text)
+
     def stop(self):
         """
         Immediately halts any active speech synthesis and stops audio playback.
@@ -923,6 +1024,8 @@ class LotroSpeaker:
         except Exception:
             pass
 
+        self._set_audio_duck(False)
+
     def is_speaking(self) -> bool:
         """Returns True if speech synthesis or playback is currently in progress."""
         if hasattr(self, "_warm_player") and self._warm_player and self._warm_player._active:
@@ -939,14 +1042,16 @@ class LotroSpeaker:
         cache_key=None,
         narrator_mode=None,
         narrator_voice=None,
+        wait: bool = False,
     ):
         """
         Synthesizes authentic speech for given NPC / category and text.
-        Includes persistent disk cache and sentence-level streaming for instant playback.
+        Includes persistent disk cache, pronunciation dictionary substitution,
+        and sentence-level streaming for instant playback.
         Supports thread-safe instant interruption via stop() and optional single-narrator mode.
         """
-        text = text.strip()
-        if not text:
+        raw_text = (text or "").strip()
+        if not raw_text:
             return None
 
         # Stop any previous playback and reset stop event for this new speech turn
@@ -954,12 +1059,15 @@ class LotroSpeaker:
         self._active_stop_event.clear()
         self._is_speaking_event.set()
 
+        text = self.apply_pronunciation(raw_text, lang=lang).strip() or raw_text
+
         use_narrator_mode = self.narrator_mode if narrator_mode is None else bool(narrator_mode)
         active_narrator_voice = (narrator_voice or self.narrator_voice or "man_male_1").strip()
 
         with self._synthesis_lock:
             if self._active_stop_event.is_set():
                 self._is_speaking_event.clear()
+                self._set_audio_duck(False)
                 return None
             try:
                 # Determine category & NPC info
@@ -1011,7 +1119,8 @@ class LotroSpeaker:
 
                 if not output_path and cached_wav.exists() and cached_wav.stat().st_size > 44:
                     print(f"[{lang.upper()}] [AUDIO CACHE HIT] Playing cached audio instantly for '{npc_name}'...")
-                    self.play_audio(cached_wav)
+                    self._set_audio_duck(True)
+                    self.play_audio(cached_wav, wait=wait)
                     return cached_wav
 
                 if use_narrator_mode:
@@ -1033,9 +1142,7 @@ class LotroSpeaker:
                     )
                     if self._active_stop_event.is_set():
                         return None
-                    # Immediate in-memory playback with 0ms disk delay
-                    self.play_memory_audio(audio_data, sample_rate=24000)
-                    # Asynchronously write to persistent cache in background daemon thread
+                    # Asynchronously write to persistent cache in background daemon thread while playing
                     if not output_path:
                         threading.Thread(
                             target=sf.write,
@@ -1044,20 +1151,25 @@ class LotroSpeaker:
                         ).start()
                     else:
                         sf.write(str(cached_wav), audio_data, 24000)
+                    # Immediate in-memory playback with 0ms disk delay
+                    self._set_audio_duck(True)
+                    self.play_memory_audio(audio_data, sample_rate=24000, wait=wait)
                     return cached_wav
 
                 # For multi-sentence texts, generate and stream sentence by sentence
-                self._stream_speech(sentences, voice_id, ref_lang, ref_audio, ref_text, lang, category, cached_wav)
+                self._stream_speech(sentences, voice_id, ref_lang, ref_audio, ref_text, lang, category, cached_wav, wait=wait)
                 return cached_wav
             finally:
                 self._is_speaking_event.clear()
+                if wait or self._active_stop_event.is_set():
+                    self._set_audio_duck(False)
                 if self.low_vram and self.device == "cuda":
                     try:
                         torch.cuda.empty_cache()
                     except Exception:
                         pass
 
-    def _stream_speech(self, sentences, voice_id, ref_lang, ref_audio, ref_text, lang, category, final_cached_wav):
+    def _stream_speech(self, sentences, voice_id, ref_lang, ref_audio, ref_text, lang, category, final_cached_wav, wait: bool = False):
         """Generates and plays sentences sequentially with zero wait-time between chunks and instant cancellation support."""
         import queue
 
@@ -1184,12 +1296,16 @@ class LotroSpeaker:
                     break
 
                 all_chunks.append(chunk)
-                audio_queue.put(chunk)
                 if i == 0:
+                    self._set_audio_duck(True)
                     print("  First sentence ready! Playback started instantly via warm stream.")
+                audio_queue.put(chunk)
         finally:
             synthesis_done.set()
             play_t.join(timeout=0.5 if self._active_stop_event.is_set() else None)
+            if wait and hasattr(self, "_warm_player") and self._warm_player and self._warm_player._active:
+                while not self._active_stop_event.is_set() and self._warm_player.is_playing():
+                    time.sleep(0.025)
 
         # Write final full dialogue to persistent cache in background thread only if completed without interruption
         if all_chunks and not self._active_stop_event.is_set() and len(all_chunks) == len(sentences):
@@ -1229,13 +1345,38 @@ class LotroSpeaker:
         self._get_volume_scale()
         return self._cached_speed_factor
 
-    def play_memory_audio(self, audio_data, sample_rate=24000):
+    def _wait_interruptible(self, duration_sec: float, on_cancel=None, step_sec: float = 0.025):
+        """Sleeps up to duration_sec while checking _active_stop_event for immediate cancellation."""
+        t0 = time.monotonic()
+        while (time.monotonic() - t0) < duration_sec:
+            if self._active_stop_event.is_set():
+                if on_cancel:
+                    try:
+                        on_cancel()
+                    except Exception:
+                        pass
+                return
+            time.sleep(step_sec)
+
+    def _wait_for_subprocess(self, proc):
+        """Waits for an external CLI player process while honoring stop requests."""
+        while proc.poll() is None:
+            if self._active_stop_event.is_set():
+                proc.terminate()
+                break
+            time.sleep(0.025)
+
+    def play_memory_audio(self, audio_data, sample_rate=24000, wait: bool = False):
         """Plays float32 audio array directly from memory without touching the hard drive."""
         vol_scale = self._get_volume_scale()
+        duration_sec = float(len(audio_data)) / float(sample_rate or 24000)
 
         # 1. Warm persistent stream fast path (0ms start delay)
         if hasattr(self, "_warm_player") and self._warm_player and self._warm_player._active:
             self._warm_player.play(audio_data, vol_scale=vol_scale)
+            if wait:
+                while not self._active_stop_event.is_set() and self._warm_player.is_playing():
+                    time.sleep(0.025)
             return
 
         # Apply software audio scaling on all platforms so volume is reliably respected
@@ -1246,6 +1387,8 @@ class LotroSpeaker:
         try:
             import sounddevice as sd
             sd.play(audio_data, sample_rate)
+            if wait:
+                self._wait_interruptible(duration_sec, on_cancel=sd.stop)
             return
         except Exception:
             pass
@@ -1264,34 +1407,45 @@ class LotroSpeaker:
                 wf.setframerate(sample_rate)
                 wf.writeframes(int16_data.tobytes())
             winsound.PlaySound(mem_wav.getvalue(), winsound.SND_MEMORY | winsound.SND_ASYNC)
+            if wait:
+                self._wait_interruptible(duration_sec, on_cancel=lambda: winsound.PlaySound(None, 0))
             return
         except Exception:
             pass
 
-        # 3. Fallback for systems without winsound or sounddevice (Linux / macOS CLI players)
+        # 4. Fallback for systems without winsound or sounddevice (Linux / macOS CLI players)
         import tempfile
         import subprocess
+        tmp_path = None
         try:
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-                sf.write(tmp.name, audio_data, sample_rate)
-                if sys.platform.startswith("linux"):
-                    for player in [["pw-cat", "-p"], ["paplay"], ["aplay", "-q"]]:
+                tmp_path = tmp.name
+            sf.write(tmp_path, audio_data, sample_rate)
+            candidates = (
+                [["pw-cat", "-p"], ["paplay"], ["aplay", "-q"]]
+                if sys.platform.startswith("linux")
+                else ([["afplay"]] if sys.platform == "darwin" else [])
+            )
+            for player in candidates:
+                try:
+                    proc = subprocess.Popen(player + [tmp_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    if wait:
+                        self._wait_for_subprocess(proc)
                         try:
-                            subprocess.Popen(player + [tmp.name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                            return
-                        except FileNotFoundError:
-                            continue
-                elif sys.platform == "darwin":
-                    subprocess.Popen(["afplay", tmp.name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            os.unlink(tmp_path)
+                        except Exception:
+                            pass
                     return
+                except FileNotFoundError:
+                    continue
         except Exception:
             pass
 
-    def play_audio(self, audio_file):
-        """Plays a WAV file asynchronously or via standard system sound."""
+    def play_audio(self, audio_file, wait: bool = False):
+        """Plays a WAV file asynchronously (or blocks until finished when wait=True)."""
         try:
             data, fs = sf.read(str(audio_file), dtype="float32")
-            self.play_memory_audio(data, fs)
+            self.play_memory_audio(data, fs, wait=wait)
             return
         except Exception:
             pass
@@ -1299,15 +1453,19 @@ class LotroSpeaker:
         # Native system player fallback if soundfile could not decode directly
         try:
             import subprocess
-            if sys.platform.startswith("linux"):
-                for player in [["pw-cat", "-p"], ["paplay"], ["aplay", "-q"]]:
-                    try:
-                        subprocess.Popen(player + [str(audio_file)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                        return
-                    except FileNotFoundError:
-                        continue
-            elif sys.platform == "darwin":
-                subprocess.Popen(["afplay", str(audio_file)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            candidates = (
+                [["pw-cat", "-p"], ["paplay"], ["aplay", "-q"]]
+                if sys.platform.startswith("linux")
+                else ([["afplay"]] if sys.platform == "darwin" else [])
+            )
+            for player in candidates:
+                try:
+                    proc = subprocess.Popen(player + [str(audio_file)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    if wait:
+                        self._wait_for_subprocess(proc)
+                    return
+                except FileNotFoundError:
+                    continue
         except Exception as e:
             print(f"Could not play audio automatically: {e}", file=sys.stderr)
 

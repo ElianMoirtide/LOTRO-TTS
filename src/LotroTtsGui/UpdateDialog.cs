@@ -383,13 +383,16 @@ if exist ""%~3\python\win64"" (
     powershell -NoProfile -Command ""Get-ChildItem '%~2\python\win64\*._pth' -ErrorAction SilentlyContinue | ForEach-Object {{ (Get-Content $_.FullName) -replace '#import site', 'import site' | Set-Content $_.FullName }}"" 2>nul
 )
 
-:: 2. Robocopy files into base directory (excluding runtime, user cache, user db, custom npc overrides, logs)
+:: 2. Robocopy files into base directory (excluding runtime, user cache, user db, custom overrides, logs)
 if exist ""%~2\src\npc\npc_races_custom.json"" copy /y ""%~2\src\npc\npc_races_custom.json"" ""%~2\_custom_npc.tmp"" >nul
-robocopy ""%~3"" ""%~2"" /E /XD python cache logs .git scratch _update_temp /XF config.json lotro.db translation_cache.db *.db-wal *.db-shm *.db-journal npc_races_custom.json *.log /R:5 /W:1 >nul
+if exist ""%~2\data\pronunciation_custom.json"" copy /y ""%~2\data\pronunciation_custom.json"" ""%~2\_custom_pron.tmp"" >nul
+robocopy ""%~3"" ""%~2"" /E /XD python cache logs .git scratch _update_temp /XF config.json lotro.db translation_cache.db *.db-wal *.db-shm *.db-journal npc_races_custom.json pronunciation_custom.json *.log /R:5 /W:1 >nul
 if exist ""%~2\_custom_npc.tmp"" move /y ""%~2\_custom_npc.tmp"" ""%~2\src\npc\npc_races_custom.json"" >nul
+if exist ""%~2\_custom_pron.tmp"" move /y ""%~2\_custom_pron.tmp"" ""%~2\data\pronunciation_custom.json"" >nul
 
-:: If config.json did not exist in target, copy default
+:: If config.json or starter pronunciation_custom.json did not exist in target, copy defaults
 if not exist ""%~2\config.json"" if exist ""%~3\config.json"" copy ""%~3\config.json"" ""%~2\config.json"" >nul
+if not exist ""%~2\data\pronunciation_custom.json"" if exist ""%~3\data\pronunciation_custom.json"" copy ""%~3\data\pronunciation_custom.json"" ""%~2\data\pronunciation_custom.json"" >nul
 
 echo.
 echo Cleaning up temporary update files...
@@ -442,9 +445,12 @@ if [ -d ""$PAYLOAD_DIR/python/linux64"" ]; then
     fi
 fi
 
-# 2. Copy application files while preserving user config, DBs, cache, logs, and custom npc overrides
+# 2. Copy application files while preserving user config, DBs, cache, logs, and custom overrides
 if [ -f ""$BASE_DIR/src/npc/npc_races_custom.json"" ]; then
     cp -f ""$BASE_DIR/src/npc/npc_races_custom.json"" ""$BASE_DIR/_custom_npc.tmp""
+fi
+if [ -f ""$BASE_DIR/data/pronunciation_custom.json"" ]; then
+    cp -f ""$BASE_DIR/data/pronunciation_custom.json"" ""$BASE_DIR/_custom_pron.tmp""
 fi
 if [ -f ""$BASE_DIR/data/lotro.db"" ]; then
     cp -f ""$BASE_DIR/data/lotro.db"" ""$BASE_DIR/_lotro_db.tmp""
@@ -456,6 +462,10 @@ find ""$PAYLOAD_DIR"" -mindepth 1 -maxdepth 1 ! -name 'python' ! -name 'cache' !
 if [ -f ""$BASE_DIR/_custom_npc.tmp"" ]; then
     mkdir -p ""$BASE_DIR/src/npc""
     mv -f ""$BASE_DIR/_custom_npc.tmp"" ""$BASE_DIR/src/npc/npc_races_custom.json""
+fi
+if [ -f ""$BASE_DIR/_custom_pron.tmp"" ]; then
+    mkdir -p ""$BASE_DIR/data""
+    mv -f ""$BASE_DIR/_custom_pron.tmp"" ""$BASE_DIR/data/pronunciation_custom.json""
 fi
 if [ -f ""$BASE_DIR/_lotro_db.tmp"" ]; then
     mkdir -p ""$BASE_DIR/data""

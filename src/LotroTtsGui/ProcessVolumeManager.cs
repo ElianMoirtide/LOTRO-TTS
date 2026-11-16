@@ -10,10 +10,26 @@ namespace LotroTtsGui
 {
     public static class ProcessVolumeManager
     {
+        private static readonly HashSet<string> LotroProcessNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "lotroclient64",
+            "lotroclient",
+            "lotroclient_awesomium"
+        };
+
+        private static readonly object duckLock = new();
+        private static readonly Dictionary<string, float> savedWindowsLotroVolumes = new();
+        private static readonly Dictionary<string, int> savedLinuxSinkVolumes = new();
+        private static bool isLotroDucked = false;
+
+        public static bool IsLotroDucked
+        {
+            get { lock (duckLock) return isLotroDucked; }
+        }
+
         public static void SetProcessVolume(int pid, int volumePercent)
         {
-            if (volumePercent < 0) volumePercent = 0;
-            if (volumePercent > 100) volumePercent = 100;
+            volumePercent = Math.Clamp(volumePercent, 0, 100);
 
             if (OperatingSystem.IsWindows())
             {
@@ -25,7 +41,95 @@ namespace LotroTtsGui
             }
         }
 
+        public static void ApplyLotroDuckVolume(int duckPercent)
+        {
+            duckPercent = Math.Clamp(duckPercent, 0, 100);
+            lock (duckLock)
+            {
+                if (OperatingSystem.IsWindows())
+                {
+                    ApplyWindowsLotroDuck(duckPercent);
+                }
+                else if (OperatingSystem.IsLinux())
+                {
+                    ApplyLinuxLotroDuck(duckPercent);
+                }
+                isLotroDucked = true;
+            }
+        }
+
+        public static void RestoreLotroDuckVolume()
+        {
+            lock (duckLock)
+            {
+                if (!isLotroDucked && savedWindowsLotroVolumes.Count == 0 && savedLinuxSinkVolumes.Count == 0)
+                    return;
+
+                if (OperatingSystem.IsWindows())
+                {
+                    RestoreWindowsLotroDuck();
+                }
+                else if (OperatingSystem.IsLinux())
+                {
+                    RestoreLinuxLotroDuck();
+                }
+
+                savedWindowsLotroVolumes.Clear();
+                savedLinuxSinkVolumes.Clear();
+                isLotroDucked = false;
+            }
+        }
+
+        private static bool IsLotroProcessName(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return false;
+            string clean = name.Trim();
+            if (clean.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                clean = clean[..^4];
+            return LotroProcessNames.Contains(clean);
+        }
+
         #region Linux PipeWire / PulseAudio (pactl) & Real-Time Software Scaling
+        private static string? RunPactl(string arguments)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "pactl",
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var p = Process.Start(psi);
+            if (p == null) return null;
+            string output = p.StandardOutput.ReadToEnd();
+            p.WaitForExit(500);
+            return output;
+        }
+
+        private static HashSet<int> GetRunningLotroPids()
+        {
+            var pids = new HashSet<int>();
+            try
+            {
+                foreach (var proc in Process.GetProcesses())
+                {
+                    try
+                    {
+                        if (IsLotroProcessName(proc.ProcessName))
+                            pids.Add(proc.Id);
+                    }
+                    catch { }
+                    finally
+                    {
+                        proc.Dispose();
+                    }
+                }
+            }
+            catch { }
+            return pids;
+        }
+
         private static void ApplyLinuxProcessVolume(int pid, int volumePercent)
         {
             // On Linux, audio streams are one-shot and transient. System sink-inputs
@@ -36,19 +140,8 @@ namespace LotroTtsGui
             //    we also adjust its current sink-input in real-time via pactl.
             try
             {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = "pactl",
-                    Arguments = "list sink-inputs",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
-                using var p = Process.Start(psi);
-                if (p == null) return;
-                string output = p.StandardOutput.ReadToEnd();
-                p.WaitForExit(500);
+                string? output = RunPactl("list sink-inputs");
+                if (string.IsNullOrEmpty(output)) return;
 
                 var blocks = output.Split(new[] { "Sink Input #" }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var block in blocks)
@@ -73,15 +166,7 @@ namespace LotroTtsGui
 
                     if (match)
                     {
-                        var setPsi = new ProcessStartInfo
-                        {
-                            FileName = "pactl",
-                            Arguments = $"set-sink-input-volume {sinkId} {volumePercent}%",
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        };
-                        using var setP = Process.Start(setPsi);
-                        setP?.WaitForExit(500);
+                        RunPactl($"set-sink-input-volume {sinkId} {volumePercent}%");
                     }
                 }
             }
@@ -90,28 +175,75 @@ namespace LotroTtsGui
                 // Ignore if pactl is not installed or daemon is unavailable
             }
         }
+
+        private static void ApplyLinuxLotroDuck(int duckPercent)
+        {
+            try
+            {
+                string? output = RunPactl("list sink-inputs");
+                if (string.IsNullOrEmpty(output)) return;
+
+                var lotroPids = GetRunningLotroPids();
+                var blocks = output.Split(new[] { "Sink Input #" }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var block in blocks)
+                {
+                    var idMatch = Regex.Match(block, @"^(\d+)");
+                    if (!idMatch.Success) continue;
+                    string sinkId = idMatch.Groups[1].Value;
+
+                    bool isLotro = block.Contains("lotroclient", StringComparison.OrdinalIgnoreCase);
+                    if (!isLotro)
+                    {
+                        var pidMatch = Regex.Match(block, @"application\.process\.id\s*=\s*""?(\d+)""?");
+                        if (pidMatch.Success && int.TryParse(pidMatch.Groups[1].Value, out int blockPid) && lotroPids.Contains(blockPid))
+                            isLotro = true;
+                    }
+                    if (!isLotro) continue;
+
+                    if (!savedLinuxSinkVolumes.TryGetValue(sinkId, out int origPct))
+                    {
+                        var volMatch = Regex.Match(block, @"Volume:.*?(\d+)%");
+                        origPct = volMatch.Success && int.TryParse(volMatch.Groups[1].Value, out int parsed)
+                            ? Math.Clamp(parsed, 0, 150)
+                            : 100;
+                        savedLinuxSinkVolumes[sinkId] = origPct;
+                    }
+
+                    int targetPct = Math.Clamp((int)Math.Round(origPct * (duckPercent / 100.0)), 0, 150);
+                    RunPactl($"set-sink-input-volume {sinkId} {targetPct}%");
+                }
+            }
+            catch { }
+        }
+
+        private static void RestoreLinuxLotroDuck()
+        {
+            try
+            {
+                foreach (var kv in savedLinuxSinkVolumes)
+                {
+                    RunPactl($"set-sink-input-volume {kv.Key} {kv.Value}%");
+                }
+            }
+            catch { }
+        }
         #endregion
 
         #region Windows WASAPI Audio COM
         [SupportedOSPlatform("windows")]
-        private static void ApplyWindowsProcessVolume(int targetPid, int volumePercent)
+        private static void ForEachWindowsAudioSession(Action<string, uint, ISimpleAudioVolume> visitor)
         {
             try
             {
                 var enumerator = (IMMDeviceEnumerator)new MMDeviceEnumeratorComObject();
-                float normVol = Math.Clamp(volumePercent / 100.0f, 0.0f, 1.0f);
-                Guid emptyGuid = Guid.Empty;
                 Guid iidMgr2 = typeof(IAudioSessionManager2).GUID;
 
                 var devices = new List<IMMDevice>();
-
-                // 1. Check default audio endpoint
                 if (enumerator.GetDefaultAudioEndpoint(0, 0, out IMMDevice defaultEndpoint) == 0 && defaultEndpoint != null)
                 {
                     devices.Add(defaultEndpoint);
                 }
 
-                // 2. Also enumerate all active render endpoints (M-Audio, USB DACs, Headphones)
                 if (enumerator.EnumAudioEndpoints(0, 1, out IMMDeviceCollection collection) == 0 && collection != null)
                 {
                     collection.GetCount(out int devCount);
@@ -124,10 +256,14 @@ namespace LotroTtsGui
                     }
                 }
 
+                var seenKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var dev in devices)
                 {
                     try
                     {
+                        string devId = dev.GetId(out string rawId) == 0 && !string.IsNullOrEmpty(rawId)
+                            ? rawId
+                            : "default";
                         if (dev.Activate(ref iidMgr2, 1, IntPtr.Zero, out IntPtr ptr) != 0 || ptr == IntPtr.Zero)
                             continue;
 
@@ -147,29 +283,10 @@ namespace LotroTtsGui
                                         ctl2.GetProcessId(out uint pid);
                                         if (pid == 0) continue;
 
-                                        bool match = false;
-                                        if (targetPid > 0 && pid == (uint)targetPid)
+                                        string sessionKey = $"{pid}|{devId}";
+                                        if (seenKeys.Add(sessionKey))
                                         {
-                                            match = true;
-                                        }
-                                        else
-                                        {
-                                            try
-                                            {
-                                                string pName = Process.GetProcessById((int)pid).ProcessName.ToLowerInvariant();
-                                                if (pName == "python" || pName == "pythonw")
-                                                    match = true;
-                                            }
-                                            catch { }
-                                        }
-
-                                        if (match)
-                                        {
-                                            vol.GetMasterVolume(out float curVol);
-                                            if (Math.Abs(curVol - normVol) > 0.005f)
-                                            {
-                                                vol.SetMasterVolume(normVol, ref emptyGuid);
-                                            }
+                                            visitor(sessionKey, pid, vol);
                                         }
                                     }
                                 }
@@ -190,6 +307,100 @@ namespace LotroTtsGui
             {
                 // Audio endpoint or COM error
             }
+        }
+
+        private static string? TryGetProcessName(uint pid)
+        {
+            try
+            {
+                using var p = Process.GetProcessById((int)pid);
+                return p.ProcessName;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        [SupportedOSPlatform("windows")]
+        private static void ApplyWindowsProcessVolume(int targetPid, int volumePercent)
+        {
+            float normVol = Math.Clamp(volumePercent / 100.0f, 0.0f, 1.0f);
+            Guid emptyGuid = Guid.Empty;
+            var nameCache = new Dictionary<uint, bool>();
+
+            ForEachWindowsAudioSession((sessionKey, pid, vol) =>
+            {
+                bool match = false;
+                if (targetPid > 0 && pid == (uint)targetPid)
+                {
+                    match = true;
+                }
+                else
+                {
+                    if (!nameCache.TryGetValue(pid, out match))
+                    {
+                        string? pName = TryGetProcessName(pid);
+                        match = string.Equals(pName, "python", StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(pName, "pythonw", StringComparison.OrdinalIgnoreCase);
+                        nameCache[pid] = match;
+                    }
+                }
+
+                if (match && vol.GetMasterVolume(out float curVol) == 0 && Math.Abs(curVol - normVol) > 0.005f)
+                {
+                    vol.SetMasterVolume(normVol, ref emptyGuid);
+                }
+            });
+        }
+
+        [SupportedOSPlatform("windows")]
+        private static void ApplyWindowsLotroDuck(int duckPercent)
+        {
+            float scale = Math.Clamp(duckPercent / 100.0f, 0.0f, 1.0f);
+            Guid emptyGuid = Guid.Empty;
+            var nameCache = new Dictionary<uint, bool>();
+
+            ForEachWindowsAudioSession((sessionKey, pid, vol) =>
+            {
+                if (!nameCache.TryGetValue(pid, out bool isLotro))
+                {
+                    isLotro = IsLotroProcessName(TryGetProcessName(pid));
+                    nameCache[pid] = isLotro;
+                }
+                if (!isLotro) return;
+
+                if (vol.GetMasterVolume(out float curVol) != 0) return;
+                if (!savedWindowsLotroVolumes.TryGetValue(sessionKey, out float origVol))
+                {
+                    origVol = curVol;
+                    savedWindowsLotroVolumes[sessionKey] = origVol;
+                }
+
+                float targetVol = Math.Clamp(origVol * scale, 0.0f, 1.0f);
+                if (Math.Abs(curVol - targetVol) > 0.005f)
+                {
+                    vol.SetMasterVolume(targetVol, ref emptyGuid);
+                }
+            });
+        }
+
+        [SupportedOSPlatform("windows")]
+        private static void RestoreWindowsLotroDuck()
+        {
+            if (savedWindowsLotroVolumes.Count == 0) return;
+            Guid emptyGuid = Guid.Empty;
+
+            ForEachWindowsAudioSession((sessionKey, pid, vol) =>
+            {
+                if (savedWindowsLotroVolumes.TryGetValue(sessionKey, out float origVol))
+                {
+                    if (vol.GetMasterVolume(out float curVol) == 0 && Math.Abs(curVol - origVol) > 0.005f)
+                    {
+                        vol.SetMasterVolume(origVol, ref emptyGuid);
+                    }
+                }
+            });
         }
 
         [ComImport]

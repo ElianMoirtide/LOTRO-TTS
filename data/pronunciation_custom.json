@@ -1,0 +1,20 @@
+{
+  "_description": "LOTRO-TTS Custom Pronunciation Overrides. Entries defined here take precedence over data/pronunciation.json and are preserved across application updates.",
+  "_instructions": "Add entries under 'common' (all TTS languages) or a language key ('de', 'en', 'fr', 'es', 'it', 'nl'). Matching is whole-word and case-insensitive.",
+  "_examples": {
+    "de": {
+      "Imladris": "Im-la-dris",
+      "Forochel": "Foro-chel"
+    },
+    "en": {
+      "Forochel": "Foro-kel"
+    }
+  },
+  "common": {},
+  "de": {},
+  "en": {},
+  "fr": {},
+  "es": {},
+  "it": {},
+  "nl": {}
+}

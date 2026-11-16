@@ -96,10 +96,22 @@ While `LOTRO-TTS.exe` is running in the background, you have full control over s
    - Whenever a quest or instance dialogue window is open on screen, press your **Middle Mouse Button (Mouse 3)** to scan and read it aloud.
    - For standard quests in `lotro.db`, LOTRO-TTS automatically resolves the quest's associated NPC from the database; for dynamic instance texts or objects without an NPC, it uses the last logged target or the default narrator voice (`man_male_1`).
 
-### Stopping Dialogue (Instant Cancel)
-You can immediately interrupt and silence voice playback at any time using any of the following:
-- **`Pause / Break` Key**: Dedicated global stop hotkey (configurable via `"stop_hotkey"` in `config.json` or `--stop-hotkey`).
-- **Middle Mouse Button (Mouse 3)**: Acts as an intelligent toggle — clicking Mouse 3 while a dialogue is scanning or speaking halts playback instantly.
+### Stopping, Replaying & Queueing Dialogue
+- **Instant Stop (`Pause / Break` Key)**: Dedicated global stop hotkey (configurable via `"stop_hotkey"` in `config.json` or `--stop-hotkey`) that halts active playback and clears any queued dialogues immediately.
+- **Middle Mouse Button (Mouse 3)**: In default interrupt mode, acts as an intelligent toggle (clicking Mouse 3 while speaking halts playback). When **Queue Mode** is enabled, Mouse 3 captures and queues the newly opened dialogue without cutting off active playback.
+- **Replay Last (`Scroll Lock` / `Replay Last` Button)**: Replays the last spoken dialogue directly from cache without re-scanning (configurable via `"replay_hotkey"` in `config.json` or `--replay-hotkey`).
+- **Skip / Next (`End` Key / `Skip / Next` Button)**: In **Queue Mode**, skips the currently playing dialogue and immediately starts the next queued quest (configurable via `"skip_hotkey"` in `config.json` or `--skip-hotkey`).
+- **Queue Mode (Optional)**: When enabled in the dashboard, triggered quests are played sequentially one after another instead of interrupting, even if you close the quest window immediately after triggering.
+- **Audio Ducking (Optional)**: Automatically lowers LOTRO's game audio to your chosen percentage while TTS speaks, and restores the original volume afterward.
+
+---
+
+## 🗣️ Pronunciation Dictionary
+
+LOTRO-TTS includes a customizable pronunciation dictionary (`data/pronunciation.json`) applied right before TTS synthesis (without changing `lotro.db` or OCR matching) so Middle-earth names like *Círdan*, *Celebrimbor*, *Cirith Ungol*, *Khazad-dûm*, or abbreviations are spoken cleanly.
+
+* **Custom Overrides**: Add your own word replacements to **`data/pronunciation_custom.json`** under `"common"` or a language key (`"de"`, `"en"`, `"fr"`, `"es"`, `"it"`, `"nl"`).
+* **Hot-Reload & Safe Across Updates**: Changes apply immediately on the next spoken line, and `data/pronunciation_custom.json` is preserved automatically across updates.
 
 ---
 
@@ -204,7 +216,10 @@ python\win64\python.exe scripts\lotro_service.py [OPTIONS]
 | `--no-mouse` | *disabled* | Disables the global middle mouse button trigger (in-game button only). |
 | `--narrator-mode` | *disabled* | Replaces NPC race/gender voices with a single unified narrator voice. |
 | `--narrator-voice` | `man_male_1` | Voice ID from `data/voices` to use when Narrator Mode is active. |
-| `--stop-hotkey` | `pause` | Global hotkey to force-stop active dialogue playback (`Mouse 3` also cancels when enabled). |
+| `--stop-hotkey` | `pause` | Global hotkey to force-stop active dialogue playback (`Mouse 3` also cancels when Queue Mode is off). |
+| `--replay-hotkey` | `scroll_lock` | Global hotkey to replay the last dialogue (`none` to disable). |
+| `--skip-hotkey` | `end` | Global hotkey to skip the active dialogue in Queue Mode (`none` to disable). |
+| `--queue-mode` | *disabled* | Queue triggered dialogues sequentially instead of interrupting. |
 | `--volume` | `100` | TTS speech playback volume percentage (`0`-`100`). |
 | `--config` | *disabled* | Forces interactive language configuration in console mode. |
 
@@ -219,6 +234,7 @@ LOTRO-TTS/
 ├── README.md                 # Project documentation
 ├── data/
 │   ├── lotro.db              # Generated SQLite Database (18,074 NPCs, 15,489 Quests)
+│   ├── pronunciation.json    # Built-in Middle-earth pronunciation rules (+ pronunciation_custom.json)
 │   └── voices/               # 190 Quest-Verified Voice Profiles per language (570 .ogg files)
 │       ├── de/               # German reference audio profiles & voice_index.json
 │       ├── en/               # English reference audio profiles & voice_index.json

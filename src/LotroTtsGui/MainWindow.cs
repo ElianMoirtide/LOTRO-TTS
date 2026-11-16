@@ -29,6 +29,8 @@ namespace LotroTtsGui
         private string pythonExe;
         private readonly string configPath;
         private string stopHotkey = "pause";
+        private string replayHotkey = "scroll_lock";
+        private string skipHotkey = "end";
         private double savedNormalWidth = 960;
         private double savedNormalHeight = 720;
         private bool savedIsMaximized = false;
@@ -52,11 +54,23 @@ namespace LotroTtsGui
         private TextBlock lblSpeedTitle = null!;
         private volatile int currentSpeed = 100;
         private CancellationTokenSource? speedDebounceCts;
+        private CheckBox chkQueueMode = null!;
+        private CheckBox chkAudioDucking = null!;
+        private Slider sliderDuckVolume = null!;
+        private TextBlock lblDuckTitle = null!;
+        private volatile bool audioDuckingEnabled = true;
+        private volatile int currentDuckVolume = 35;
+        private CancellationTokenSource? duckDebounceCts;
+        private CancellationTokenSource? unduckDelayCts;
+        private readonly object duckStateLock = new();
+        private readonly object stdinLock = new();
         private CheckBox chkMiddleMouse = null!;
         private CheckBox chkNarratorMode = null!;
         private ComboBox cmbNarratorVoice = null!;
         private string savedNarratorVoice = "man_male_1";
         private Button btnStartStop = null!;
+        private Button btnReplayLast = null!;
+        private Button btnSkipNext = null!;
 
         // Tool buttons
         private Button btnSetupAi = null!;
@@ -155,8 +169,10 @@ namespace LotroTtsGui
             {
                 try { volumeDebounceCts?.Cancel(); } catch (ObjectDisposedException) { }
                 try { speedDebounceCts?.Cancel(); } catch (ObjectDisposedException) { }
+                try { duckDebounceCts?.Cancel(); } catch (ObjectDisposedException) { }
                 SaveConfig();
                 StopActiveProcess();
+                RestoreAudioDuckImmediate();
             };
 
             AppendLog("======================================================================", goldAccent);
@@ -307,7 +323,7 @@ namespace LotroTtsGui
 
             var settingsPanel = new Grid
             {
-                RowDefinitions = new RowDefinitions("Auto,Auto,Auto")
+                RowDefinitions = new RowDefinitions("Auto,Auto,Auto,Auto")
             };
 
             // Row 0: 4 dropdowns & volume slider
@@ -525,10 +541,131 @@ namespace LotroTtsGui
             Grid.SetRow(row2Grid, 2);
             settingsPanel.Children.Add(row2Grid);
 
+            // Row 3: Queue Mode + Audio Ducking Controls (left) + LOTRO Ducking Level Slider (right)
+            var row3Grid = new Grid
+            {
+                ColumnDefinitions = new ColumnDefinitions("3.2*,12,0.9*"),
+                Margin = new Thickness(0, 6, 0, 0)
+            };
+
+            var row3CheckPanel = new WrapPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            chkQueueMode = new CheckBox
+            {
+                Content = "Queue Mode (Sequential Quests)",
+                IsChecked = false,
+                Foreground = textLight,
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 16, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            chkQueueMode.IsCheckedChanged += (s, e) =>
+            {
+                UpdateServiceActionButtons();
+                SaveConfig();
+            };
+
+            chkAudioDucking = new CheckBox
+            {
+                Content = "Audio Ducking (Lower LOTRO Volume)",
+                IsChecked = true,
+                Foreground = textLight,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            ToolTip.SetTip(chkAudioDucking, "Automatically lowers LOTRO game audio to the configured level while TTS speaks, and restores it afterward.");
+            chkAudioDucking.IsCheckedChanged += (s, e) =>
+            {
+                bool enabled = chkAudioDucking.IsChecked ?? true;
+                audioDuckingEnabled = enabled;
+                if (sliderDuckVolume != null) sliderDuckVolume.IsEnabled = enabled;
+                if (!enabled)
+                {
+                    ThreadPool.QueueUserWorkItem(_ => RestoreAudioDuckImmediate());
+                }
+                SaveConfig();
+            };
+
+            row3CheckPanel.Children.Add(chkQueueMode);
+            row3CheckPanel.Children.Add(chkAudioDucking);
+            Grid.SetColumn(row3CheckPanel, 0);
+            row3Grid.Children.Add(row3CheckPanel);
+
+            var duckPanel = new StackPanel
+            {
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            lblDuckTitle = new TextBlock
+            {
+                Text = "LOTRO Ducking: 35%",
+                FontSize = 11.5,
+                Foreground = textMuted,
+                Margin = new Thickness(0, 0, 0, 2)
+            };
+            sliderDuckVolume = new Slider
+            {
+                Minimum = 0,
+                Maximum = 100,
+                Value = 35,
+                TickFrequency = 5,
+                IsSnapToTickEnabled = true,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            sliderDuckVolume.PropertyChanged += (s, e) =>
+            {
+                if (e.Property.Name == nameof(Slider.Value))
+                {
+                    int dv = Math.Clamp((int)(Math.Round(sliderDuckVolume.Value / 5.0) * 5), 0, 100);
+                    currentDuckVolume = dv;
+                    lblDuckTitle.Text = $"LOTRO Ducking: {dv}%";
+                    if (isLoadingConfig) return;
+
+                    try { duckDebounceCts?.Cancel(); } catch (ObjectDisposedException) { }
+                    var cts = new CancellationTokenSource();
+                    duckDebounceCts = cts;
+                    var token = cts.Token;
+
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await Task.Delay(120, token);
+                            if (token.IsCancellationRequested) return;
+                            Dispatcher.UIThread.Post(SaveConfig);
+                            if (audioDuckingEnabled && ProcessVolumeManager.IsLotroDucked)
+                            {
+                                ProcessVolumeManager.ApplyLotroDuckVolume(dv);
+                            }
+                        }
+                        catch (OperationCanceledException) { }
+                        finally
+                        {
+                            cts.Dispose();
+                        }
+                    });
+                }
+            };
+            duckPanel.Children.Add(lblDuckTitle);
+            duckPanel.Children.Add(sliderDuckVolume);
+            Grid.SetColumn(duckPanel, 2);
+            row3Grid.Children.Add(duckPanel);
+
+            Grid.SetRow(row3Grid, 3);
+            settingsPanel.Children.Add(row3Grid);
+
             Grid.SetColumn(settingsPanel, 0);
             configOuterGrid.Children.Add(settingsPanel);
 
-            // Start/Stop Button in dedicated right column
+            // Start/Stop + Replay + Skip action buttons in dedicated right column
+            var actionColGrid = new Grid
+            {
+                RowDefinitions = new RowDefinitions("*,6,Auto,6,Auto")
+            };
+
             btnStartStop = new Button
             {
                 Content = "START LOTRO-TTS",
@@ -544,8 +681,21 @@ namespace LotroTtsGui
                 CornerRadius = new CornerRadius(4)
             };
             btnStartStop.Click += OnStartStopClicked;
-            Grid.SetColumn(btnStartStop, 2);
-            configOuterGrid.Children.Add(btnStartStop);
+            Grid.SetRow(btnStartStop, 0);
+            actionColGrid.Children.Add(btnStartStop);
+
+            btnReplayLast = CreateSideActionButton("Replay Last", OnReplayLastClicked);
+            Grid.SetRow(btnReplayLast, 2);
+            actionColGrid.Children.Add(btnReplayLast);
+
+            btnSkipNext = CreateSideActionButton("Skip / Next", OnSkipNextClicked);
+            Grid.SetRow(btnSkipNext, 4);
+            actionColGrid.Children.Add(btnSkipNext);
+
+            UpdateHotkeyTooltips();
+
+            Grid.SetColumn(actionColGrid, 2);
+            configOuterGrid.Children.Add(actionColGrid);
 
             configBorder.Child = configOuterGrid;
             Grid.SetRow(configBorder, 2);
@@ -739,6 +889,79 @@ namespace LotroTtsGui
             return btn;
         }
 
+        private Button CreateSideActionButton(string text, EventHandler<Avalonia.Interactivity.RoutedEventArgs> onClick)
+        {
+            var btn = new Button
+            {
+                Content = text,
+                Background = bgDark,
+                Foreground = textLight,
+                BorderBrush = borderBrush,
+                BorderThickness = new Thickness(1),
+                FontSize = 12,
+                Padding = new Thickness(8, 5),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                IsEnabled = false,
+                Cursor = new Cursor(StandardCursorType.Hand),
+                CornerRadius = new CornerRadius(4)
+            };
+            btn.Click += onClick;
+            return btn;
+        }
+
+        private void UpdateHotkeyTooltips()
+        {
+            string stopLabel = string.IsNullOrWhiteSpace(stopHotkey) ? "PAUSE" : stopHotkey.ToUpperInvariant();
+            string replayLabel = !string.IsNullOrWhiteSpace(replayHotkey) && replayHotkey is not ("none" or "off" or "disabled")
+                ? replayHotkey.ToUpperInvariant()
+                : "";
+            string skipLabel = !string.IsNullOrWhiteSpace(skipHotkey) && skipHotkey is not ("none" or "off" or "disabled")
+                ? skipHotkey.ToUpperInvariant()
+                : "";
+
+            if (chkQueueMode != null)
+            {
+                string skipPart = !string.IsNullOrEmpty(skipLabel)
+                    ? $"Pressing [{skipLabel}] or 'Skip / Next' jumps to the next queued quest. "
+                    : "";
+                ToolTip.SetTip(
+                    chkQueueMode,
+                    $"Plays triggered quests one after another in order instead of interrupting. {skipPart}Pressing [{stopLabel}] stops playback and clears the queue."
+                );
+            }
+
+            if (btnReplayLast != null)
+            {
+                string keyNote = !string.IsNullOrEmpty(replayLabel)
+                    ? $"in-game hotkey: {replayLabel}, "
+                    : "";
+                ToolTip.SetTip(
+                    btnReplayLast,
+                    $"Replay the last spoken dialogue from cache ({keyNote}customizable via 'replay_hotkey' in config.json)."
+                );
+            }
+
+            if (btnSkipNext != null)
+            {
+                string keyNote = !string.IsNullOrEmpty(skipLabel)
+                    ? $"in-game hotkey: {skipLabel}, "
+                    : "";
+                ToolTip.SetTip(
+                    btnSkipNext,
+                    $"Skip the current dialogue and start the next queued quest (Queue Mode only; {keyNote}customizable via 'skip_hotkey' in config.json)."
+                );
+            }
+        }
+
+        private void UpdateServiceActionButtons()
+        {
+            bool runningReady = isServiceRunning && !isTaskRunning;
+            if (btnReplayLast != null) btnReplayLast.IsEnabled = runningReady;
+            if (btnSkipNext != null) btnSkipNext.IsEnabled = runningReady && (chkQueueMode?.IsChecked ?? false);
+        }
+
         private void AppendLog(string line, IBrush? color = null)
         {
             if (string.IsNullOrEmpty(line)) return;
@@ -870,6 +1093,35 @@ namespace LotroTtsGui
                         stopHotkey = sh.GetString()!.ToLowerInvariant().Trim();
                     }
 
+                    if (root.TryGetProperty("replay_hotkey", out var rh) && rh.ValueKind == JsonValueKind.String)
+                    {
+                        replayHotkey = (rh.GetString() ?? "").ToLowerInvariant().Trim();
+                    }
+
+                    if (root.TryGetProperty("skip_hotkey", out var skh) && skh.ValueKind == JsonValueKind.String)
+                    {
+                        skipHotkey = (skh.GetString() ?? "").ToLowerInvariant().Trim();
+                    }
+
+                    if (root.TryGetProperty("queue_mode", out var qm) && (qm.ValueKind == JsonValueKind.True || qm.ValueKind == JsonValueKind.False))
+                    {
+                        if (chkQueueMode != null) chkQueueMode.IsChecked = qm.GetBoolean();
+                    }
+
+                    if (root.TryGetProperty("audio_ducking", out var ad) && (ad.ValueKind == JsonValueKind.True || ad.ValueKind == JsonValueKind.False))
+                    {
+                        audioDuckingEnabled = ad.GetBoolean();
+                        if (chkAudioDucking != null) chkAudioDucking.IsChecked = audioDuckingEnabled;
+                        if (sliderDuckVolume != null) sliderDuckVolume.IsEnabled = audioDuckingEnabled;
+                    }
+
+                    if (root.TryGetProperty("duck_volume", out var dv) && dv.TryGetInt32(out int duckPct))
+                    {
+                        currentDuckVolume = Math.Clamp((int)(Math.Round(duckPct / 5.0) * 5), 0, 100);
+                        if (sliderDuckVolume != null) sliderDuckVolume.Value = currentDuckVolume;
+                        if (lblDuckTitle != null) lblDuckTitle.Text = $"LOTRO Ducking: {currentDuckVolume}%";
+                    }
+
                     if (root.TryGetProperty("narrator_mode", out var nm) && (nm.ValueKind == JsonValueKind.True || nm.ValueKind == JsonValueKind.False))
                     {
                         bool isNarrator = nm.GetBoolean();
@@ -893,6 +1145,8 @@ namespace LotroTtsGui
                         includePrereleases = ip.GetBoolean();
                         if (chkIncludePrereleases != null) chkIncludePrereleases.IsChecked = includePrereleases;
                     }
+
+                    UpdateHotkeyTooltips();
                 }
                 else
                 {
@@ -995,6 +1249,9 @@ namespace LotroTtsGui
                 int volume = (int)sliderVolume.Value;
                 int speechSpeed = Math.Clamp((int)(Math.Round(sliderSpeed.Value / 5.0) * 5), 75, 135);
                 bool middleMouse = chkMiddleMouse?.IsChecked ?? true;
+                bool queueMode = chkQueueMode?.IsChecked ?? false;
+                bool audioDucking = chkAudioDucking?.IsChecked ?? true;
+                int duckVolume = Math.Clamp((int)(Math.Round(sliderDuckVolume.Value / 5.0) * 5), 0, 100);
                 bool narratorMode = chkNarratorMode?.IsChecked ?? false;
                 string narratorVoice = GetSelectedVoiceId(cmbNarratorVoice, savedNarratorVoice);
                 savedNarratorVoice = narratorVoice;
@@ -1022,7 +1279,12 @@ namespace LotroTtsGui
                     volume = volume,
                     speech_speed = speechSpeed,
                     stop_hotkey = stopHotkey,
+                    replay_hotkey = replayHotkey,
+                    skip_hotkey = skipHotkey,
                     middle_mouse = middleMouse,
+                    queue_mode = queueMode,
+                    audio_ducking = audioDucking,
+                    duck_volume = duckVolume,
                     narrator_mode = narratorMode,
                     narrator_voice = narratorVoice,
                     include_prereleases = includePrereleases,
@@ -1274,6 +1536,7 @@ namespace LotroTtsGui
                 chkMiddleMouse.IsEnabled = enabled;
                 chkNarratorMode.IsEnabled = enabled;
                 cmbNarratorVoice.IsEnabled = enabled && (chkNarratorMode.IsChecked ?? false);
+                UpdateServiceActionButtons();
             });
         }
 
@@ -1688,6 +1951,96 @@ namespace LotroTtsGui
             }
         }
 
+        private void HandleAudioDuckSignal(bool shouldDuck)
+        {
+            lock (duckStateLock)
+            {
+                try { unduckDelayCts?.Cancel(); unduckDelayCts?.Dispose(); } catch { }
+                unduckDelayCts = null;
+
+                if (shouldDuck)
+                {
+                    if (!audioDuckingEnabled) return;
+                    int duckPct = currentDuckVolume;
+                    ThreadPool.QueueUserWorkItem(_ => ProcessVolumeManager.ApplyLotroDuckVolume(duckPct));
+                }
+                else
+                {
+                    var cts = new CancellationTokenSource();
+                    unduckDelayCts = cts;
+                    var token = cts.Token;
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await Task.Delay(250, token);
+                            if (!token.IsCancellationRequested)
+                            {
+                                ProcessVolumeManager.RestoreLotroDuckVolume();
+                            }
+                        }
+                        catch (OperationCanceledException) { }
+                        finally
+                        {
+                            lock (duckStateLock)
+                            {
+                                if (ReferenceEquals(unduckDelayCts, cts))
+                                    unduckDelayCts = null;
+                            }
+                            cts.Dispose();
+                        }
+                    });
+                }
+            }
+        }
+
+        private void RestoreAudioDuckImmediate()
+        {
+            lock (duckStateLock)
+            {
+                try { unduckDelayCts?.Cancel(); unduckDelayCts?.Dispose(); } catch { }
+                unduckDelayCts = null;
+            }
+            ProcessVolumeManager.RestoreLotroDuckVolume();
+        }
+
+        private bool HandleServiceControlLine(string line)
+        {
+            string trimmed = line.Trim();
+            if (trimmed == "[AUDIO_DUCK:1]")
+            {
+                HandleAudioDuckSignal(true);
+                return true;
+            }
+            if (trimmed == "[AUDIO_DUCK:0]")
+            {
+                HandleAudioDuckSignal(false);
+                return true;
+            }
+            return false;
+        }
+
+        private void SendServiceIpcCommand(string command)
+        {
+            if (!isServiceRunning || activeProcess == null || activeProcess.HasExited) return;
+            try
+            {
+                lock (stdinLock)
+                {
+                    activeProcess.StandardInput.WriteLine(command);
+                    activeProcess.StandardInput.Flush();
+                }
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"[ERROR] Could not send '{command}' command: {ex.Message}", redStop);
+            }
+        }
+
+        private void OnReplayLastClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SendServiceIpcCommand("REPLAY");
+
+        private void OnSkipNextClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => SendServiceIpcCommand("SKIP");
+
         private void StartTtsServiceProcess()
         {
             string clientLang = GetSelectedCode(cmbClientLang, "de");
@@ -1696,18 +2049,29 @@ namespace LotroTtsGui
             int volume = (int)sliderVolume.Value;
             int speed = Math.Clamp((int)(Math.Round(sliderSpeed.Value / 5.0) * 5), 75, 135);
             bool useMouse = chkMiddleMouse.IsChecked ?? true;
+            bool qMode = chkQueueMode?.IsChecked ?? false;
+            string replayArg = string.IsNullOrWhiteSpace(replayHotkey) ? "none" : replayHotkey;
+            string skipArg = string.IsNullOrWhiteSpace(skipHotkey) ? "none" : skipHotkey;
 
             bool narratorMode = chkNarratorMode.IsChecked ?? false;
             string narratorVoice = GetSelectedVoiceId(cmbNarratorVoice, savedNarratorVoice);
 
-            string args = $"-u \"scripts/lotro_service.py\" --client-lang {clientLang} --tts-lang {ttsLang} --mode {mode} --volume {volume} --speed {speed} --stop-hotkey {stopHotkey}" +
+            string args = $"-u \"scripts/lotro_service.py\" --client-lang {clientLang} --tts-lang {ttsLang} --mode {mode} --volume {volume} --speed {speed} --stop-hotkey {stopHotkey} --replay-hotkey {replayArg} --skip-hotkey {skipArg} --emit-duck-events --gui-ipc" +
+                          (qMode ? " --queue-mode" : "") +
                           (narratorMode ? $" --narrator-mode --narrator-voice {narratorVoice}" : "") +
                           (useMouse ? "" : " --no-mouse");
 
             AppendLog("\n======================================================================", goldAccent);
             AppendLog($"Starting LOTRO-TTS Service [Client: {clientLang.ToUpperInvariant()} | TTS: {ttsLang.ToUpperInvariant()} | Mode: {mode.ToUpperInvariant()} | Vol: {volume}% | Speed: {speed}%]...", goldAccent);
-            string stopHint = useMouse ? $"[{stopHotkey.ToUpperInvariant()}] or [MOUSE 3]" : $"[{stopHotkey.ToUpperInvariant()}]";
-            AppendLog($"[HOTKEY] Press {stopHint} anytime in-game to instantly force-stop dialogue.", goldAccent);
+            string stopHint = (!qMode && useMouse) ? $"[{stopHotkey.ToUpperInvariant()}] or [MOUSE 3]" : $"[{stopHotkey.ToUpperInvariant()}]";
+            string replayHint = !string.IsNullOrWhiteSpace(replayHotkey) && replayHotkey is not ("none" or "off" or "disabled")
+                ? $" | Replay: [{replayHotkey.ToUpperInvariant()}]"
+                : "";
+            string skipHint = (qMode && !string.IsNullOrWhiteSpace(skipHotkey) && skipHotkey is not ("none" or "off" or "disabled"))
+                ? $" | Skip: [{skipHotkey.ToUpperInvariant()}]"
+                : "";
+            string duckHint = audioDuckingEnabled ? $"{currentDuckVolume}%" : "OFF";
+            AppendLog($"[HOTKEY] Stop: {stopHint}{replayHint}{skipHint} | Queue: {(qMode ? "ON" : "OFF")} | Ducking: {duckHint}", goldAccent);
             if (narratorMode)
             {
                 AppendLog($"[NARRATOR MODE] Active — all dialogue will be read using single narrator voice: '{narratorVoice}'", goldAccent);
@@ -1723,6 +2087,7 @@ namespace LotroTtsGui
                     WorkingDirectory = baseDir,
                     UseShellExecute = false,
                     CreateNoWindow = true,
+                    RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     StandardOutputEncoding = Encoding.UTF8,
@@ -1734,12 +2099,23 @@ namespace LotroTtsGui
                 psi.EnvironmentVariables["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1";
 
                 activeProcess = new Process { StartInfo = psi, EnableRaisingEvents = true };
-                activeProcess.OutputDataReceived += (s, ev) => { if (ev.Data != null) AppendLog(ev.Data); };
-                activeProcess.ErrorDataReceived += (s, ev) => { if (ev.Data != null) AppendLog(ev.Data); };
+                activeProcess.OutputDataReceived += (s, ev) =>
+                {
+                    if (ev.Data == null) return;
+                    if (HandleServiceControlLine(ev.Data)) return;
+                    AppendLog(ev.Data);
+                };
+                activeProcess.ErrorDataReceived += (s, ev) =>
+                {
+                    if (ev.Data == null) return;
+                    if (HandleServiceControlLine(ev.Data)) return;
+                    AppendLog(ev.Data);
+                };
                 activeProcess.Exited += (s, ev) =>
                 {
                     serviceVolumeWatcherCts?.Cancel();
                     serviceVolumeWatcherCts = null;
+                    RestoreAudioDuckImmediate();
                     Dispatcher.UIThread.Post(() =>
                     {
                         isServiceRunning = false;
@@ -1777,6 +2153,7 @@ namespace LotroTtsGui
             }
             catch (Exception ex)
             {
+                RestoreAudioDuckImmediate();
                 AppendLog($"[ERROR] Failed to start service: {ex.Message}", redStop);
             }
         }
@@ -1787,6 +2164,7 @@ namespace LotroTtsGui
             {
                 serviceVolumeWatcherCts?.Cancel();
                 serviceVolumeWatcherCts = null;
+                RestoreAudioDuckImmediate();
                 if (activeProcess != null && !activeProcess.HasExited)
                 {
                     AppendLog("Stopping LOTRO-TTS Service...", amberWarn);

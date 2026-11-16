@@ -14,6 +14,7 @@ import os
 import sys
 import json
 import time
+import queue
 import argparse
 import logging
 import threading
@@ -279,6 +280,92 @@ def _inspect_target_pid_elevation_win32(
         k32.CloseHandle(h_proc)
 
 
+_MODIFIER_ALIASES = {
+    "ctrl": "ctrl",
+    "control": "ctrl",
+    "lctrl": "ctrl",
+    "rctrl": "ctrl",
+    "alt": "alt",
+    "lalt": "alt",
+    "ralt": "alt",
+    "altgr": "alt",
+    "shift": "shift",
+    "lshift": "shift",
+    "rshift": "shift",
+}
+
+
+def _parse_hotkey_spec(spec: str) -> tuple[frozenset[str], str]:
+    """Parses a hotkey string such as 'pause', 'scroll_lock', or 'alt+r' into (modifiers, main_key)."""
+    parts = [p.strip().lower() for p in (spec or "").split("+") if p.strip()]
+    if not parts or parts in (["none"], ["off"], ["disabled"]):
+        return frozenset(), ""
+    mods = set()
+    main_key = ""
+    for part in parts:
+        if part in _MODIFIER_ALIASES and len(parts) > 1:
+            mods.add(_MODIFIER_ALIASES[part])
+        else:
+            main_key = part
+    return frozenset(mods), main_key
+
+
+def _get_modifier_name(key, keyboard_mod) -> Optional[str]:
+    for attr in ("ctrl", "ctrl_l", "ctrl_r"):
+        if key == getattr(keyboard_mod.Key, attr, None):
+            return "ctrl"
+    for attr in ("alt", "alt_l", "alt_r", "alt_gr"):
+        if key == getattr(keyboard_mod.Key, attr, None):
+            return "alt"
+    for attr in ("shift", "shift_l", "shift_r"):
+        if key == getattr(keyboard_mod.Key, attr, None):
+            return "shift"
+    k_name = (getattr(key, "name", None) or "").lower()
+    if k_name in _MODIFIER_ALIASES:
+        return _MODIFIER_ALIASES[k_name]
+    return None
+
+
+def _key_matches_spec(key, pressed_mods: frozenset[str], req_mods: frozenset[str], target_key: str, keyboard_mod) -> bool:
+    if not target_key or not req_mods.issubset(pressed_mods):
+        return False
+    k_name = (getattr(key, "name", None) or "").lower()
+    k_char = (getattr(key, "char", None) or "").lower()
+    k_vk = getattr(key, "vk", None)
+
+    if target_key in ("pause", "break", "pause_break"):
+        return (
+            k_name in ("pause", "pause_break", "media_play_pause")
+            or key == getattr(keyboard_mod.Key, "pause", None)
+            or k_vk in (19, 0x13, 3, 0x03)
+        )
+    if target_key in ("scroll_lock", "scrolllock", "rollen"):
+        return (
+            k_name in ("scroll_lock", "scrolllock")
+            or key == getattr(keyboard_mod.Key, "scroll_lock", None)
+            or k_vk in (145, 0x91)
+        )
+    if target_key == "end":
+        return (
+            k_name == "end"
+            or key == getattr(keyboard_mod.Key, "end", None)
+            or k_vk in (35, 0x23)
+        )
+    if target_key in ("esc", "escape"):
+        return (
+            k_name in ("esc", "escape")
+            or key == getattr(keyboard_mod.Key, "esc", None)
+            or k_vk in (27, 0x1B)
+        )
+    if k_name and k_name == target_key:
+        return True
+    if k_char and k_char == target_key:
+        return True
+    if len(target_key) == 1 and isinstance(k_vk, int) and (48 <= k_vk <= 57 or 65 <= k_vk <= 90):
+        return chr(k_vk).lower() == target_key
+    return False
+
+
 class LotroPipelineService:
     def __init__(
         self,
@@ -294,6 +381,11 @@ class LotroPipelineService:
         narrator_voice: str = "man_male_1",
         volume: int = 80,
         speed: int = 100,
+        queue_mode: bool = False,
+        replay_hotkey: str = "scroll_lock",
+        skip_hotkey: str = "end",
+        emit_duck_events: bool = False,
+        gui_ipc: bool = False,
     ):
         self.lotro_docs_dir = Path(lotro_docs_dir)
         self.script_log_path = self.lotro_docs_dir / "Script.log"
@@ -308,6 +400,11 @@ class LotroPipelineService:
         self.narrator_voice = str(narrator_voice).strip() if narrator_voice else "man_male_1"
         self.volume = max(0, min(100, int(volume)))
         self.speed = max(50, min(200, int(speed)))
+        self.queue_mode = bool(queue_mode)
+        self.replay_hotkey = (replay_hotkey or "").lower().strip()
+        self.skip_hotkey = (skip_hotkey or "").lower().strip()
+        self.emit_duck_events = bool(emit_duck_events)
+        self.gui_ipc = bool(gui_ipc)
 
         # Auto-detect CUDA/ROCm GPU (activating Low-End GPU mode <= 6.5 GB VRAM) and verify kernel execution
         from tts_speaker import resolve_compute_profile
@@ -330,6 +427,7 @@ class LotroPipelineService:
             speed=self.speed,
             active_lang=self.tts_lang,
             low_vram=low_vram,
+            emit_duck_events=self.emit_duck_events,
         )
         self.translator = LotroTranslator(device="cpu" if low_vram else device)
         if self.tts_lang in ("it", "nl"):
@@ -355,11 +453,28 @@ class LotroPipelineService:
         self._is_scanning = False
         self._is_speaking = False
         self._trigger_gen = 0
+        self._queue_epoch = 0
+        self._worker_item_seq = 0
+        self._current_worker_item_id: Optional[int] = None
+        self._skipped_worker_item_id: Optional[int] = None
         self._lock = threading.Lock()
+        self._capture_lock = threading.RLock()
+        self._ocr_lock = threading.Lock()
+        self._last_trigger_ts = 0.0
+        self._dialogue_queue: queue.Queue = queue.Queue(maxsize=10)
+        self._last_dialogue: Optional[tuple[str, str, str]] = None
+        cfg_file = base_dir / "config.json"
+        try:
+            self._live_cfg_mtime = cfg_file.stat().st_mtime if cfg_file.exists() else None
+        except OSError:
+            self._live_cfg_mtime = None
         self._uipi_lock = threading.Lock()
         self._uipi_checked_pids: Dict[int, bool] = {}
         self._uipi_warned_pids: set[int] = set()
         self._own_token_privileges = _get_own_token_privileges_win32() if sys.platform.startswith("win") else None
+
+        self._queue_worker = threading.Thread(target=self._dialogue_worker_loop, daemon=True)
+        self._queue_worker.start()
 
     def get_lotro_window(self) -> Optional[Dict[str, Any]]:
         """
@@ -652,140 +767,156 @@ class LotroPipelineService:
             img = np.ascontiguousarray(np.array(screenshot)[:, :, :3])
             return img
 
-    def handle_trigger(
-        self, plugin_client_lang: str = "", target_name: str = "", player_info: Optional[PlayerInfo] = None
-    ):
-        """Executes full workflow upon plugin button click or hotkey."""
-        if player_info is None:
-            player_info = self.player_info
-        with self._lock:
-            if self._is_scanning:
-                logger.info("OCR scan already running, debouncing trigger...")
-                return
-            self._is_scanning = True
-            self._trigger_gen += 1
-            my_gen = self._trigger_gen
-
-        # If previous speech is still generating or playing, interrupt it immediately
-        if self.speaker and (self._is_speaking or self.speaker.is_speaking()):
-            logger.info("Interrupting previous speech for new dialogue trigger...")
-            self.speaker.stop()
-
+    def _refresh_live_config(self):
+        """Hot-reloads dynamic service settings (e.g. queue_mode) when config.json changes."""
+        config_file = base_dir / "config.json"
+        if not config_file.exists():
+            return
         try:
-            # Note: Script.log emits TTS|<CLIENT_LANG>|<TARGET> from Turbine.Engine.GetLanguage().
-            # Always keep self.tts_lang as the desired spoken output language (en, de, fr, es, it)!
-            active_client_lang = (
-                plugin_client_lang.lower().strip()
-                if plugin_client_lang and plugin_client_lang.lower().strip() in ("en", "de", "fr")
-                else self.game_lang
-            )
-            active_tts_lang = self.tts_lang
-            explicit_target = bool(target_name and target_name.strip())
-            if not explicit_target:
-                target_name = self.last_detected_target or ""
+            mtime = config_file.stat().st_mtime
+            if mtime != self._live_cfg_mtime:
+                self._live_cfg_mtime = mtime
+                cfg = json.loads(config_file.read_text(encoding="utf-8"))
+                if "queue_mode" in cfg:
+                    self.queue_mode = bool(cfg["queue_mode"])
+        except Exception:
+            pass
 
-            logger.info(
-                f"Trigger activated -> Client Lang: {active_client_lang.upper()} | "
-                f"TTS Lang: {active_tts_lang.upper()} | Target: '{target_name}'"
-            )
+    def _is_canceled(
+        self,
+        expected_gen: Optional[int] = None,
+        expected_epoch: Optional[int] = None,
+        expected_item_id: Optional[int] = None,
+    ) -> bool:
+        with self._lock:
+            if expected_gen is not None and expected_gen != self._trigger_gen:
+                return True
+            if expected_epoch is not None and expected_epoch != self._queue_epoch:
+                return True
+            if expected_item_id is not None and self._skipped_worker_item_id == expected_item_id:
+                return True
+        return False
 
-            # 1. Capture LOTRO window surface
+    def _drain_dialogue_queue(self):
+        """Removes all pending items from the FIFO dialogue queue."""
+        drained = 0
+        while True:
             try:
-                logger.info("Capturing screen...")
-                screen_img = self.capture_screen()
-            except Exception as e:
-                logger.error(f"Screen capture failed: {e}")
-                return
+                self._dialogue_queue.get_nowait()
+                self._dialogue_queue.task_done()
+                drained += 1
+            except queue.Empty:
+                break
+        return drained
 
-            # 2. Run OCR & window analysis with cached geometry using client language
-            ocr_lang = active_client_lang.upper()
-            logger.info(f"Scanning screen for quest / instance dialog (OCR lang: {ocr_lang})...")
+    def _resolve_dialogue_from_capture(
+        self,
+        screen_img,
+        active_client_lang: str,
+        active_tts_lang: str,
+        target_name: str,
+        explicit_target: bool,
+        player_info: Optional[PlayerInfo],
+        expected_gen: Optional[int] = None,
+        expected_epoch: Optional[int] = None,
+        expected_item_id: Optional[int] = None,
+    ) -> Optional[tuple[str, str, str]]:
+        """Runs OCR, lotro.db resolution, and optional translation on a captured screenshot."""
+        ocr_lang = active_client_lang.upper()
+        logger.info(f"Scanning screen for quest / instance dialog (OCR lang: {ocr_lang})...")
+        with self._ocr_lock:
+            if self._is_canceled(expected_gen, expected_epoch, expected_item_id):
+                return None
             scan_result = self.screen_reader.scan_screen_with_cache(
                 screen_img, target_npc=target_name, lang=ocr_lang, player_info=player_info
             )
 
-            window_type = scan_result.get("window_type", "unknown")
-            title = scan_result.get("title", "")
-            final_text = scan_result.get("final_text", "").strip()
+        if self._is_canceled(expected_gen, expected_epoch, expected_item_id):
+            return None
 
-            if not final_text:
-                logger.warning("No dialog or quest text detected in window! (Ensure quest parchment is open and visible on screen)")
-                return
+        window_type = scan_result.get("window_type", "unknown")
+        title = scan_result.get("title", "")
+        final_text = scan_result.get("final_text", "").strip()
 
-            logger.info(f"Window: [{window_type.upper()}] '{title}'")
-            if scan_result.get("db_text"):
-                logger.info(f"Full un-truncated quest text matched from lotro.db ({ocr_lang})!")
-            else:
-                logger.info("Using OCR-extracted text from window.")
+        if not final_text:
+            logger.warning("No dialog or quest text detected in window! (Ensure quest parchment is open and visible on screen)")
+            return None
 
-            # Resolve speaker target:
-            # 1. Authoritative: If lotro.db matched the quest and identified its quest-giver NPC ID,
-            #    ALWAYS prioritize that exact npc_id! (The quest database is the single source of truth for who speaks this dialogue,
-            #    regardless of which entity the player happens to have selected in-game).
-            # 2. Fallback: If no DB NPC is associated with this dialogue (e.g. ambient text, custom dialog, or quest not in DB),
-            #    use the player's in-game target (target_name from plugin log).
-            # 3. Default: Fallback to "narrator".
-            matched_npc_id = scan_result.get("npc_id")
-            if matched_npc_id:
-                speaker_target = str(matched_npc_id)
-                logger.info(f"Resolved Quest NPC ID [{matched_npc_id}] directly from lotro.db!")
-            elif explicit_target and target_name:
-                speaker_target = target_name
-                logger.info(f"No DB NPC ID found; using in-game target from plugin log: '{target_name}'")
-            else:
-                speaker_target = target_name or "narrator"
+        logger.info(f"Window: [{window_type.upper()}] '{title}'")
+        if scan_result.get("db_text"):
+            logger.info(f"Full un-truncated quest text matched from lotro.db ({ocr_lang})!")
+        else:
+            logger.info("Using OCR-extracted text from window.")
 
-            # 3. Cross-language native DB lookup (e.g. EN client -> ES/DE/FR native text by quest_id)
-            matched_qid = scan_result.get("quest_id")
-            matched_text_id = scan_result.get("quest_text_id")
-            db_target_hint = "" if matched_npc_id else target_name
-            direct_text = None
-            if matched_qid and active_tts_lang in ("de", "en", "fr", "es") and active_tts_lang != active_client_lang:
-                direct_text = self.screen_reader.get_quest_text_by_id(
-                    matched_qid, target_npc=db_target_hint, lang=active_tts_lang,
+        # Resolve speaker target: DB NPC ID > explicit in-game target > fallback narrator
+        matched_npc_id = scan_result.get("npc_id")
+        if matched_npc_id:
+            speaker_target = str(matched_npc_id)
+            logger.info(f"Resolved Quest NPC ID [{matched_npc_id}] directly from lotro.db!")
+        elif explicit_target and target_name:
+            speaker_target = target_name
+            logger.info(f"No DB NPC ID found; using in-game target from plugin log: '{target_name}'")
+        else:
+            speaker_target = target_name or "narrator"
+
+        # Cross-language native DB lookup (e.g. EN client -> ES/DE/FR native text by quest_id)
+        matched_qid = scan_result.get("quest_id")
+        matched_text_id = scan_result.get("quest_text_id")
+        db_target_hint = "" if matched_npc_id else target_name
+        direct_text = None
+        if matched_qid and active_tts_lang in ("de", "en", "fr", "es") and active_tts_lang != active_client_lang:
+            direct_text = self.screen_reader.get_quest_text_by_id(
+                matched_qid, target_npc=db_target_hint, lang=active_tts_lang,
+                quest_text_id=matched_text_id, player_info=player_info
+            )
+            if direct_text:
+                logger.info(f"Using native '{active_tts_lang.upper()}' quest text directly from lotro.db!")
+                final_text = direct_text
+
+        # On-demand MarianMT Translation (for Italian 'it', Dutch 'nl', or DB-missing Spanish/English fallback)
+        needs_translation = (
+            active_tts_lang in ("it", "nl")
+            or (active_tts_lang == "es" and not direct_text and active_client_lang != "es")
+            or (active_tts_lang == "en" and not direct_text and active_client_lang in ("de", "fr"))
+        )
+        if needs_translation:
+            if self._is_canceled(expected_gen, expected_epoch, expected_item_id):
+                logger.info("Dialogue trigger canceled before translation.")
+                return None
+
+            src_lang = active_client_lang
+            if matched_qid:
+                clean_en_text = self.screen_reader.get_quest_text_by_id(
+                    matched_qid, target_npc=db_target_hint, lang="en",
                     quest_text_id=matched_text_id, player_info=player_info
                 )
-                if direct_text:
-                    logger.info(f"Using native '{active_tts_lang.upper()}' quest text directly from lotro.db!")
-                    final_text = direct_text
+                if clean_en_text:
+                    final_text = clean_en_text
+                    src_lang = "en"
+            try:
+                final_text = self.translator.translate(final_text, src_lang=src_lang, target_lang=active_tts_lang)
+            except Exception as e:
+                logger.warning(f"Translation fallback ({src_lang} -> {active_tts_lang}): {e}. Using original text.")
 
-            # 4. On-demand MarianMT Translation (for Italian 'it', Dutch 'nl', or DB-missing Spanish/English fallback)
-            needs_translation = (
-                active_tts_lang in ("it", "nl")
-                or (active_tts_lang == "es" and not direct_text and active_client_lang != "es")
-                or (active_tts_lang == "en" and not direct_text and active_client_lang in ("de", "fr"))
-            )
-            if needs_translation:
-                with self._lock:
-                    if my_gen != self._trigger_gen:
-                        logger.info("Dialogue trigger canceled before translation.")
-                        return
+        if self._is_canceled(expected_gen, expected_epoch, expected_item_id):
+            return None
 
-                src_lang = active_client_lang
-                # When matched from lotro.db, English text is always available and yields optimal translation
-                if matched_qid:
-                    clean_en_text = self.screen_reader.get_quest_text_by_id(
-                        matched_qid, target_npc=db_target_hint, lang="en",
-                        quest_text_id=matched_text_id, player_info=player_info
-                    )
-                    if clean_en_text:
-                        final_text = clean_en_text
-                        src_lang = "en"
-                try:
-                    final_text = self.translator.translate(final_text, src_lang=src_lang, target_lang=active_tts_lang)
-                except Exception as e:
-                    logger.warning(f"Translation fallback ({src_lang} -> {active_tts_lang}): {e}. Using original text.")
+        return final_text, speaker_target, active_tts_lang
 
-        finally:
-            with self._lock:
-                if my_gen == self._trigger_gen:
-                    self._is_scanning = False
-
-        # 5. Speak through TTS (abort immediately if canceled during OCR/translation)
+    def _speak_resolved_dialogue(
+        self,
+        final_text: str,
+        speaker_target: str,
+        active_tts_lang: str,
+        expected_gen: Optional[int] = None,
+        expected_epoch: Optional[int] = None,
+        expected_item_id: Optional[int] = None,
+    ):
+        """Speaks resolved dialogue text cleanly unless canceled before start."""
+        if self._is_canceled(expected_gen, expected_epoch, expected_item_id):
+            logger.info("Dialogue trigger canceled before playback.")
+            return
         with self._lock:
-            if my_gen != self._trigger_gen:
-                logger.info("Dialogue trigger canceled before playback.")
-                return
             self._is_speaking = True
         try:
             if self.narrator_mode:
@@ -796,18 +927,252 @@ class LotroPipelineService:
                 logger.info(
                     f"Speaking text ({len(final_text)} chars) for NPC '{speaker_target}' in '{active_tts_lang}'..."
                 )
-            self.speaker.speak(final_text, speaker_target, lang=active_tts_lang)
+            self.speaker.speak(final_text, speaker_target, lang=active_tts_lang, wait=True)
         finally:
             with self._lock:
                 self._is_speaking = False
 
-    def force_stop(self):
-        """Immediately halts any running dialogue playback, active scan, and speech synthesis."""
-        was_active = False
+    def _dialogue_worker_loop(self):
+        """Sequentially processes queued screenshot/replay jobs in FIFO order for Queue Mode."""
+        while True:
+            try:
+                item = self._dialogue_queue.get()
+                item_id = None
+                try:
+                    job_type = item[0]
+                    item_epoch = item[1]
+                    if self._is_canceled(expected_epoch=item_epoch):
+                        continue
+
+                    with self._lock:
+                        if item_epoch != self._queue_epoch:
+                            continue
+                        self._worker_item_seq += 1
+                        item_id = self._worker_item_seq
+                        self._current_worker_item_id = item_id
+
+                    if job_type == "ocr_job":
+                        _, _, screen_img, active_client_lang, active_tts_lang, target_name, explicit_target, p_info = item
+                        with self._lock:
+                            if item_epoch != self._queue_epoch or self._skipped_worker_item_id == item_id:
+                                continue
+                            self._is_scanning = True
+                        resolved = None
+                        try:
+                            resolved = self._resolve_dialogue_from_capture(
+                                screen_img,
+                                active_client_lang,
+                                active_tts_lang,
+                                target_name,
+                                explicit_target,
+                                p_info,
+                                expected_epoch=item_epoch,
+                                expected_item_id=item_id,
+                            )
+                        finally:
+                            del screen_img
+                            with self._lock:
+                                self._is_scanning = False
+
+                        if resolved and not self._is_canceled(expected_epoch=item_epoch, expected_item_id=item_id):
+                            final_text, speaker_target, out_lang = resolved
+                            with self._lock:
+                                self._last_dialogue = (final_text, speaker_target, out_lang)
+                            self._speak_resolved_dialogue(
+                                final_text,
+                                speaker_target,
+                                out_lang,
+                                expected_epoch=item_epoch,
+                                expected_item_id=item_id,
+                            )
+                    elif job_type == "replay_job":
+                        _, _, final_text, speaker_target, out_lang = item
+                        self._speak_resolved_dialogue(
+                            final_text,
+                            speaker_target,
+                            out_lang,
+                            expected_epoch=item_epoch,
+                            expected_item_id=item_id,
+                        )
+                finally:
+                    with self._lock:
+                        if item_id is not None and self._current_worker_item_id == item_id:
+                            self._current_worker_item_id = None
+                    self._dialogue_queue.task_done()
+            except Exception as e:
+                logger.error(f"Error processing queued dialogue: {e}")
+
+    def handle_trigger(
+        self, plugin_client_lang: str = "", target_name: str = "", player_info: Optional[PlayerInfo] = None
+    ):
+        """
+        Captures the LOTRO screen immediately on trigger (~20-40ms), then either queues
+        the capture (Queue Mode) or interrupts and speaks immediately (Interrupt Mode).
+        """
+        if player_info is None:
+            player_info = self.player_info
+        self._refresh_live_config()
+        is_queue_mode = self.queue_mode
+
+        active_client_lang = (
+            plugin_client_lang.lower().strip()
+            if plugin_client_lang and plugin_client_lang.lower().strip() in ("en", "de", "fr")
+            else self.game_lang
+        )
+        active_tts_lang = self.tts_lang
+        explicit_target = bool(target_name and target_name.strip())
+        if not explicit_target:
+            target_name = self.last_detected_target or ""
+
+        # Stage 1: Grab raw frame immediately so closing the quest window right after trigger never breaks OCR
+        with self._capture_lock:
+            now = time.monotonic()
+            if now - self._last_trigger_ts < 0.12:
+                logger.debug("Trigger arrived within 120ms debounce window; skipping duplicate.")
+                return
+            self._last_trigger_ts = now
+
+            logger.info(
+                f"Trigger activated -> Client Lang: {active_client_lang.upper()} | "
+                f"TTS Lang: {active_tts_lang.upper()} | Target: '{target_name}'"
+            )
+            try:
+                logger.info("Capturing screen...")
+                screen_img = self.capture_screen()
+            except Exception as e:
+                logger.error(f"Screen capture failed: {e}")
+                return
+
+        if is_queue_mode:
+            with self._lock:
+                my_epoch = self._queue_epoch
+                busy = self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking()) or not self._dialogue_queue.empty()
+            try:
+                self._dialogue_queue.put_nowait(
+                    ("ocr_job", my_epoch, screen_img, active_client_lang, active_tts_lang, target_name, explicit_target, player_info)
+                )
+                if busy:
+                    logger.info(
+                        f"Dialogue screenshot captured and queued ({self._dialogue_queue.qsize()} pending in queue)."
+                    )
+            except queue.Full:
+                del screen_img
+                logger.warning("Dialogue queue is full (10 items) — wait for playback or press Pause to clear.")
+            return
+
+        # Standard Interrupt Mode: cancel any active/queued items and run immediately
         with self._lock:
-            if self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking()):
+            self._trigger_gen += 1
+            my_gen = self._trigger_gen
+            self._queue_epoch += 1
+            self._drain_dialogue_queue()
+            self._is_scanning = True
+
+        if self.speaker and (self._is_speaking or self.speaker.is_speaking()):
+            logger.info("Interrupting previous speech for new dialogue trigger...")
+            self.speaker.stop()
+
+        resolved = None
+        try:
+            resolved = self._resolve_dialogue_from_capture(
+                screen_img,
+                active_client_lang,
+                active_tts_lang,
+                target_name,
+                explicit_target,
+                player_info,
+                expected_gen=my_gen,
+            )
+        finally:
+            del screen_img
+            with self._lock:
+                if my_gen == self._trigger_gen:
+                    self._is_scanning = False
+
+        if not resolved:
+            return
+
+        final_text, speaker_target, out_lang = resolved
+        with self._lock:
+            if my_gen != self._trigger_gen:
+                logger.info("Dialogue trigger canceled before playback.")
+                return
+            self._last_dialogue = (final_text, speaker_target, out_lang)
+
+        self._speak_resolved_dialogue(final_text, speaker_target, out_lang, expected_gen=my_gen)
+
+    def replay_last(self):
+        """Replays the last spoken dialogue (from cache if available)."""
+        with self._lock:
+            last = self._last_dialogue
+        if not last:
+            logger.info("No previous dialogue available to replay yet.")
+            return
+
+        self._refresh_live_config()
+        final_text, speaker_target, out_lang = last
+        if self.queue_mode:
+            with self._lock:
+                my_epoch = self._queue_epoch
+                busy = self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking()) or not self._dialogue_queue.empty()
+            try:
+                self._dialogue_queue.put_nowait(("replay_job", my_epoch, final_text, speaker_target, out_lang))
+                msg = f"Replaying last dialogue for '{speaker_target}' (queued)..." if busy else f"Replaying last dialogue for '{speaker_target}'..."
+                logger.info(msg)
+            except queue.Full:
+                logger.warning("Dialogue queue is full (10 items) — cannot queue replay right now.")
+            return
+
+        with self._lock:
+            self._trigger_gen += 1
+            my_gen = self._trigger_gen
+            self._queue_epoch += 1
+            self._drain_dialogue_queue()
+        if self.speaker:
+            self.speaker.stop()
+        logger.info(f"Replaying last dialogue for '{speaker_target}'...")
+        threading.Thread(
+            target=self._speak_resolved_dialogue,
+            args=(final_text, speaker_target, out_lang),
+            kwargs={"expected_gen": my_gen},
+            daemon=True,
+        ).start()
+
+    def skip_current(self):
+        """Skips the currently playing/scanning dialogue in Queue Mode and advances to the next queued item."""
+        self._refresh_live_config()
+        if not self.queue_mode:
+            logger.debug("Skip requested while Queue Mode is disabled.")
+            return
+
+        with self._lock:
+            active_id = self._current_worker_item_id
+            speaking_now = active_id is not None or self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking())
+            if not speaking_now:
+                logger.debug("Skip hotkey pressed (no active dialogue in Queue Mode).")
+                return
+            if active_id is not None:
+                self._skipped_worker_item_id = active_id
+            remaining = self._dialogue_queue.qsize()
+
+        if self.speaker:
+            self.speaker.stop()
+
+        if remaining > 0:
+            logger.info(f"[SKIP] Skipping current dialogue -> moving to next queued quest ({remaining} remaining).")
+        else:
+            logger.info("[SKIP] Current dialogue skipped (queue is now empty).")
+
+    def force_stop(self):
+        """Immediately halts any running dialogue playback, active scan, queue, and speech synthesis."""
+        was_active = False
+        drained = 0
+        with self._lock:
+            drained = self._drain_dialogue_queue()
+            if drained > 0 or self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking()):
                 was_active = True
             self._trigger_gen += 1
+            self._queue_epoch += 1
             self._is_speaking = False
             self._is_scanning = False
 
@@ -815,51 +1180,64 @@ class LotroPipelineService:
             self.speaker.stop()
 
         if was_active:
-            logger.info("[FORCE STOP] Dialogue playback interrupted immediately by hotkey!")
+            if drained > 0:
+                logger.info(f"[FORCE STOP] Dialogue playback interrupted and {drained} queued item(s) cleared!")
+            else:
+                logger.info("[FORCE STOP] Dialogue playback interrupted immediately by hotkey!")
         else:
             logger.debug("Stop hotkey pressed (no dialogue currently playing).")
 
     def start_keyboard_listener(self):
-        """Starts background listener for the dialogue force-stop hotkey (default: Pause/Break)."""
+        """Starts background listener for Stop (default: Pause/Break) and optional Replay hotkeys."""
         try:
             from pynput import keyboard
 
-            target_key_name = self.stop_hotkey
+            stop_req_mods, stop_main_key = _parse_hotkey_spec(self.stop_hotkey)
+            replay_req_mods, replay_main_key = _parse_hotkey_spec(self.replay_hotkey)
+            skip_req_mods, skip_main_key = _parse_hotkey_spec(self.skip_hotkey)
+            pressed_mods: set[str] = set()
+            mod_lock = threading.Lock()
 
             def on_press(key):
-                matched = False
-                k_name = getattr(key, "name", None)
-                k_char = getattr(key, "char", None)
-                k_vk = getattr(key, "vk", None)
+                mod = _get_modifier_name(key, keyboard)
+                with mod_lock:
+                    if mod:
+                        pressed_mods.add(mod)
+                        return
+                    mods_snapshot = frozenset(pressed_mods)
 
-                # Configured stop hotkey (default: pause / break)
-                if target_key_name in ("pause", "break", "pause_break"):
-                    if (
-                        k_name in ("pause", "pause_break", "media_play_pause")
-                        or key == getattr(keyboard.Key, "pause", None)
-                        or k_vk in (19, 0x13, 3, 0x03)
-                    ):
-                        matched = True
-                elif target_key_name in ("esc", "escape"):
-                    if (
-                        k_name in ("esc", "escape")
-                        or key == getattr(keyboard.Key, "esc", None)
-                        or k_vk in (27, 0x1B)
-                    ):
-                        matched = True
-                elif k_name and k_name.lower() == target_key_name:
-                    matched = True
-                elif k_char and k_char.lower() == target_key_name:
-                    matched = True
+                if _key_matches_spec(key, mods_snapshot, stop_req_mods, stop_main_key, keyboard):
+                    threading.Thread(target=self.force_stop, daemon=True).start()
+                    return
 
-                if matched:
-                    self.force_stop()
+                if _key_matches_spec(key, mods_snapshot, replay_req_mods, replay_main_key, keyboard):
+                    threading.Thread(target=self.replay_last, daemon=True).start()
+                    return
 
-            listener = keyboard.Listener(on_press=on_press)
+                if _key_matches_spec(key, mods_snapshot, skip_req_mods, skip_main_key, keyboard):
+                    threading.Thread(target=self.skip_current, daemon=True).start()
+
+            def on_release(key):
+                mod = _get_modifier_name(key, keyboard)
+                if mod:
+                    with mod_lock:
+                        pressed_mods.discard(mod)
+
+            listener = keyboard.Listener(on_press=on_press, on_release=on_release)
             listener.daemon = True
             listener.start()
+            replay_note = (
+                f" | Replay Hotkey [{self.replay_hotkey.upper()}] -> Replay last"
+                if replay_main_key
+                else ""
+            )
+            skip_note = (
+                f" | Skip Hotkey [{self.skip_hotkey.upper()}] -> Skip current (Queue Mode)"
+                if skip_main_key
+                else ""
+            )
             logger.info(
-                f"Global keyboard listener activated: Stop Hotkey [{self.stop_hotkey.upper()}] -> Force-stop playback"
+                f"Global keyboard listener activated: Stop Hotkey [{self.stop_hotkey.upper()}] -> Force-stop playback{replay_note}{skip_note}"
             )
         except Exception as e:
             logger.warning(f"Could not start global keyboard listener: {e}")
@@ -871,19 +1249,29 @@ class LotroPipelineService:
 
             def on_click(x, y, button, pressed):
                 if pressed and button == mouse.Button.middle:
-                    # Smart toggle: If dialogue is currently scanning or speaking, Middle Mouse acts as instant stop!
-                    if self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking()):
+                    self._refresh_live_config()
+                    # In Interrupt Mode, Mouse 3 acts as smart trigger/stop toggle;
+                    # in Queue Mode, Mouse 3 queues new dialogues without interrupting current speech.
+                    if not self.queue_mode and (
+                        self._is_scanning or self._is_speaking or (self.speaker and self.speaker.is_speaking())
+                    ):
                         logger.info("Middle mouse button (Mouse 3) clicked while active -> Stopping dialogue!")
                         self.force_stop()
                         return
 
-                    logger.info("Middle mouse button (Mouse 3) clicked -> Triggering dialogue scan!")
+                    msg = (
+                        "Middle mouse button (Mouse 3) clicked -> Capturing & queuing dialogue!"
+                        if self.queue_mode
+                        else "Middle mouse button (Mouse 3) clicked -> Triggering dialogue scan!"
+                    )
+                    logger.info(msg)
                     threading.Thread(target=self.handle_trigger, daemon=True).start()
 
             listener = mouse.Listener(on_click=on_click)
             listener.daemon = True
             listener.start()
-            logger.info("Global mouse listener activated: Middle Mouse Button (Mouse 3) -> Trigger / Stop TTS")
+            mode_desc = "Trigger / Queue TTS" if self.queue_mode else "Trigger / Stop TTS"
+            logger.info(f"Global mouse listener activated: Middle Mouse Button (Mouse 3) -> {mode_desc}")
         except Exception as e:
             logger.warning(f"Could not start global mouse listener: {e}")
 
@@ -983,6 +1371,26 @@ class LotroPipelineService:
         except Exception as e:
             logger.debug(f"Startup UIPI elevation scan failed: {e}")
 
+    def start_gui_ipc_listener(self):
+        """Reads control commands (e.g. REPLAY) from redirected stdin when launched by the GUI."""
+        if not self.gui_ipc:
+            return
+
+        def ipc_loop():
+            try:
+                for raw in sys.stdin:
+                    cmd = (raw or "").strip().upper()
+                    if cmd == "REPLAY":
+                        threading.Thread(target=self.replay_last, daemon=True).start()
+                    elif cmd == "SKIP":
+                        threading.Thread(target=self.skip_current, daemon=True).start()
+                    elif cmd == "STOP":
+                        threading.Thread(target=self.force_stop, daemon=True).start()
+            except Exception:
+                pass
+
+        threading.Thread(target=ipc_loop, daemon=True).start()
+
     def watch_script_log(self, poll_interval: float = 0.03):
         """Watches Script.log for read requests and character info."""
         logger.info(f"Watching '{self.script_log_path}' for plugin triggers...")
@@ -990,6 +1398,7 @@ class LotroPipelineService:
         self.start_keyboard_listener()
         if self.enable_mouse:
             self.start_mouse_listener()
+        self.start_gui_ipc_listener()
         self.check_lotro_elevation_mismatch(check_foreground_only=False)
 
         last_uipi_check = time.monotonic()
@@ -1223,11 +1632,41 @@ def main():
         default=None,
         help="TTS speech speed percentage (75-135, default: 100)",
     )
+    parser.add_argument(
+        "--queue-mode",
+        action="store_true",
+        help="Queue triggered dialogues sequentially instead of interrupting current playback",
+    )
+    parser.add_argument(
+        "--replay-hotkey",
+        type=str,
+        default=None,
+        help="Global hotkey to replay the last dialogue (default: 'scroll_lock', 'none' to disable)",
+    )
+    parser.add_argument(
+        "--skip-hotkey",
+        type=str,
+        default=None,
+        help="Global hotkey to skip the active dialogue in Queue Mode (default: 'end', 'none' to disable)",
+    )
+    parser.add_argument(
+        "--emit-duck-events",
+        action="store_true",
+        help="Emit [AUDIO_DUCK:1/0] stdout markers for GUI audio ducking",
+    )
+    parser.add_argument(
+        "--gui-ipc",
+        action="store_true",
+        help="Read control commands (e.g. REPLAY, SKIP) from stdin when hosted by LOTRO-TTS GUI",
+    )
     args = parser.parse_args()
 
-    # Determine languages, stop hotkey, narrator mode, volume, and speed
+    # Determine languages, hotkeys, queue mode, narrator mode, volume, and speed
     config_file = base_dir / "config.json"
     configured_stop_hotkey = "pause"
+    configured_replay_hotkey = "scroll_lock"
+    configured_skip_hotkey = "end"
+    configured_queue_mode = False
     configured_narrator_mode = False
     configured_narrator_voice = "man_male_1"
     configured_volume = 80
@@ -1237,6 +1676,12 @@ def main():
             cfg = json.loads(config_file.read_text(encoding="utf-8"))
             if cfg.get("stop_hotkey"):
                 configured_stop_hotkey = str(cfg["stop_hotkey"]).lower().strip()
+            if "replay_hotkey" in cfg and cfg["replay_hotkey"] is not None:
+                configured_replay_hotkey = str(cfg["replay_hotkey"]).lower().strip()
+            if "skip_hotkey" in cfg and cfg["skip_hotkey"] is not None:
+                configured_skip_hotkey = str(cfg["skip_hotkey"]).lower().strip()
+            if "queue_mode" in cfg:
+                configured_queue_mode = bool(cfg["queue_mode"])
             if "narrator_mode" in cfg:
                 configured_narrator_mode = bool(cfg["narrator_mode"])
             if cfg.get("narrator_voice"):
@@ -1249,6 +1694,9 @@ def main():
             pass
 
     stop_hotkey = args.stop_hotkey or configured_stop_hotkey
+    replay_hotkey = args.replay_hotkey if args.replay_hotkey is not None else configured_replay_hotkey
+    skip_hotkey = args.skip_hotkey if args.skip_hotkey is not None else configured_skip_hotkey
+    queue_mode = bool(args.queue_mode or configured_queue_mode)
     narrator_mode = args.narrator_mode or configured_narrator_mode
     narrator_voice = args.narrator_voice or configured_narrator_voice
     volume = args.volume if args.volume is not None else configured_volume
@@ -1265,8 +1713,11 @@ def main():
             tts_lang = args.tts_lang.lower().strip()
 
     narrator_info = f" | Narrator Mode = [ENABLED: {narrator_voice}]" if narrator_mode else " | Narrator Mode = [DISABLED]"
+    queue_info = " | Queue Mode = [ENABLED]" if queue_mode else " | Queue Mode = [DISABLED]"
+    replay_info = f" | Replay Hotkey = [{replay_hotkey.upper()}]" if replay_hotkey and replay_hotkey not in ("none", "off", "disabled") else ""
+    skip_info = f" | Skip Hotkey = [{skip_hotkey.upper()}]" if skip_hotkey and skip_hotkey not in ("none", "off", "disabled") else ""
     logger.info(
-        f"Active Settings: Game Client = [{game_lang.upper()}] | TTS Speech = [{tts_lang.upper()}] | Stop Hotkey = [{stop_hotkey.upper()}] | Volume = [{volume}%] | Speed = [{speed}%]{narrator_info}"
+        f"Active Settings: Game Client = [{game_lang.upper()}] | TTS Speech = [{tts_lang.upper()}] | Stop Hotkey = [{stop_hotkey.upper()}]{replay_info}{skip_info} | Volume = [{volume}%] | Speed = [{speed}%]{queue_info}{narrator_info}"
     )
 
     service = LotroPipelineService(
@@ -1282,6 +1733,11 @@ def main():
         narrator_voice=narrator_voice,
         volume=volume,
         speed=speed,
+        queue_mode=queue_mode,
+        replay_hotkey=replay_hotkey,
+        skip_hotkey=skip_hotkey,
+        emit_duck_events=args.emit_duck_events,
+        gui_ipc=args.gui_ipc,
     )
     service.watch_script_log()
 
