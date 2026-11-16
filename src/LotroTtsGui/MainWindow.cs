@@ -200,31 +200,34 @@ namespace LotroTtsGui
             // 0. Header (Title, Version, Update Badge)
             var headerGrid = new Grid
             {
-                ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*,Auto"),
+                ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
                 Margin = new Thickness(0, 0, 0, 10)
             };
 
-            var lblTitle = new TextBlock
+            // Keep title and version in a single TextBlock so they always share the exact same typographic baseline
+            // regardless of taller controls (e.g. CheckBox/Button) or DPI scaling in headerGrid.
+            var titleInlines = new InlineCollection();
+            titleInlines.Add(new Run
             {
                 Text = "LOTRO-TTS",
                 FontSize = 20,
                 FontWeight = FontWeight.Bold,
-                Foreground = goldAccent,
-                VerticalAlignment = VerticalAlignment.Center
+                Foreground = goldAccent
+            });
+            titleInlines.Add(new Run
+            {
+                Text = $"  {AppVersion}",
+                FontSize = 11,
+                FontWeight = FontWeight.Normal,
+                Foreground = textMuted
+            });
+            var lblTitle = new TextBlock
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                Inlines = titleInlines
             };
             Grid.SetColumn(lblTitle, 0);
             headerGrid.Children.Add(lblTitle);
-
-            var lblVersion = new TextBlock
-            {
-                Text = AppVersion,
-                FontSize = 11,
-                Foreground = textMuted,
-                VerticalAlignment = VerticalAlignment.Bottom,
-                Margin = new Thickness(6, 0, 0, 3)
-            };
-            Grid.SetColumn(lblVersion, 1);
-            headerGrid.Children.Add(lblVersion);
 
             var updateControls = new StackPanel
             {
@@ -264,7 +267,7 @@ namespace LotroTtsGui
 
             updateControls.Children.Add(chkIncludePrereleases);
             updateControls.Children.Add(btnUpdateBadge);
-            Grid.SetColumn(updateControls, 3);
+            Grid.SetColumn(updateControls, 2);
             headerGrid.Children.Add(updateControls);
 
             Grid.SetRow(headerGrid, 0);
