@@ -711,11 +711,176 @@ class LotroPipelineService:
                 gdi32.DeleteDC(mem_dc)
             user32.ReleaseDC(hwnd, hwnd_dc)
 
+    @staticmethod
+    def _is_wayland_session() -> bool:
+        """True inside a Wayland desktop session, where X11 screen grabs (mss GetImage) are refused."""
+        return (
+            os.environ.get("XDG_SESSION_TYPE", "").lower() == "wayland"
+            or bool(os.environ.get("WAYLAND_DISPLAY"))
+        )
+
+    @staticmethod
+    def _load_capture_png(png_path: Path):
+        """Loads a captured PNG as a contiguous BGR numpy array (same layout as the mss path)."""
+        import numpy as np
+        from PIL import Image
+
+        with Image.open(png_path) as im:
+            rgb = np.array(im.convert("RGB"))
+        return np.ascontiguousarray(rgb[:, :, ::-1])
+
+    def _capture_wayland_spectacle(self, tmp_dir: Path):
+        """KDE Plasma: Spectacle in background mode (active window first, then the current monitor)."""
+        import shutil
+        import subprocess
+
+        exe = shutil.which("spectacle")
+        if not exe:
+            return None, "spectacle not installed"
+
+        last_error = "no output file produced"
+        for target_flag in ("--activewindow", "--current"):
+            out_path = tmp_dir / f"spectacle{target_flag.replace('-', '_')}.png"
+            res = subprocess.run(
+                [exe, "--background", "--nonotify", target_flag, "--no-decoration", "--output", str(out_path)],
+                capture_output=True, text=True, timeout=10,
+            )
+            # Spectacle may finish writing the file slightly after it returns
+            deadline = time.time() + 2.0
+            while time.time() < deadline and not (out_path.exists() and out_path.stat().st_size > 0):
+                time.sleep(0.02)
+            if not (out_path.exists() and out_path.stat().st_size > 0):
+                last_error = (res.stderr or res.stdout or "no output file produced").strip()
+                continue
+
+            img = self._load_capture_png(out_path)
+            h, w = img.shape[:2]
+            if w <= 400 or h <= 400:
+                # Focus was on a small window, not the game: retry with the whole monitor
+                last_error = f"captured area too small ({w}x{h})"
+                continue
+            return img, f"spectacle {target_flag.lstrip('-')}"
+        return None, f"spectacle: {last_error}"
+
+    def _capture_wayland_grim(self, tmp_dir: Path):
+        """wlroots compositors (Sway, Hyprland, ...): grim, full desktop. Fails fast on other compositors."""
+        import shutil
+        import subprocess
+
+        exe = shutil.which("grim")
+        if not exe:
+            return None, "grim not installed"
+
+        out_path = tmp_dir / "grim.png"
+        res = subprocess.run([exe, str(out_path)], capture_output=True, text=True, timeout=10)
+        if res.returncode != 0 or not out_path.exists():
+            return None, f"grim: {(res.stderr or res.stdout or f'exit code {res.returncode}').strip()}"
+        return self._load_capture_png(out_path), "grim"
+
+    def _capture_wayland_portal(self, tmp_dir: Path):
+        """
+        Any desktop with xdg-desktop-portal (GNOME, KDE, wlroots with xdg-desktop-portal-wlr):
+        non-interactive org.freedesktop.portal.Screenshot over D-Bus (via jeepney). Full desktop only;
+        some desktops ask once for screenshot permission. The portal saves the image itself
+        (usually in ~/Pictures), so that exact file is deleted after loading.
+        """
+        try:
+            from jeepney import DBusAddress, MatchRule, MessageType, message_bus, new_method_call
+            from jeepney.io.blocking import Proxy, open_dbus_connection
+        except ImportError:
+            return None, "jeepney not installed (re-run the TTS setup)"
+        from urllib.parse import unquote, urlparse
+
+        conn = open_dbus_connection(bus="SESSION")
+        try:
+            token = f"lotro_tts_{os.getpid()}_{int(time.time() * 1000)}"
+            sender = conn.unique_name.lstrip(":").replace(".", "_")
+            request_path = f"/org/freedesktop/portal/desktop/request/{sender}/{token}"
+            rule = MatchRule(
+                type="signal", interface="org.freedesktop.portal.Request", member="Response", path=request_path
+            )
+            Proxy(message_bus, conn).AddMatch(rule)
+
+            portal = DBusAddress(
+                "/org/freedesktop/portal/desktop",
+                bus_name="org.freedesktop.portal.Desktop",
+                interface="org.freedesktop.portal.Screenshot",
+            )
+            msg = new_method_call(
+                portal, "Screenshot", "sa{sv}",
+                ("", {"handle_token": ("s", token), "interactive": ("b", False)}),
+            )
+            with conn.filter(rule) as responses:
+                reply = conn.send_and_get_reply(msg, timeout=5)
+                if reply.header.message_type == MessageType.error:
+                    return None, f"portal: {reply.body[0] if reply.body else 'D-Bus error'}"
+                # Generous timeout: the desktop may show a one-time permission prompt
+                signal = conn.recv_until_filtered(responses, timeout=30)
+        finally:
+            conn.close()
+
+        response_code, results = signal.body
+        if response_code != 0:
+            return None, f"portal: request denied or cancelled (code {response_code})"
+        uri = results.get("uri", ("s", ""))[1]
+        shot_path = Path(unquote(urlparse(uri).path)) if uri.startswith("file://") else None
+        if not shot_path or not shot_path.exists():
+            return None, f"portal: no screenshot file returned ({uri or 'empty uri'})"
+        try:
+            return self._load_capture_png(shot_path), "xdg-desktop-portal"
+        finally:
+            try:
+                shot_path.unlink()
+            except OSError:
+                pass
+
+    def _capture_screen_wayland(self):
+        """
+        Tries Wayland-native capture backends in order (Spectacle, grim, xdg-desktop-portal).
+        The last working backend is tried first next time. Returns a BGR numpy array,
+        or None when no backend worked (the caller then falls back to mss).
+        """
+        import tempfile
+
+        backends = {
+            "spectacle": self._capture_wayland_spectacle,
+            "grim": self._capture_wayland_grim,
+            "portal": self._capture_wayland_portal,
+        }
+        order = list(backends)
+        preferred = getattr(self, "_wayland_capture_backend", None)
+        if preferred in order:
+            order.remove(preferred)
+            order.insert(0, preferred)
+
+        errors = []
+        with tempfile.TemporaryDirectory(prefix="lotro_tts_capture_") as tmp:
+            for name in order:
+                try:
+                    img, detail = backends[name](Path(tmp))
+                except Exception as e:
+                    img, detail = None, f"{name}: {e}"
+                if img is not None:
+                    self._wayland_capture_backend = name
+                    logger.info(f"Captured {img.shape[1]}x{img.shape[0]} frame via {detail}")
+                    return img
+                errors.append(detail)
+
+        if not getattr(self, "_wayland_capture_warned", False):
+            self._wayland_capture_warned = True
+            logger.warning(
+                "Wayland session: no screen capture backend worked (" + "; ".join(errors) + "). "
+                "Install 'spectacle' (KDE) or 'grim' (Sway/Hyprland), or make sure xdg-desktop-portal "
+                "and its desktop backend are running (GNOME). Falling back to X11 capture."
+            )
+        return None
+
     def capture_screen(self):
         """
         Captures the LOTRO client frame cleanly:
         1. On Windows, directly captures the LOTRO process DWM surface (ignoring overlapping windows).
-        2. Falls back to mss desktop capture (Linux/Proton or exclusive fullscreen).
+        2. In a Linux Wayland session, uses a Wayland-native capture tool (X11 grabs are refused there).
+        3. Falls back to mss desktop capture (Linux/Proton or exclusive fullscreen).
         """
         import mss
         import numpy as np
@@ -733,7 +898,13 @@ class LotroPipelineService:
             except Exception as e:
                 logger.debug(f"Direct window surface capture fallback to mss: {e}")
 
-        # 2. Fallback: mss monitor / window rect capture
+        # 2. Linux Wayland session: Wayland-native capture (mss is only tried if no backend works)
+        if sys.platform.startswith("linux") and self._is_wayland_session():
+            wayland_img = self._capture_screen_wayland()
+            if wayland_img is not None:
+                return wayland_img
+
+        # 3. Fallback: mss monitor / window rect capture
         with mss.MSS() as sct:
             if win_info and win_info["width"] > 400 and win_info["height"] > 400:
                 capture_box = {
@@ -1483,35 +1654,62 @@ def get_default_lotro_documents_dir() -> Path:
             logger.debug(f"Registry documents detection failed: {e}")
 
     home_docs = Path.home() / "Documents" / "The Lord of the Rings Online"
+    home_docs_de = Path.home() / "Dokumente" / "The Lord of the Rings Online"
+
+    if sys.platform.startswith("linux"):
+        return _detect_linux_lotro_documents_dir(home_docs, home_docs_de)
+
     if home_docs.exists():
         return home_docs
 
-    home_docs_de = Path.home() / "Dokumente" / "The Lord of the Rings Online"
     if home_docs_de.exists():
         return home_docs_de
 
-    if sys.platform.startswith("linux"):
-        # 1. Steam Proton (native Steam library, ~/.local/share/Steam or Flatpak Steam)
-        steam_patterns = [
-            ".steam/steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online",
-            ".local/share/Steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online",
-            ".var/app/com.valvesoftware.Steam/.steam/steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online",
-        ]
-        for pattern in steam_patterns:
-            matches = list(Path.home().glob(pattern))
-            if matches:
-                return matches[0]
+    return home_docs
 
-        # 2. Lutris prefixes
-        lutris_matches = list(Path.home().glob("Games/the-lord-of-the-rings-online/drive_c/users/*/Documents/The Lord of the Rings Online"))
-        if lutris_matches:
-            return lutris_matches[0]
 
-        # 3. Bottles prefixes
-        bottles_matches = list(Path.home().glob(".var/app/com.usebottles.bottles/data/bottles/bottles/*/drive_c/users/*/Documents/The Lord of the Rings Online"))
-        if bottles_matches:
-            return bottles_matches[0]
+def _detect_linux_lotro_documents_dir(home_docs: Path, home_docs_de: Path) -> Path:
+    """
+    Linux: searches Wine/Proton prefixes before the native Documents folder, in the same order as the
+    GUI's LotroPathDetector, so terminal runs watch the folder the GUI installs the plugin into.
+    Among existing candidates, the one that already contains the TTS plugin wins.
+    """
+    docs_suffix = "drive_c/users/*/Documents/The Lord of the Rings Online"
+    patterns = [
+        # 1. Steam Proton (AppID 212500): native Steam, ~/.local/share/Steam, Flatpak Steam (both layouts)
+        f".steam/steam/steamapps/compatdata/212500/pfx/{docs_suffix}",
+        f".local/share/Steam/steamapps/compatdata/212500/pfx/{docs_suffix}",
+        f".var/app/com.valvesoftware.Steam/.steam/steam/steamapps/compatdata/212500/pfx/{docs_suffix}",
+        f".var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/compatdata/212500/pfx/{docs_suffix}",
+        # 2. Lutris prefix
+        f"Games/the-lord-of-the-rings-online/{docs_suffix}",
+        # 3. Default Wine prefix
+        f".wine/{docs_suffix}",
+        # 4. Bottles prefixes (Flatpak)
+        f".var/app/com.usebottles.bottles/data/bottles/bottles/*/{docs_suffix}",
+    ]
 
+    candidates = []
+    seen = set()
+    for pattern in patterns:
+        for match in sorted(Path.home().glob(pattern)):
+            if not match.is_dir():
+                continue
+            key = match.resolve()
+            if key not in seen:
+                seen.add(key)
+                candidates.append(match)
+    # 5. Native Documents folders (Linux client or manually linked)
+    for native in (home_docs, home_docs_de):
+        if native.is_dir() and native.resolve() not in seen:
+            seen.add(native.resolve())
+            candidates.append(native)
+
+    for cand in candidates:
+        if (cand / "Plugins" / "TTS" / "Main.lua").exists():
+            return cand
+    if candidates:
+        return candidates[0]
     return home_docs
 
 
