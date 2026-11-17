@@ -61,6 +61,7 @@ WIP:
 - **Operating Systems**:
   - **Windows 10 / 11 (64-bit)**
   - **Linux (64-bit / SteamOS / Steam Deck)**: Compatible with Proton, Lutris, and native Wine prefixes. Recommended packages: `libportaudio2` / `portaudio` (for audio output), `pipewire-pulse` / `pulseaudio-utils` (`pactl` for process volume control & `pw-cat`/`paplay`), and `wmctrl` or `xdotool` (for window detection).
+    - **Build prerequisites for the first-time setup**: a C compiler (`gcc` or `clang`) and the kernel headers (`kernel-headers` on Fedora, `linux-libc-dev` on Debian/Ubuntu, `linux-api-headers` on Arch/SteamOS). The setup compiles `evdev` (used for the global hotkeys and the mouse trigger) from source.
 - **The Lord of the Rings Online**: Standard game installation (English, German, or French game client).
 
 ---
