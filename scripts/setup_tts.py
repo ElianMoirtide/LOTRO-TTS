@@ -232,9 +232,9 @@ def detect_compute_mode() -> str:
 
 def enable_site_packages():
     """Uncomments 'import site' in python3*._pth so site-packages works."""
-    target_dirs = [WIN64_DIR]
-    if LINUX64_DIR.exists():
-        target_dirs.append(LINUX64_DIR)
+    # Only touch the Python of the current platform: on Linux, editing python/win64 would just
+    # modify the tracked Windows file (the portable Linux Python has no ._pth file)
+    target_dirs = [LINUX64_DIR] if sys.platform.startswith("linux") else [WIN64_DIR]
 
     for pdir in target_dirs:
         for pth in pdir.glob("*._pth"):
