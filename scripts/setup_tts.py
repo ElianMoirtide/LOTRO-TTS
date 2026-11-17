@@ -273,6 +273,47 @@ def install_pip():
     print("Pip installation successful!")
 
 
+def linux_pip_build_env():
+    """
+    Linux only: environment for the pip subprocesses, some of which build C extensions from source
+    (evdev, required by pynput for hotkeys and the mouse trigger, has no wheels on PyPI).
+    The portable Python records CC='clang -pthread'; if clang is missing but cc/gcc exists, CC points
+    at that compiler instead (setuptools derives LDSHARED from CC). Warns about a missing compiler or
+    missing kernel input headers. Returns None elsewhere (pip inherits the environment unchanged).
+    """
+    if not sys.platform.startswith("linux"):
+        return None
+    import shutil
+
+    env = os.environ.copy()
+    if "CC" not in env and not shutil.which("clang"):
+        compiler = next((c for c in ("cc", "gcc") if shutil.which(c)), None)
+        if compiler:
+            env["CC"] = f"{compiler} -pthread"
+            print(f"[NOTICE] 'clang' not found on PATH: building C extensions (evdev) with '{compiler}' instead.", flush=True)
+        else:
+            print(
+                "\n[WARNING] No C compiler found (clang, cc or gcc)!\n"
+                "  'evdev' (needed by pynput for hotkeys and the mouse trigger) is built from source on Linux.\n"
+                "  Recommended install:\n"
+                "    - Ubuntu/Debian/Mint: sudo apt install build-essential\n"
+                "    - Arch/SteamOS:       sudo pacman -S base-devel\n"
+                "    - Fedora:             sudo dnf install gcc",
+                flush=True,
+            )
+    if not Path("/usr/include/linux/input.h").exists():
+        print(
+            "\n[WARNING] Kernel headers not found (/usr/include/linux/input.h)!\n"
+            "  'evdev' (needed by pynput for hotkeys and the mouse trigger) needs them to build.\n"
+            "  Recommended install:\n"
+            "    - Ubuntu/Debian/Mint: sudo apt install linux-libc-dev\n"
+            "    - Arch/SteamOS:       sudo pacman -S linux-api-headers\n"
+            "    - Fedora:             sudo dnf install kernel-headers",
+            flush=True,
+        )
+    return env
+
+
 def install_packages(mode: str):
     """Installs PyTorch, OmniVoice, Whisper and all audio support packages."""
     mode = mode.lower().strip()
@@ -323,13 +364,16 @@ def install_packages(mode: str):
     print(f"========================================================")
     print(f"Using PyTorch wheel index: {torch_index}", flush=True)
 
+    # Build environment for pip (Linux: compiler fallback + header checks; None elsewhere)
+    pip_env = linux_pip_build_env()
+
     cmd_torch = [
         str(PYTHON_EXE), "-m", "pip", "install",
         "--upgrade", "--force-reinstall", "--no-input", "--disable-pip-version-check", "--no-warn-script-location",
         "torch", "torchaudio",
         "--index-url", torch_index
     ]
-    subprocess.run(cmd_torch, check=True)
+    subprocess.run(cmd_torch, check=True, env=pip_env)
 
     # Core Audio, Speech, Zero-Shot Voice Cloning, Translation & Screenreader packages
     extra_packages = [
@@ -360,7 +404,7 @@ def install_packages(mode: str):
         str(PYTHON_EXE), "-m", "pip", "install",
         "--upgrade", "--no-input", "--disable-pip-version-check", "--no-warn-script-location"
     ] + extra_packages
-    subprocess.run(cmd_extra, check=True)
+    subprocess.run(cmd_extra, check=True, env=pip_env)
 
     if cuda_tag:
         # Install onnxruntime-gpu matching the CUDA generation after rapidocr
@@ -381,7 +425,7 @@ def install_packages(mode: str):
                 "--no-input", "--disable-pip-version-check", "--no-warn-script-location"
             ]
         try:
-            subprocess.run(cmd_ort_gpu, check=False)
+            subprocess.run(cmd_ort_gpu, check=False, env=pip_env)
         except Exception as e:
             print(f"Notice: ONNX Runtime GPU installation notice: {e}", flush=True)
 
