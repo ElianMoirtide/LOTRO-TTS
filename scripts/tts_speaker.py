@@ -244,8 +244,10 @@ class LotroSpeaker:
         active_lang: str | None = None,
         low_vram: bool | None = None,
         emit_duck_events: bool = False,
+        background_precache: bool = True,
     ):
         self.base_dir = Path(__file__).resolve().parent.parent
+        self.background_precache = bool(background_precache)
         self.voices_dir = self.base_dir / voices_dir
         self.db_path = self.base_dir / db_path
         self.narrator_mode = bool(narrator_mode)
@@ -427,8 +429,10 @@ class LotroSpeaker:
             print("TTS engine pre-warmed and narrator voices ready for instant playback!")
             if self.low_vram and self.device == "cuda":
                 torch.cuda.empty_cache()
-            # Launch background daemon worker to pre-cache frequent voice prompts (0ms encounter latency)
-            threading.Thread(target=self._background_precache_worker, daemon=True).start()
+            # Launch background daemon worker to pre-cache frequent voice prompts (0ms encounter latency).
+            # Skipped for one-shot CLI runs: the process would exit while the worker is still inside torch.
+            if self.background_precache:
+                threading.Thread(target=self._background_precache_worker, daemon=True).start()
         except Exception as e:
             print(f"TTS warm-up notice: {e}")
 
@@ -1486,5 +1490,9 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, choices=["auto", "cuda", "low-gpu", "low_vram", "cpu"], default=None, help="Compute mode (default: auto-detect)")
 
     args = parser.parse_args()
-    speaker = LotroSpeaker(device=args.device, volume=args.volume, speed=args.speed, active_lang=args.lang)
-    speaker.speak(args.text, npc_name_or_category=args.npc, lang=args.lang, output_path=args.output)
+    # One-shot run: no background voice pre-caching, and wait for playback to finish before exiting
+    speaker = LotroSpeaker(
+        device=args.device, volume=args.volume, speed=args.speed, active_lang=args.lang,
+        background_precache=False,
+    )
+    speaker.speak(args.text, npc_name_or_category=args.npc, lang=args.lang, output_path=args.output, wait=True)
