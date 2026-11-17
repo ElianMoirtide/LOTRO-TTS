@@ -267,6 +267,14 @@ class LotroSpeaker:
         self.low_vram = (bool(low_vram) if low_vram is not None else detected_low_vram) and (self.device == "cuda")
         print(f"Initializing LOTRO-TTS Speaker Engine on [{self.device}] ({profile_desc})...")
 
+        # On AMD ROCm, route convolutions through PyTorch's own kernels instead of MIOpen.
+        # MIOpen runs a solver search for every new input shape (each new sentence length),
+        # which made synthesis many times slower and caused long pauses and GPU load spikes.
+        # NVIDIA/CUDA (cuDNN) is not affected.
+        if self.device == "cuda" and getattr(torch.version, "hip", None):
+            torch.backends.cudnn.enabled = False
+            print("ROCm detected: MIOpen convolution backend disabled (avoids per-shape solver searches).")
+
         # Initialize audio backend and register WASAPI audio session with OS mixer immediately (0.01s silent warmup)
         try:
             import sounddevice as sd
