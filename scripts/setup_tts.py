@@ -349,6 +349,9 @@ def install_packages(mode: str):
         "pynput",
         "Pillow",
     ]
+    if sys.platform.startswith("linux"):
+        # Pure-Python D-Bus client for the xdg-desktop-portal screen capture backend (Wayland)
+        extra_packages.append("jeepney")
     print(f"\n========================================================", flush=True)
     print(f"Installing Voice Cloning, Screenreader & Dependencies:", flush=True)
     print(f"  {', '.join(extra_packages)}", flush=True)
