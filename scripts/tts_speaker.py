@@ -321,6 +321,11 @@ class LotroSpeaker:
             if idx_file.exists():
                 with open(idx_file, "r", encoding="utf-8") as f:
                     items = json.load(f)
+                # Index files store Windows-style relative paths (e.g. 'fr\man_male\x.ogg');
+                # use '/' so they resolve on Linux too (Windows accepts both separators)
+                for it in items:
+                    if isinstance(it.get("audio_file"), str):
+                        it["audio_file"] = it["audio_file"].replace("\\", "/")
                 self.indices[lang] = items
                 self.by_voice_id[lang] = {it["voice_id"]: it for it in items}
                 name_map = {}
