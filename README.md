@@ -61,6 +61,9 @@ WIP:
 - **Operating Systems**:
   - **Windows 10 / 11 (64-bit)**
   - **Linux (64-bit / SteamOS / Steam Deck)**: Compatible with Proton, Lutris, and native Wine prefixes. Recommended packages: `libportaudio2` / `portaudio` (for audio output), `pipewire-pulse` / `pulseaudio-utils` (`pactl` for process volume control & `pw-cat`/`paplay`), and `wmctrl` or `xdotool` (for window detection).
+    - **Build prerequisites for the first-time setup**: a C compiler (`gcc` or `clang`) and the kernel headers (`kernel-headers` on Fedora, `linux-libc-dev` on Debian/Ubuntu, `linux-api-headers` on Arch/SteamOS). The setup compiles `evdev` (used for the global hotkeys and the mouse trigger) from source.
+    - **Wayland sessions**: X11 screen capture is blocked under Wayland, so LOTRO-TTS captures the game with `spectacle` (KDE Plasma), `grim` (Sway, Hyprland and other wlroots compositors) or the desktop's screenshot portal (`xdg-desktop-portal`, e.g. GNOME), whichever is available. Some desktops ask once for permission to take screenshots. X11 sessions need nothing extra.
+    - **LOTRO documents folder (Steam/Proton)**: the game writes `Script.log` and loads plugins from the Proton prefix (e.g. `~/.steam/steam/steamapps/compatdata/212500/pfx/drive_c/users/steamuser/Documents/The Lord of the Rings Online`), not from `~/Documents`. LOTRO-TTS detects it automatically; for an unusual location, pass it to the service with `--docs-dir` (see [CLI Arguments](#cli-arguments-for-scriptslotro_servicepy)).
 - **The Lord of the Rings Online**: Standard game installation (English, German, or French game client).
 
 ---
