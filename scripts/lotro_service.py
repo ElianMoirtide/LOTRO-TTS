@@ -1483,35 +1483,62 @@ def get_default_lotro_documents_dir() -> Path:
             logger.debug(f"Registry documents detection failed: {e}")
 
     home_docs = Path.home() / "Documents" / "The Lord of the Rings Online"
+    home_docs_de = Path.home() / "Dokumente" / "The Lord of the Rings Online"
+
+    if sys.platform.startswith("linux"):
+        return _detect_linux_lotro_documents_dir(home_docs, home_docs_de)
+
     if home_docs.exists():
         return home_docs
 
-    home_docs_de = Path.home() / "Dokumente" / "The Lord of the Rings Online"
     if home_docs_de.exists():
         return home_docs_de
 
-    if sys.platform.startswith("linux"):
-        # 1. Steam Proton (native Steam library, ~/.local/share/Steam or Flatpak Steam)
-        steam_patterns = [
-            ".steam/steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online",
-            ".local/share/Steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online",
-            ".var/app/com.valvesoftware.Steam/.steam/steam/steamapps/compatdata/212500/pfx/drive_c/users/*/Documents/The Lord of the Rings Online",
-        ]
-        for pattern in steam_patterns:
-            matches = list(Path.home().glob(pattern))
-            if matches:
-                return matches[0]
+    return home_docs
 
-        # 2. Lutris prefixes
-        lutris_matches = list(Path.home().glob("Games/the-lord-of-the-rings-online/drive_c/users/*/Documents/The Lord of the Rings Online"))
-        if lutris_matches:
-            return lutris_matches[0]
 
-        # 3. Bottles prefixes
-        bottles_matches = list(Path.home().glob(".var/app/com.usebottles.bottles/data/bottles/bottles/*/drive_c/users/*/Documents/The Lord of the Rings Online"))
-        if bottles_matches:
-            return bottles_matches[0]
+def _detect_linux_lotro_documents_dir(home_docs: Path, home_docs_de: Path) -> Path:
+    """
+    Linux: searches Wine/Proton prefixes before the native Documents folder, in the same order as the
+    GUI's LotroPathDetector, so terminal runs watch the folder the GUI installs the plugin into.
+    Among existing candidates, the one that already contains the TTS plugin wins.
+    """
+    docs_suffix = "drive_c/users/*/Documents/The Lord of the Rings Online"
+    patterns = [
+        # 1. Steam Proton (AppID 212500): native Steam, ~/.local/share/Steam, Flatpak Steam (both layouts)
+        f".steam/steam/steamapps/compatdata/212500/pfx/{docs_suffix}",
+        f".local/share/Steam/steamapps/compatdata/212500/pfx/{docs_suffix}",
+        f".var/app/com.valvesoftware.Steam/.steam/steam/steamapps/compatdata/212500/pfx/{docs_suffix}",
+        f".var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/compatdata/212500/pfx/{docs_suffix}",
+        # 2. Lutris prefix
+        f"Games/the-lord-of-the-rings-online/{docs_suffix}",
+        # 3. Default Wine prefix
+        f".wine/{docs_suffix}",
+        # 4. Bottles prefixes (Flatpak)
+        f".var/app/com.usebottles.bottles/data/bottles/bottles/*/{docs_suffix}",
+    ]
 
+    candidates = []
+    seen = set()
+    for pattern in patterns:
+        for match in sorted(Path.home().glob(pattern)):
+            if not match.is_dir():
+                continue
+            key = match.resolve()
+            if key not in seen:
+                seen.add(key)
+                candidates.append(match)
+    # 5. Native Documents folders (Linux client or manually linked)
+    for native in (home_docs, home_docs_de):
+        if native.is_dir() and native.resolve() not in seen:
+            seen.add(native.resolve())
+            candidates.append(native)
+
+    for cand in candidates:
+        if (cand / "Plugins" / "TTS" / "Main.lua").exists():
+            return cand
+    if candidates:
+        return candidates[0]
     return home_docs
 
 
