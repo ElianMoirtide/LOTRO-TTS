@@ -82,8 +82,10 @@ def ensure_linux_python():
 
 PYTORCH_CUDA12_INDEX = "https://download.pytorch.org/whl/cu126"
 PYTORCH_CUDA13_INDEX = "https://download.pytorch.org/whl/cu130"
+# Linux ROCm index must provide cp313 wheels for the bundled Python 3.13
+# (rocm6.2 stops at cp312 and predates RDNA 4 support)
 PYTORCH_ROCM_INDEX = (
-    "https://download.pytorch.org/whl/rocm6.2"
+    "https://download.pytorch.org/whl/rocm7.2"
     if sys.platform.startswith("linux")
     else "https://stable.repo.amd.com/rocm/whl-next/"
 )
@@ -312,7 +314,10 @@ def install_packages(mode: str):
                 print(f"[NVIDIA ARCHITECTURE] Detected GPU: {gpu_info.get('gpu_name')} (Compute Cap: {gpu_info.get('compute_cap')})")
                 print(f"  -> Automatically selected PyTorch CUDA 12.6 ({cuda_tag}) build.")
     elif mode in ["amd", "rocm"]:
-        mode_label = "AMD GPU (ROCm 6.x / 10.x - RDNA 3/4)"
+        if sys.platform.startswith("linux"):
+            mode_label = "AMD GPU (ROCm 7.2 - RDNA 3/4)"
+        else:
+            mode_label = "AMD GPU (ROCm 6.x / 10.x - RDNA 3/4)"
         torch_index = PYTORCH_ROCM_INDEX
     else:
         mode_label = "CPU ONLY"
