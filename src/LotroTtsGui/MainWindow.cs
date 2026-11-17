@@ -2061,6 +2061,12 @@ namespace LotroTtsGui
                           (narratorMode ? $" --narrator-mode --narrator-voice {narratorVoice}" : "") +
                           (useMouse ? "" : " --no-mouse");
 
+            // Watch the same documents folder the plugin is installed into (the service's own
+            // detection may pick a different folder, e.g. ~/Documents instead of the Proton prefix).
+            // Trailing separator trimmed so a final '\' cannot escape the closing quote on Windows.
+            string lotroDocsDir = Path.TrimEndingDirectorySeparator(LotroPathDetector.GetLotroDocumentsDir());
+            args += $" --docs-dir \"{lotroDocsDir}\"";
+
             AppendLog("\n======================================================================", goldAccent);
             AppendLog($"Starting LOTRO-TTS Service [Client: {clientLang.ToUpperInvariant()} | TTS: {ttsLang.ToUpperInvariant()} | Mode: {mode.ToUpperInvariant()} | Vol: {volume}% | Speed: {speed}%]...", goldAccent);
             string stopHint = (!qMode && useMouse) ? $"[{stopHotkey.ToUpperInvariant()}] or [MOUSE 3]" : $"[{stopHotkey.ToUpperInvariant()}]";
