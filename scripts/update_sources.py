@@ -80,7 +80,54 @@ SOURCES = [
         "rel_path": Path("quests") / "quests_es.xml",
         "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/labels/es/quests.xml"
     },
+    # LotroCompanion Pack & Metadata (categories, regions, webStoreItems, dungeons)
+    {
+        "name": "QuestCategory.xml",
+        "rel_path": Path("meta") / "QuestCategory.xml",
+        "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/enums/QuestCategory.xml"
+    },
+    {
+        "name": "QuestScope.xml",
+        "rel_path": Path("meta") / "QuestScope.xml",
+        "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/enums/QuestScope.xml"
+    },
+    {
+        "name": "geoAreas.xml",
+        "rel_path": Path("meta") / "geoAreas.xml",
+        "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/geoAreas.xml"
+    },
+    {
+        "name": "webStoreItems.xml",
+        "rel_path": Path("meta") / "webStoreItems.xml",
+        "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/webStoreItems.xml"
+    },
+    {
+        "name": "dungeons.xml",
+        "rel_path": Path("meta") / "dungeons.xml",
+        "url": "https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/dungeons.xml",
+        "optional": True,
+    },
 ]
+
+for _lang in ("en", "de", "fr", "es"):
+    SOURCES.extend([
+        {
+            "name": f"labels_{_lang}_geoAreas.xml",
+            "rel_path": Path("meta") / f"labels_{_lang}_geoAreas.xml",
+            "url": f"https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/labels/{_lang}/geoAreas.xml",
+        },
+        {
+            "name": f"labels_{_lang}_webStoreItems.xml",
+            "rel_path": Path("meta") / f"labels_{_lang}_webStoreItems.xml",
+            "url": f"https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/labels/{_lang}/webStoreItems.xml",
+        },
+        {
+            "name": f"labels_{_lang}_enum-QuestCategory.xml",
+            "rel_path": Path("meta") / f"labels_{_lang}_enum-QuestCategory.xml",
+            "url": f"https://github.com/LotroCompanion/lotro-data/raw/refs/heads/master/lore/labels/{_lang}/enum-QuestCategory.xml",
+            "optional": True,
+        },
+    ])
 
 
 def load_etags(cache_file: Path) -> dict:
@@ -109,7 +156,7 @@ def format_bytes(num_bytes: int) -> str:
     return f"{num_bytes / (1024 * 1024):.2f} MB"
 
 
-def download_file(url: str, target_path: Path, cached_etag: str | None, force: bool = False, is_parallel: bool = False) -> tuple[bool, str | None]:
+def download_file(url: str, target_path: Path, cached_etag: str | None, force: bool = False, is_parallel: bool = False, optional: bool = False) -> tuple[bool, str | None]:
     """
     Downloads a single file with progress reporting and atomic temporary file.
     Returns: (was_updated: bool, new_etag: str | None)
@@ -178,6 +225,9 @@ def download_file(url: str, target_path: Path, cached_etag: str | None, force: b
         if e.code == 304:
             logger.info(f"  {target_path.name} is already up to date (HTTP 304 Not Modified).")
             return False, cached_etag
+        elif e.code == 404 and optional:
+            logger.info(f"  Skipping optional metadata {target_path.name} (not published for this locale).")
+            return False, None
         else:
             logger.error(f"  HTTP error downloading {target_path.name}: {e.code} {e.reason}")
             if temp_path.exists():
@@ -213,7 +263,7 @@ def update_all(src_dir: Path, force: bool = False, generate_db: bool = False, wo
 
         logger.info(f"[{idx}/{total_files}] Checking {name}...")
         was_updated, new_etag = download_file(
-            url, target, cached_etag, force=force, is_parallel=(workers > 1)
+            url, target, cached_etag, force=force, is_parallel=(workers > 1), optional=bool(item.get("optional"))
         )
         return item, was_updated, new_etag
 

@@ -23,6 +23,7 @@ if str(scripts_dir) not in sys.path:
     sys.path.insert(0, str(scripts_dir))
 
 from assign_voices import load_voice_pools, get_deterministic_voice_id
+from pack_catalog import PACK_DEFINITIONS, load_lotro_metadata, classify_quest_pack
 
 # Configure logging
 logging.basicConfig(
@@ -113,6 +114,19 @@ def create_schema(conn: sqlite3.Connection):
     cur.execute("DROP TABLE IF EXISTS Quest_Texts;")
     cur.execute("DROP TABLE IF EXISTS Quests;")
     cur.execute("DROP TABLE IF EXISTS NPCs;")
+    cur.execute("DROP TABLE IF EXISTS Packs;")
+
+    cur.execute("""
+    CREATE TABLE Packs (
+        pack_id TEXT PRIMARY KEY,
+        sort_order INTEGER,
+        tier TEXT,
+        name_de TEXT,
+        name_en TEXT,
+        level_range TEXT,
+        description TEXT
+    );
+    """)
 
     cur.execute("""
     CREATE TABLE NPCs (
@@ -134,7 +148,25 @@ def create_schema(conn: sqlite3.Connection):
         title_en TEXT,
         title_de TEXT,
         title_fr TEXT,
-        title_es TEXT
+        title_es TEXT,
+        level INTEGER,
+        category_id INTEGER,
+        category_name_en TEXT,
+        category_name_de TEXT,
+        category_name_fr TEXT,
+        category_name_es TEXT,
+        region_id INTEGER,
+        region_name_en TEXT,
+        region_name_de TEXT,
+        region_name_fr TEXT,
+        region_name_es TEXT,
+        web_store_id INTEGER,
+        web_store_name TEXT,
+        scope INTEGER,
+        repeatable INTEGER,
+        instanced INTEGER,
+        pack_id TEXT,
+        FOREIGN KEY (pack_id) REFERENCES Packs(pack_id)
     );
     """)
 
@@ -170,6 +202,8 @@ def create_indexes(conn: sqlite3.Connection):
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_name_fr_lower ON NPCs(LOWER(name_fr));")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_name_es_lower ON NPCs(LOWER(name_es));")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_npcs_voice_id ON NPCs(voice_id);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_quests_pack_id ON Quests(pack_id);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_quests_category_id ON Quests(category_id);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_quest_texts_npc_id ON Quest_Texts(npc_id);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_quest_texts_quest_id ON Quest_Texts(quest_id);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_quest_texts_type ON Quest_Texts(text_type);")
@@ -364,8 +398,15 @@ def generate_database(src_dir: Path, output_db: Path):
     logger.info(f"Localized Quest labels loaded in {time.time() - t0:.2f}s")
 
     # -------------------------------------------------------------
-    # 4. Parse quests.xml and build Quests and Quest_Texts tables
+    # 4. Parse quests.xml and build Quests, Packs and Quest_Texts
     # -------------------------------------------------------------
+    meta_dir = find_dir_case_insensitive(src_dir, "meta")
+    meta = load_lotro_metadata(meta_dir)
+    logger.info(
+        f"Loaded LotroCompanion metadata: {len(meta['categories'])} categories, "
+        f"{len(meta['regions'])} regions, {len(meta['webstore'])} store items"
+    )
+
     logger.info("Parsing quests.xml...")
     t0 = time.time()
     quests_file = find_file_case_insensitive(quests_dir, "quests.xml")
@@ -390,7 +431,53 @@ def generate_database(src_dir: Path, output_db: Path):
             title_de = quest_labels["de"].get(str(qid))
             title_fr = quest_labels["fr"].get(str(qid))
             title_es = quest_labels["es"].get(str(qid))
-            quests_rows.append((qid, title_en, title_de, title_fr, title_es))
+
+            cat_str = quest_elem.attrib.get("category", "")
+            cat_id = int(cat_str) if cat_str.isdigit() else None
+            cat_info = meta["categories"].get(cat_id, {}) if cat_id is not None else {}
+            cat_en = cat_info.get("en", f"Category {cat_id}" if cat_id is not None else "")
+            cat_de = cat_info.get("de", cat_en)
+            cat_fr = cat_info.get("fr", cat_en)
+            cat_es = cat_info.get("es", cat_en)
+
+            lv_str = quest_elem.attrib.get("level", "")
+            lv = int(lv_str) if lv_str.lstrip("-").isdigit() else None
+
+            reg_id = None
+            for map_el in quest_elem.findall("map"):
+                r_s = map_el.attrib.get("region", "")
+                if r_s.isdigit():
+                    reg_id = int(r_s)
+                    break
+            reg_info = meta["regions"].get(reg_id, {}) if reg_id is not None else {}
+            reg_en = reg_info.get("en", "")
+            reg_de = reg_info.get("de", reg_en)
+            reg_fr = reg_info.get("fr", reg_en)
+            reg_es = reg_info.get("es", reg_en)
+
+            ws_str = quest_elem.attrib.get("webStoreItemID", "")
+            ws_id = int(ws_str) if ws_str.isdigit() else None
+            ws_name = meta["webstore"].get(ws_id, "") if ws_id is not None else ""
+
+            sc_str = quest_elem.attrib.get("scope", "")
+            scope = int(sc_str) if sc_str.isdigit() else None
+            repeatable = 1 if quest_elem.attrib.get("repeatable") else 0
+            instanced = 1 if quest_elem.attrib.get("instanced") else 0
+
+            pack_id = classify_quest_pack(
+                category_id=cat_id,
+                cat_name_en=cat_en,
+                level=lv,
+                region_id=reg_id,
+                web_store_name=ws_name,
+            )
+
+            quests_rows.append((
+                qid, title_en, title_de, title_fr, title_es,
+                lv, cat_id, cat_en, cat_de, cat_fr, cat_es,
+                reg_id, reg_en, reg_de, reg_fr, reg_es,
+                ws_id, ws_name, scope, repeatable, instanced, pack_id,
+            ))
 
             order_idx = 1
 
@@ -565,8 +652,23 @@ def generate_database(src_dir: Path, output_db: Path):
     logger.info("Writing data to SQLite database...")
     t0 = time.time()
     cur = conn.cursor()
+    cur.executemany(
+        "INSERT INTO Packs VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+            (
+                p["pack_id"],
+                p["sort_order"],
+                p["tier"],
+                p["name_de"],
+                p["name_en"],
+                p["level_range"],
+                p["description"],
+            )
+            for p in PACK_DEFINITIONS
+        ],
+    )
     cur.executemany("INSERT INTO NPCs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", npcs_dict.values())
-    cur.executemany("INSERT INTO Quests VALUES (?, ?, ?, ?, ?)", quests_rows)
+    cur.executemany("INSERT INTO Quests VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", quests_rows)
     cur.executemany("INSERT INTO Quest_Texts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", quest_texts_dict.values())
     conn.commit()
     logger.info(f"Database insertion completed in {time.time() - t0:.2f}s")
