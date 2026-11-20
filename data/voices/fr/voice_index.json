@@ -692,17 +692,19 @@
     "category": "dwarf_male",
     "gender": "male",
     "race": "dwarf",
-    "npc_id": 1879438668,
-    "npc_name": "Hórin",
-    "speaker_cluster_id": "actor_0092",
+    "npc_id": 1879417490,
+    "npc_name": "Edash",
+    "speaker_cluster_id": "actor_0058",
     "verified_npc_ids": [
-      1879438668
+      1879417490,
+      1879483586
     ],
     "verified_npc_names": [
-      "Hórin"
+      "Edash",
+      "Khôltekh the Cunning"
     ],
-    "original_file": "0A002A46.ogg",
-    "text": "Ils ne doivent pas entrer à Norbar ! Stoppez-les à tout prix ! Vous allez avoir besoin de moi, imbécile !",
+    "original_file": "0A0091C4.ogg",
+    "text": "De nombreuses créatures rôdent dans les profondeurs de la montagne, et les orques n'en sont pas les pires, je le crains.",
     "audio_file": "fr\\dwarf_male\\dwarf_male_12.ogg",
     "is_native_french": true
   },
@@ -739,19 +741,19 @@
     "category": "dwarf_male",
     "gender": "male",
     "race": "dwarf",
-    "npc_id": 1879417490,
-    "npc_name": "Edash",
-    "speaker_cluster_id": "actor_0058",
+    "npc_id": 1879502660,
+    "npc_name": "Birûk",
+    "speaker_cluster_id": "actor_0427",
     "verified_npc_ids": [
-      1879417490,
-      1879483586
+      1879368903,
+      1879502660
     ],
     "verified_npc_names": [
-      "Edash",
-      "Khôltekh the Cunning"
+      "Birûk",
+      "Náin the Slakeless"
     ],
-    "original_file": "0A0091C4.ogg",
-    "text": "De nombreuses créatures rôdent dans les profondeurs de la montagne, et les orques n'en sont pas les pires, je le crains.",
+    "original_file": "0A01E05C.ogg",
+    "text": "Pip et moi avons rencontré Sylve Barbe après avoir échappé aux orques.",
     "audio_file": "fr\\dwarf_male\\dwarf_male_14.ogg",
     "is_native_french": true
   },
@@ -779,27 +781,6 @@
     "category": "dwarf_male",
     "gender": "male",
     "race": "dwarf",
-    "npc_id": 1879502660,
-    "npc_name": "Birûk",
-    "speaker_cluster_id": "actor_0427",
-    "verified_npc_ids": [
-      1879368903,
-      1879502660
-    ],
-    "verified_npc_names": [
-      "Birûk",
-      "Náin the Slakeless"
-    ],
-    "original_file": "0A01E05C.ogg",
-    "text": "Pip et moi avons rencontré Sylve Barbe après avoir échappé aux orques.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_16.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "dwarf_male_17",
-    "category": "dwarf_male",
-    "gender": "male",
-    "race": "dwarf",
     "npc_id": 1879417493,
     "npc_name": "Valdi",
     "speaker_cluster_id": "actor_0282",
@@ -811,8 +792,27 @@
       "Valdi",
       "Náin the Slakeless"
     ],
-    "original_file": "0A009160.ogg",
-    "text": "Glottrock est tombé. Apportez son tribut au maître de la Moria.",
+    "original_file": "0A01D45F.ogg",
+    "text": "Voyons ce qu'Hildegarde peut vous dire au sujet de votre avenir.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_16.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "dwarf_male_17",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "dwarf",
+    "npc_id": 1879109386,
+    "npc_name": "Stóthkell",
+    "speaker_cluster_id": "actor_0029",
+    "verified_npc_ids": [
+      1879109386
+    ],
+    "verified_npc_names": [
+      "Stóthkell"
+    ],
+    "original_file": "0A014AD6.ogg",
+    "text": "Mère m'a raconté que vous comptiez un nain parmi vous, mais je ne l'ai pas cru.",
     "audio_file": "fr\\dwarf_male\\dwarf_male_17.ogg",
     "is_native_french": true
   },
@@ -941,25 +941,6 @@
     "category": "dwarf_male",
     "gender": "male",
     "race": "dwarf",
-    "npc_id": 1879109386,
-    "npc_name": "Stóthkell",
-    "speaker_cluster_id": "actor_0029",
-    "verified_npc_ids": [
-      1879109386
-    ],
-    "verified_npc_names": [
-      "Stóthkell"
-    ],
-    "original_file": "0A014AD6.ogg",
-    "text": "Mère m'a raconté que vous comptiez un nain parmi vous, mais je ne l'ai pas cru.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_20.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "dwarf_male_21",
-    "category": "dwarf_male",
-    "gender": "male",
-    "race": "dwarf",
     "npc_id": 1879155952,
     "npc_name": "Lúth",
     "speaker_cluster_id": "actor_0345",
@@ -971,11 +952,11 @@
     ],
     "original_file": "0A01E636.ogg",
     "text": "Es-tu disposé à en savoir plus à propos du prochain groupe de composants ?",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_21.ogg",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_20.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "dwarf_male_22",
+    "voice_id": "dwarf_male_21",
     "category": "dwarf_male",
     "gender": "male",
     "race": "dwarf",
@@ -990,6 +971,25 @@
     ],
     "original_file": "0A01B8D0.ogg",
     "text": "Il doit y avoir un camp d'orques au nord d'ici, sous la lisière de Fangorn.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_21.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "dwarf_male_22",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "dwarf",
+    "npc_id": 1879421266,
+    "npc_name": "Náin the Slakeless",
+    "speaker_cluster_id": "actor_0614",
+    "verified_npc_ids": [
+      1879421266
+    ],
+    "verified_npc_names": [
+      "Náin the Slakeless"
+    ],
+    "original_file": "0A015FD4.ogg",
+    "text": "Je suis connu sous bien des noms. Saruman le rusé. Saruman le créateur d'anneaux.",
     "audio_file": "fr\\dwarf_male\\dwarf_male_22.ogg",
     "is_native_french": true
   },
@@ -1063,25 +1063,6 @@
     "category": "dwarf_male",
     "gender": "male",
     "race": "dwarf",
-    "npc_id": 1879421266,
-    "npc_name": "Náin the Slakeless",
-    "speaker_cluster_id": "actor_0614",
-    "verified_npc_ids": [
-      1879421266
-    ],
-    "verified_npc_names": [
-      "Náin the Slakeless"
-    ],
-    "original_file": "0A015FD4.ogg",
-    "text": "Je suis connu sous bien des noms. Saruman le rusé. Saruman le créateur d'anneaux.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_24.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "dwarf_male_25",
-    "category": "dwarf_male",
-    "gender": "male",
-    "race": "dwarf",
     "npc_id": 1879196451,
     "npc_name": "Gormr Doursmith",
     "speaker_cluster_id": "actor_0607",
@@ -1093,11 +1074,11 @@
     ],
     "original_file": "0A0122B3.ogg",
     "text": "Très bien, jeune homme. Vous avez flâné suffisamment longtemps.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_25.ogg",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_24.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "dwarf_male_26",
+    "voice_id": "dwarf_male_25",
     "category": "dwarf_male",
     "gender": "male",
     "race": "dwarf",
@@ -1114,11 +1095,11 @@
     ],
     "original_file": "0A013458.ogg",
     "text": "Elrond semi-elfe parviendra peut-être à décrypter les runes de cette tablette.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_26.ogg",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_25.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "dwarf_male_27",
+    "voice_id": "dwarf_male_26",
     "category": "dwarf_male",
     "gender": "male",
     "race": "dwarf",
@@ -1179,6 +1160,27 @@
     ],
     "original_file": "0A01E1B0.ogg",
     "text": "Je souhaite chevaucher et me battre aux côtés de mon roi, mais cette blessure ne me le permettra pas.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_26.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "dwarf_male_27",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "dwarf",
+    "npc_id": 1879404731,
+    "npc_name": "Agátur the Boastful",
+    "speaker_cluster_id": "actor_0755",
+    "verified_npc_ids": [
+      1879404731,
+      1879408294
+    ],
+    "verified_npc_names": [
+      "Agátur the Boastful",
+      "Glóin"
+    ],
+    "original_file": "0A01BA45.ogg",
+    "text": "Ce ne sont que des brilles ombres. Leur caractéristique spéciale est de briller ainsi.",
     "audio_file": "fr\\dwarf_male\\dwarf_male_27.ogg",
     "is_native_french": true
   },
@@ -1211,27 +1213,6 @@
   },
   {
     "voice_id": "dwarf_male_29",
-    "category": "dwarf_male",
-    "gender": "male",
-    "race": "dwarf",
-    "npc_id": 1879404731,
-    "npc_name": "Agátur the Boastful",
-    "speaker_cluster_id": "actor_0755",
-    "verified_npc_ids": [
-      1879404731,
-      1879408294
-    ],
-    "verified_npc_names": [
-      "Agátur the Boastful",
-      "Glóin"
-    ],
-    "original_file": "0A01BA45.ogg",
-    "text": "Ce ne sont que des brilles ombres. Leur caractéristique spéciale est de briller ainsi.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_29.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "dwarf_male_30",
     "category": "dwarf_male",
     "gender": "male",
     "race": "man",
@@ -1284,11 +1265,11 @@
     ],
     "original_file": "0A014CC6.ogg",
     "text": "Vous devriez demander à cet Evan ce qu'il sait de l'histoire de notre peuple. Bien peu, je parierais.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_30.ogg",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_29.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "dwarf_male_31",
+    "voice_id": "dwarf_male_30",
     "category": "dwarf_male",
     "gender": "male",
     "race": "man",
@@ -1329,11 +1310,11 @@
     ],
     "original_file": "0A016598.ogg",
     "text": "C'est vraiment curieux. Rendez l'épée et nous reparlerons.",
-    "audio_file": "fr\\dwarf_male\\dwarf_male_31.ogg",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_30.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "dwarf_male_32",
+    "voice_id": "dwarf_male_31",
     "category": "dwarf_male",
     "gender": "male",
     "race": "race of man",
@@ -1364,6 +1345,27 @@
     ],
     "original_file": "0A01BA43.ogg",
     "text": "Ces statues ne représentent pas mes rois, mais elles sont quand même quelque chose d'impressionnant.",
+    "audio_file": "fr\\dwarf_male\\dwarf_male_31.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "dwarf_male_32",
+    "category": "dwarf_male",
+    "gender": "male",
+    "race": "zhélruka",
+    "npc_id": 1879417232,
+    "npc_name": "Prince Ingór",
+    "speaker_cluster_id": "actor_0311",
+    "verified_npc_ids": [
+      1879417232,
+      1879484513
+    ],
+    "verified_npc_names": [
+      "Prince Ingór",
+      "Birûk"
+    ],
+    "original_file": "0A0088C5.ogg",
+    "text": "J'ignore combien de temps nous pourrons défier la couronne de fer.",
     "audio_file": "fr\\dwarf_male\\dwarf_male_32.ogg",
     "is_native_french": true
   },
@@ -1504,37 +1506,6 @@
     "voice_id": "elf_female_5",
     "category": "elf_female",
     "gender": "female",
-    "race": "elf",
-    "npc_id": 1879387096,
-    "npc_name": "Baradal",
-    "speaker_cluster_id": "actor_0569",
-    "verified_npc_ids": [
-      1879386554,
-      1879387096,
-      1879387798,
-      1879389063,
-      1879487597,
-      1879487598,
-      1879487614,
-      1879487628,
-      1879503357,
-      1879509674
-    ],
-    "verified_npc_names": [
-      "Baradal",
-      "Silirtas",
-      "Shadalith",
-      "Baráil"
-    ],
-    "original_file": "0A011366.ogg",
-    "text": "Une fois, j'ai même vu une chèvre noire dont les yeux étincelaient. Je vous jure !",
-    "audio_file": "fr\\elf_female\\elf_female_5.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "elf_female_6",
-    "category": "elf_female",
-    "gender": "female",
     "race": "dredain",
     "npc_id": 1879531199,
     "npc_name": "Dêkh-maka-Tût",
@@ -1549,6 +1520,25 @@
     ],
     "original_file": "0A01CB22.ogg",
     "text": "Ils insultaient le roi. On ne peut pas les laisser faire.",
+    "audio_file": "fr\\elf_female\\elf_female_5.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "elf_female_6",
+    "category": "elf_female",
+    "gender": "female",
+    "race": "elf",
+    "npc_id": 1879487722,
+    "npc_name": "Silirtas",
+    "speaker_cluster_id": "actor_0365",
+    "verified_npc_ids": [
+      1879487722
+    ],
+    "verified_npc_names": [
+      "Silirtas"
+    ],
+    "original_file": "0A01CE67.ogg",
+    "text": "Mon frère est enfin libre. Cette nouvelle me remplit de joie.",
     "audio_file": "fr\\elf_female\\elf_female_6.ogg",
     "is_native_french": true
   },
@@ -1611,17 +1601,21 @@
     "category": "elf_female",
     "gender": "female",
     "race": "elf",
-    "npc_id": 1879487722,
-    "npc_name": "Silirtas",
-    "speaker_cluster_id": "actor_0365",
+    "npc_id": 1879155932,
+    "npc_name": "Alfirimbes",
+    "speaker_cluster_id": "actor_0128",
     "verified_npc_ids": [
-      1879487722
+      1879155932,
+      1879155963,
+      1879163373
     ],
     "verified_npc_names": [
-      "Silirtas"
+      "Alfirimbes",
+      "Ningloril",
+      "Erymbes"
     ],
-    "original_file": "0A01CE67.ogg",
-    "text": "Mon frère est enfin libre. Cette nouvelle me remplit de joie.",
+    "original_file": "0A01E296.ogg",
+    "text": "Imraël est aimé du peuple, mais sa fille Lotiriel est inexpérimentée.",
     "audio_file": "fr\\elf_female\\elf_female_8.ogg",
     "is_native_french": true
   },
@@ -2631,17 +2625,24 @@
     "category": "hobbit_male",
     "gender": "male",
     "race": "hobbit",
-    "npc_id": 1879048269,
-    "npc_name": "Old Mugwort",
-    "speaker_cluster_id": "actor_0608",
+    "npc_id": 1879196832,
+    "npc_name": "Bounder Boffin",
+    "speaker_cluster_id": "actor_0640",
     "verified_npc_ids": [
-      1879048269
+      1879196832,
+      1879346362,
+      1879531801,
+      1879531830,
+      1879531833,
+      1879531836
     ],
     "verified_npc_names": [
-      "Old Mugwort"
+      "Bounder Boffin",
+      "Peregrin Took",
+      "Haldo Rushbank"
     ],
-    "original_file": "0A01501E.ogg",
-    "text": "Alors comme ça, tu en redemandes.",
+    "original_file": "0A0133A0.ogg",
+    "text": "Deux frontaliers sont partis pour la ferme de Nordcoton. Vous devriez aller voir ce qui s'y passe.",
     "audio_file": "fr\\hobbit_male\\hobbit_male_8.ogg",
     "is_native_french": true
   },
@@ -3400,8 +3401,8 @@
     "verified_npc_names": [
       "Éowyn"
     ],
-    "original_file": "0A0027C1.ogg",
-    "text": "J'ai besoin de toi, ma beauté.",
+    "original_file": "0A01E291.ogg",
+    "text": "J'ai sans doute en effet besoin du retour des chevaliers au cygne.",
     "audio_file": "fr\\man_female\\man_female_17.ogg",
     "is_native_french": true
   },
@@ -3625,8 +3626,8 @@
       "Ozodi",
       "Alghila"
     ],
-    "original_file": "0A002A5D.ogg",
-    "text": "« Vite ! Que certains restent avec moi, les autres au levier ! »",
+    "original_file": "0A00E16E.ogg",
+    "text": "Triomphez des étudiants de Gorotoul et privez-les de leurs ouvrages maléfiques.",
     "audio_file": "fr\\man_female\\man_female_23.ogg",
     "is_native_french": true
   },
@@ -3652,8 +3653,8 @@
       "Sarikhol",
       "Mildrith"
     ],
-    "original_file": "0A01B74C.ogg",
-    "text": "C'est une plaisanterie ! Quel fanfaron ! Quel crapule !",
+    "original_file": "0A00FD89.ogg",
+    "text": "La vieille femme des montagnes nous dit de ne pas faire confiance au nouveau diade.",
     "audio_file": "fr\\man_female\\man_female_24.ogg",
     "is_native_french": true
   },
@@ -4246,29 +4247,6 @@
     "voice_id": "man_male_3",
     "category": "man_male",
     "gender": "male",
-    "race": "race of man",
-    "npc_id": 1879271794,
-    "npc_name": "Háma",
-    "speaker_cluster_id": "actor_0311",
-    "verified_npc_ids": [
-      1879271794,
-      1879417788,
-      1879529057
-    ],
-    "verified_npc_names": [
-      "Háma",
-      "Varthmath",
-      "Bhôd-buri-Mêj"
-    ],
-    "original_file": "0A0088C5.ogg",
-    "text": "J'ignore combien de temps nous pourrons défier la couronne de fer.",
-    "audio_file": "fr\\man_male\\man_male_3.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "man_male_4",
-    "category": "man_male",
-    "gender": "male",
     "race": "man",
     "npc_id": 1879048568,
     "npc_name": "Strider",
@@ -4283,11 +4261,11 @@
     ],
     "original_file": "0A001FA7.ogg",
     "text": "Langlace le rôdeur s'apprête à partir à la rescousse du prince Elphavortal, pris au piège des traîtres poimbourus.",
-    "audio_file": "fr\\man_male\\man_male_4.ogg",
+    "audio_file": "fr\\man_male\\man_male_3.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "man_male_5",
+    "voice_id": "man_male_4",
     "category": "man_male",
     "gender": "male",
     "race": "man",
@@ -4302,11 +4280,11 @@
     ],
     "original_file": "0A0004BF.ogg",
     "text": "Si vous venez en paix, peut-être aiderez-vous les géants.",
-    "audio_file": "fr\\man_male\\man_male_5.ogg",
+    "audio_file": "fr\\man_male\\man_male_4.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "man_male_6",
+    "voice_id": "man_male_5",
     "category": "man_male",
     "gender": "male",
     "race": "race of man",
@@ -4371,6 +4349,28 @@
     ],
     "original_file": "0A01E678.ogg",
     "text": "Les corsaires ont brûlé une grande partie de la flotte, mais ils ne tiendront pas le port.",
+    "audio_file": "fr\\man_male\\man_male_5.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "man_male_6",
+    "category": "man_male",
+    "gender": "male",
+    "race": "great eagle",
+    "npc_id": 1879228600,
+    "npc_name": "Landroval",
+    "speaker_cluster_id": "actor_0700",
+    "verified_npc_ids": [
+      1879228588,
+      1879228600,
+      1879231382
+    ],
+    "verified_npc_names": [
+      "Landroval",
+      "Meneldor"
+    ],
+    "original_file": "0A0164C6.ogg",
+    "text": "Quel soulagement de vous revoir, et toujours en un seul morceau.",
     "audio_file": "fr\\man_male\\man_male_6.ogg",
     "is_native_french": true
   },
@@ -4507,21 +4507,28 @@
     "voice_id": "man_male_11",
     "category": "man_male",
     "gender": "male",
-    "race": "great eagle",
-    "npc_id": 1879228600,
-    "npc_name": "Landroval",
-    "speaker_cluster_id": "actor_0700",
+    "race": "man",
+    "npc_id": 1879208559,
+    "npc_name": "Rhus",
+    "speaker_cluster_id": "actor_0093",
     "verified_npc_ids": [
-      1879228588,
-      1879228600,
-      1879231382
+      1879048502,
+      1879200559,
+      1879208559,
+      1879322503,
+      1879331183,
+      1879341472
     ],
     "verified_npc_names": [
-      "Landroval",
-      "Meneldor"
+      "Rhus",
+      "Aragorn",
+      "Tom Bombadil",
+      "Theodore Gorse",
+      "Lobordil",
+      "Suvulch"
     ],
-    "original_file": "0A0164C6.ogg",
-    "text": "Quel soulagement de vous revoir, et toujours en un seul morceau.",
+    "original_file": "0A014B26.ogg",
+    "text": "Eh bien, les autres elfes savaient-ils ne serait-ce qu'une bribe de l'histoire de mon peuple.",
     "audio_file": "fr\\man_male\\man_male_11.ogg",
     "is_native_french": true
   },
@@ -4578,27 +4585,25 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "npc_id": 1879208559,
-    "npc_name": "Rhus",
-    "speaker_cluster_id": "actor_0093",
+    "npc_id": 1879208558,
+    "npc_name": "Penrod",
+    "speaker_cluster_id": "actor_0354",
     "verified_npc_ids": [
-      1879048502,
-      1879200559,
-      1879208559,
-      1879322503,
-      1879331183,
-      1879341472
+      1879196844,
+      1879208558,
+      1879363342,
+      1879390054,
+      1879393939
     ],
     "verified_npc_names": [
-      "Rhus",
-      "Aragorn",
-      "Tom Bombadil",
-      "Theodore Gorse",
-      "Lobordil",
-      "Suvulch"
+      "Penrod",
+      "Mablung",
+      "Yrjänä",
+      "Radagast",
+      "Ontamo"
     ],
-    "original_file": "0A014B26.ogg",
-    "text": "Eh bien, les autres elfes savaient-ils ne serait-ce qu'une bribe de l'histoire de mon peuple.",
+    "original_file": "0A013F81.ogg",
+    "text": "Drougotte a été vaincue. Mon peuple vous fait part de ses remerciements et de ses louanges.",
     "audio_file": "fr\\man_male\\man_male_14.ogg",
     "is_native_french": true
   },
@@ -4647,25 +4652,19 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "npc_id": 1879208558,
-    "npc_name": "Penrod",
-    "speaker_cluster_id": "actor_0354",
+    "npc_id": 1879339639,
+    "npc_name": "Duinhir",
+    "speaker_cluster_id": "actor_0464",
     "verified_npc_ids": [
-      1879196844,
-      1879208558,
-      1879363342,
-      1879390054,
-      1879393939
+      1879272813,
+      1879339639
     ],
     "verified_npc_names": [
-      "Penrod",
-      "Mablung",
-      "Yrjänä",
-      "Radagast",
-      "Ontamo"
+      "Duinhir",
+      "Déorwine"
     ],
-    "original_file": "0A013F81.ogg",
-    "text": "Drougotte a été vaincue. Mon peuple vous fait part de ses remerciements et de ses louanges.",
+    "original_file": "0A01D020.ogg",
+    "text": "Vous devriez vous rendre en haut des murs et voir comment se portent leurs défenseurs.",
     "audio_file": "fr\\man_male\\man_male_17.ogg",
     "is_native_french": true
   },
@@ -4693,27 +4692,6 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "npc_id": 1879339639,
-    "npc_name": "Duinhir",
-    "speaker_cluster_id": "actor_0464",
-    "verified_npc_ids": [
-      1879272813,
-      1879339639
-    ],
-    "verified_npc_names": [
-      "Duinhir",
-      "Déorwine"
-    ],
-    "original_file": "0A01D020.ogg",
-    "text": "Vous devriez vous rendre en haut des murs et voir comment se portent leurs défenseurs.",
-    "audio_file": "fr\\man_male\\man_male_19.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "man_male_20",
-    "category": "man_male",
-    "gender": "male",
-    "race": "man",
     "npc_id": 1879228301,
     "npc_name": "Suvulch",
     "speaker_cluster_id": "actor_0134",
@@ -4737,11 +4715,11 @@
     ],
     "original_file": "0A009534.ogg",
     "text": "Si le cœur de feu tombe, je crains que la Moria ne soit perdue.",
-    "audio_file": "fr\\man_male\\man_male_20.ogg",
+    "audio_file": "fr\\man_male\\man_male_19.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "man_male_21",
+    "voice_id": "man_male_20",
     "category": "man_male",
     "gender": "male",
     "race": "man",
@@ -4768,11 +4746,11 @@
     ],
     "original_file": "0A014B1A.ogg",
     "text": "Je ne vous mentirai pas. Il y a, à mon goût, trois elfes de trop à Turmorva.",
-    "audio_file": "fr\\man_male\\man_male_21.ogg",
+    "audio_file": "fr\\man_male\\man_male_20.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "man_male_22",
+    "voice_id": "man_male_21",
     "category": "man_male",
     "gender": "male",
     "race": "man",
@@ -4803,6 +4781,37 @@
     ],
     "original_file": "0A01C7EF.ogg",
     "text": "Peut-être pourrions-nous éviter d'attirer son attention et l'attaquer lorsqu'il s'y attendra le moins.",
+    "audio_file": "fr\\man_male\\man_male_21.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "man_male_22",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "npc_id": 1879448155,
+    "npc_name": "Meneldir",
+    "speaker_cluster_id": "actor_0723",
+    "verified_npc_ids": [
+      1879239384,
+      1879239389,
+      1879245214,
+      1879245244,
+      1879245697,
+      1879448155,
+      1879468215
+    ],
+    "verified_npc_names": [
+      "Meneldir",
+      "Mansig",
+      "Hadorion",
+      "Goldlac",
+      "Éothain",
+      "Céolbald",
+      "Thurnoth"
+    ],
+    "original_file": "0A01B9A1.ogg",
+    "text": "« Je suis à votre disposition. Siez au maire, mon commandant le souhaite. »",
     "audio_file": "fr\\man_male\\man_male_22.ogg",
     "is_native_french": true
   },
@@ -4848,37 +4857,6 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "npc_id": 1879448155,
-    "npc_name": "Meneldir",
-    "speaker_cluster_id": "actor_0723",
-    "verified_npc_ids": [
-      1879239384,
-      1879239389,
-      1879245214,
-      1879245244,
-      1879245697,
-      1879448155,
-      1879468215
-    ],
-    "verified_npc_names": [
-      "Meneldir",
-      "Mansig",
-      "Hadorion",
-      "Goldlac",
-      "Éothain",
-      "Céolbald",
-      "Thurnoth"
-    ],
-    "original_file": "0A01B9A1.ogg",
-    "text": "« Je suis à votre disposition. Siez au maire, mon commandant le souhaite. »",
-    "audio_file": "fr\\man_male\\man_male_24.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "man_male_25",
-    "category": "man_male",
-    "gender": "male",
-    "race": "man",
     "npc_id": 1879459006,
     "npc_name": "Faltharan",
     "speaker_cluster_id": "actor_0421",
@@ -4892,50 +4870,11 @@
     ],
     "original_file": "0A009417.ogg",
     "text": "Une ombre plane sur l'Alotlorien, et nous devons nous préparer à l'affronter.",
-    "audio_file": "fr\\man_male\\man_male_25.ogg",
+    "audio_file": "fr\\man_male\\man_male_24.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "man_male_26",
-    "category": "man_male",
-    "gender": "male",
-    "race": "man",
-    "npc_id": 1879271803,
-    "npc_name": "Gríma Wormtongue",
-    "speaker_cluster_id": "actor_0782",
-    "verified_npc_ids": [
-      1879271803,
-      1879390098,
-      1879459009,
-      1879460466,
-      1879460467,
-      1879460483,
-      1879460484,
-      1879460921,
-      1879464764,
-      1879464769,
-      1879465813,
-      1879471328,
-      1879531214
-    ],
-    "verified_npc_names": [
-      "Gríma Wormtongue",
-      "Naremil",
-      "Caebar",
-      "Gwindir",
-      "Maethon",
-      "Celonor",
-      "Dagoras",
-      "Anoradan",
-      "Thorongil"
-    ],
-    "original_file": "0A01CFA9.ogg",
-    "text": "Vous ne pouvez faire confiance à Éomer. Il voudrait dépeupler votre ville et laisser vos trésors sans protection.",
-    "audio_file": "fr\\man_male\\man_male_26.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "man_male_27",
+    "voice_id": "man_male_25",
     "category": "man_male",
     "gender": "male",
     "race": "man",
@@ -4984,11 +4923,50 @@
     ],
     "original_file": "0A01DF57.ogg",
     "text": "Nous avons désormais plusieurs tâches à accomplir au sein de l'anneau d'Isangar.",
-    "audio_file": "fr\\man_male\\man_male_27.ogg",
+    "audio_file": "fr\\man_male\\man_male_25.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "man_male_28",
+    "voice_id": "man_male_26",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "npc_id": 1879271803,
+    "npc_name": "Gríma Wormtongue",
+    "speaker_cluster_id": "actor_0782",
+    "verified_npc_ids": [
+      1879271803,
+      1879390098,
+      1879459009,
+      1879460466,
+      1879460467,
+      1879460483,
+      1879460484,
+      1879460921,
+      1879464764,
+      1879464769,
+      1879465813,
+      1879471328,
+      1879531214
+    ],
+    "verified_npc_names": [
+      "Gríma Wormtongue",
+      "Naremil",
+      "Caebar",
+      "Gwindir",
+      "Maethon",
+      "Celonor",
+      "Dagoras",
+      "Anoradan",
+      "Thorongil"
+    ],
+    "original_file": "0A01CFA9.ogg",
+    "text": "Vous ne pouvez faire confiance à Éomer. Il voudrait dépeupler votre ville et laisser vos trésors sans protection.",
+    "audio_file": "fr\\man_male\\man_male_26.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "man_male_27",
     "category": "man_male",
     "gender": "male",
     "race": "race of man",
@@ -5017,6 +4995,32 @@
     ],
     "original_file": "0A00888B.ogg",
     "text": "Nous devons servir la couronne de fer, sous peine de représailles.",
+    "audio_file": "fr\\man_male\\man_male_27.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "man_male_28",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "npc_id": 1879331127,
+    "npc_name": "Khôr-buri-Ghân",
+    "speaker_cluster_id": "actor_0076",
+    "verified_npc_ids": [
+      1879331120,
+      1879331127,
+      1879363432,
+      1879480458,
+      1879526503
+    ],
+    "verified_npc_names": [
+      "Khôr-buri-Ghân",
+      "Khâhir the Quick",
+      "Mervárth",
+      "Prêkh-weni-Pâsh"
+    ],
+    "original_file": "0A0094E2.ogg",
+    "text": "Les loups qui rôdent là-bas sont frappés de démence.",
     "audio_file": "fr\\man_male\\man_male_28.ogg",
     "is_native_french": true
   },
@@ -5073,21 +5077,21 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "npc_id": 1879452122,
-    "npc_name": "Geralt",
-    "speaker_cluster_id": "actor_0100",
+    "npc_id": 1879503419,
+    "npc_name": "Mashdagâl",
+    "speaker_cluster_id": "actor_0385",
     "verified_npc_ids": [
-      1879048558,
-      1879228577,
-      1879452122
+      1879158046,
+      1879346050,
+      1879503419
     ],
     "verified_npc_names": [
-      "Geralt",
-      "Barliman Butterbur",
-      "Idmar"
+      "Mashdagâl",
+      "Hujâ",
+      "Reginald Sickleweed"
     ],
-    "original_file": "0A009198.ogg",
-    "text": "Dol Guldur, le nom seul me tait fait.",
+    "original_file": "0A01E7F6.ogg",
+    "text": "Le soleil était absent à notre réveil ce matin, abandonnant le jour aux ténèbres.",
     "audio_file": "fr\\man_male\\man_male_30.ogg",
     "is_native_french": true
   },
@@ -5139,55 +5143,6 @@
     "voice_id": "man_male_33",
     "category": "man_male",
     "gender": "male",
-    "race": "man",
-    "npc_id": 1879331127,
-    "npc_name": "Khôr-buri-Ghân",
-    "speaker_cluster_id": "actor_0076",
-    "verified_npc_ids": [
-      1879331120,
-      1879331127,
-      1879363432,
-      1879480458,
-      1879526503
-    ],
-    "verified_npc_names": [
-      "Khôr-buri-Ghân",
-      "Khâhir the Quick",
-      "Mervárth",
-      "Prêkh-weni-Pâsh"
-    ],
-    "original_file": "0A0094E2.ogg",
-    "text": "Les loups qui rôdent là-bas sont frappés de démence.",
-    "audio_file": "fr\\man_male\\man_male_33.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "man_male_34",
-    "category": "man_male",
-    "gender": "male",
-    "race": "man",
-    "npc_id": 1879503419,
-    "npc_name": "Mashdagâl",
-    "speaker_cluster_id": "actor_0385",
-    "verified_npc_ids": [
-      1879158046,
-      1879346050,
-      1879503419
-    ],
-    "verified_npc_names": [
-      "Mashdagâl",
-      "Hujâ",
-      "Reginald Sickleweed"
-    ],
-    "original_file": "0A01E7F6.ogg",
-    "text": "Le soleil était absent à notre réveil ce matin, abandonnant le jour aux ténèbres.",
-    "audio_file": "fr\\man_male\\man_male_34.ogg",
-    "is_native_french": true
-  },
-  {
-    "voice_id": "man_male_35",
-    "category": "man_male",
-    "gender": "male",
     "race": "race of man",
     "npc_id": 1879239373,
     "npc_name": "Isteron",
@@ -5219,11 +5174,11 @@
     ],
     "original_file": "0A01C2EE.ogg",
     "text": "Je me sens responsable, d'une certaine manière, du bien-être des habitants de Silfig.",
-    "audio_file": "fr\\man_male\\man_male_35.ogg",
+    "audio_file": "fr\\man_male\\man_male_33.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "man_male_36",
+    "voice_id": "man_male_34",
     "category": "man_male",
     "gender": "male",
     "race": "race of man",
@@ -5240,11 +5195,11 @@
     ],
     "original_file": "0A01B79C.ogg",
     "text": "Si mon commandant et Homer veulent que je réponde à vos questions, je le ferai.",
-    "audio_file": "fr\\man_male\\man_male_36.ogg",
+    "audio_file": "fr\\man_male\\man_male_34.ogg",
     "is_native_french": true
   },
   {
-    "voice_id": "man_male_37",
+    "voice_id": "man_male_35",
     "category": "man_male",
     "gender": "male",
     "race": "man",
@@ -5261,6 +5216,58 @@
     ],
     "original_file": "0A000F60.ogg",
     "text": "Je ne veux rien avoir à faire avec des étrangers.",
+    "audio_file": "fr\\man_male\\man_male_35.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "man_male_36",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "npc_id": 1879336274,
+    "npc_name": "Hethradir",
+    "speaker_cluster_id": "actor_0291",
+    "verified_npc_ids": [
+      1879200559,
+      1879272815,
+      1879336274,
+      1879339628,
+      1879346051,
+      1879526483
+    ],
+    "verified_npc_names": [
+      "Hethradir",
+      "Dúnor",
+      "Thrymm Red-beard",
+      "Háma",
+      "Suvulch",
+      "Rhogrin"
+    ],
+    "original_file": "0A01D6D9.ogg",
+    "text": "Grimpez au sommet des murs et constatez la solidité de nos défenses.",
+    "audio_file": "fr\\man_male\\man_male_36.ogg",
+    "is_native_french": true
+  },
+  {
+    "voice_id": "man_male_37",
+    "category": "man_male",
+    "gender": "male",
+    "race": "man",
+    "npc_id": 1879522949,
+    "npc_name": "Chief Provisioner Dunaïl",
+    "speaker_cluster_id": "actor_0022",
+    "verified_npc_ids": [
+      1879487696,
+      1879488042,
+      1879522949
+    ],
+    "verified_npc_names": [
+      "Chief Provisioner Dunaïl",
+      "Usakâr the Hermit",
+      "Erinesh"
+    ],
+    "original_file": "0A0003E7.ogg",
+    "text": "Me tendrez-vous une oreille amicale ? Ne serait-ce qu'un instant.",
     "audio_file": "fr\\man_male\\man_male_37.ogg",
     "is_native_french": true
   },
@@ -5302,27 +5309,17 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "npc_id": 1879336274,
-    "npc_name": "Hethradir",
-    "speaker_cluster_id": "actor_0291",
+    "npc_id": 1879368916,
+    "npc_name": "Tuhâl",
+    "speaker_cluster_id": "actor_0096",
     "verified_npc_ids": [
-      1879200559,
-      1879272815,
-      1879336274,
-      1879339628,
-      1879346051,
-      1879526483
+      1879368916
     ],
     "verified_npc_names": [
-      "Hethradir",
-      "Dúnor",
-      "Thrymm Red-beard",
-      "Háma",
-      "Suvulch",
-      "Rhogrin"
+      "Tuhâl"
     ],
-    "original_file": "0A01D6D9.ogg",
-    "text": "Grimpez au sommet des murs et constatez la solidité de nos défenses.",
+    "original_file": "0A0091BB.ogg",
+    "text": "Si nous voulons trouver du Mithril à Khazad-Dum, nous devons d'abord en chasser les orques.",
     "audio_file": "fr\\man_male\\man_male_39.ogg",
     "is_native_french": true
   },
@@ -5382,22 +5379,22 @@
     "voice_id": "man_male_41",
     "category": "man_male",
     "gender": "male",
-    "race": "man",
-    "npc_id": 1879522949,
-    "npc_name": "Chief Provisioner Dunaïl",
-    "speaker_cluster_id": "actor_0022",
+    "race": "race of man",
+    "npc_id": 1879245216,
+    "npc_name": "Ingild",
+    "speaker_cluster_id": "actor_0554",
     "verified_npc_ids": [
-      1879487696,
-      1879488042,
-      1879522949
+      1879245216,
+      1879529401,
+      1879529425
     ],
     "verified_npc_names": [
-      "Chief Provisioner Dunaïl",
-      "Usakâr the Hermit",
-      "Erinesh"
+      "Ingild",
+      "Thurindol",
+      "Candúr"
     ],
-    "original_file": "0A0003E7.ogg",
-    "text": "Me tendrez-vous une oreille amicale ? Ne serait-ce qu'un instant.",
+    "original_file": "0A01D995.ogg",
+    "text": "Tous les ennemis ont été vaincus avant que Gimli n'ait à causer l'effondrement.",
     "audio_file": "fr\\man_male\\man_male_41.ogg",
     "is_native_french": true
   },
@@ -5503,18 +5500,18 @@
     "voice_id": "man_male_43",
     "category": "man_male",
     "gender": "male",
-    "race": "man",
-    "npc_id": 1879368916,
-    "npc_name": "Tuhâl",
-    "speaker_cluster_id": "actor_0096",
+    "race": "race of man",
+    "npc_id": 1879245219,
+    "npc_name": "Enstan",
+    "speaker_cluster_id": "actor_0331",
     "verified_npc_ids": [
-      1879368916
+      1879245219
     ],
     "verified_npc_names": [
-      "Tuhâl"
+      "Enstan"
     ],
-    "original_file": "0A0091BB.ogg",
-    "text": "Si nous voulons trouver du Mithril à Khazad-Dum, nous devons d'abord en chasser les orques.",
+    "original_file": "0A01E2D4.ogg",
+    "text": "Quelque chose est-il sorti des sombres confins qui s'étendent sous les montagnes ?",
     "audio_file": "fr\\man_male\\man_male_43.ogg",
     "is_native_french": true
   },
@@ -5522,22 +5519,22 @@
     "voice_id": "man_male_44",
     "category": "man_male",
     "gender": "male",
-    "race": "race of man",
-    "npc_id": 1879245216,
-    "npc_name": "Ingild",
-    "speaker_cluster_id": "actor_0554",
+    "race": "man",
+    "npc_id": 1879309528,
+    "npc_name": "Celegdal",
+    "speaker_cluster_id": "actor_0825",
     "verified_npc_ids": [
-      1879245216,
-      1879529401,
-      1879529425
+      1879309509,
+      1879309528,
+      1879331159
     ],
     "verified_npc_names": [
-      "Ingild",
-      "Thurindol",
-      "Candúr"
+      "Celegdal",
+      "Galengam",
+      "Radanir"
     ],
-    "original_file": "0A01D995.ogg",
-    "text": "Tous les ennemis ont été vaincus avant que Gimli n'ait à causer l'effondrement.",
+    "original_file": "0A01E3C2.ogg",
+    "text": "J'ai entendu des murmures dans le vent, des murmures promettant la mort.",
     "audio_file": "fr\\man_male\\man_male_44.ogg",
     "is_native_french": true
   },
@@ -5639,18 +5636,32 @@
     "voice_id": "man_male_49",
     "category": "man_male",
     "gender": "male",
-    "race": "race of man",
-    "npc_id": 1879245219,
-    "npc_name": "Enstan",
-    "speaker_cluster_id": "actor_0331",
+    "race": "man",
+    "npc_id": 1879529047,
+    "npc_name": "Mindaug the Seeker",
+    "speaker_cluster_id": "actor_0433",
     "verified_npc_ids": [
-      1879245219
+      1879261093,
+      1879466544,
+      1879469491,
+      1879475812,
+      1879502668,
+      1879526449,
+      1879526462,
+      1879529047
     ],
     "verified_npc_names": [
-      "Enstan"
+      "Mindaug the Seeker",
+      "Nakûr",
+      "Horn",
+      "Orthonn",
+      "Ezôti",
+      "Jajax",
+      "Daxamat",
+      "Stôr-weni-Kûl"
     ],
-    "original_file": "0A01E2D4.ogg",
-    "text": "Quelque chose est-il sorti des sombres confins qui s'étendent sous les montagnes ?",
+    "original_file": "0A01C39E.ogg",
+    "text": "Partout où nous nous rendons, nous parviennent des rumeurs de ce géant, ce Nourzoum.",
     "audio_file": "fr\\man_male\\man_male_49.ogg",
     "is_native_french": true
   },
@@ -5659,21 +5670,32 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "npc_id": 1879309528,
-    "npc_name": "Celegdal",
-    "speaker_cluster_id": "actor_0825",
+    "npc_id": 1879327174,
+    "npc_name": "Duilin",
+    "speaker_cluster_id": "actor_0598",
     "verified_npc_ids": [
-      1879309509,
-      1879309528,
-      1879331159
+      1879209809,
+      1879223084,
+      1879327174,
+      1879336276,
+      1879404636,
+      1879407993,
+      1879408001,
+      1879409352,
+      1879480344,
+      1879512122
     ],
     "verified_npc_names": [
-      "Celegdal",
-      "Galengam",
-      "Radanir"
+      "Duilin",
+      "Léothred",
+      "Halbarad",
+      "Belondor",
+      "Faeron",
+      "Aragorn",
+      "Corunir"
     ],
-    "original_file": "0A01E3C2.ogg",
-    "text": "J'ai entendu des murmures dans le vent, des murmures promettant la mort.",
+    "original_file": "0A015D3D.ogg",
+    "text": "« Ce fut un honneur de voyager avec vous. La Compagnie Grise vous doit beaucoup. »",
     "audio_file": "fr\\man_male\\man_male_50.ogg",
     "is_native_french": true
   },
@@ -5785,8 +5807,8 @@
     "verified_npc_names": [
       "Barkh"
     ],
-    "original_file": "0A01D45F.ogg",
-    "text": "Voyons ce qu'Hildegarde peut vous dire au sujet de votre avenir.",
+    "original_file": "0A00925D.ogg",
+    "text": "Votre équipement est insuffisant pour vous rendre à Khazad-Dum.",
     "audio_file": "fr\\orc\\orc_5.ogg",
     "is_native_french": true
   },

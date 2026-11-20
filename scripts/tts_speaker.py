@@ -67,7 +67,7 @@ except ImportError:
     sys.exit(1)
 
 # Version tag included in audio cache keys so outdated cached clips are invalidated
-SPEAKER_ENGINE_VERSION = "v6"
+SPEAKER_ENGINE_VERSION = "v7"
 
 
 def _norm_npc_key(name: str | None) -> str:
@@ -76,6 +76,153 @@ def _norm_npc_key(name: str | None) -> str:
     s = str(name).strip().strip("'\"` \t\r\n").lower()
     s = unicodedata.normalize("NFKD", s)
     return "".join(c for c in s if not unicodedata.combining(c))
+
+
+def _int_to_words(n: int, lang: str) -> str:
+    """Converts non-negative integers 0..999999 into spoken words for DE/EN/FR/ES."""
+    if n < 0 or n > 999999:
+        return str(n)
+
+    l = (lang or "en").lower().strip()
+    if l == "de":
+        ones = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun",
+                "zehn", "elf", "zwölf", "dreizehn", "vierzehn", "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn"]
+        tens = ["", "", "zwanzig", "dreißig", "vierzig", "fünfzig", "sechzig", "siebzig", "achtzig", "neunzig"]
+
+        def _de(num: int) -> str:
+            if num < 20:
+                return ones[num]
+            if num < 100:
+                t, u = divmod(num, 10)
+                if u == 0:
+                    return tens[t]
+                u_str = "ein" if u == 1 else ones[u]
+                return f"{u_str}und{tens[t]}"
+            if num < 1000:
+                h, rem = divmod(num, 100)
+                prefix = "ein" if h == 1 else ones[h]
+                return f"{prefix}hundert" + (_de(rem) if rem else "")
+            th, rem = divmod(num, 1000)
+            prefix = "ein" if th == 1 else _de(th)
+            return f"{prefix}tausend" + (_de(rem) if rem else "")
+
+        return _de(n)
+
+    if l == "en":
+        ones = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+                "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"]
+        tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+
+        def _en(num: int) -> str:
+            if num < 20:
+                return ones[num]
+            if num < 100:
+                t, u = divmod(num, 10)
+                return tens[t] if u == 0 else f"{tens[t]}-{ones[u]}"
+            if num < 1000:
+                h, rem = divmod(num, 100)
+                return f"{ones[h]} hundred" + (f" {_en(rem)}" if rem else "")
+            th, rem = divmod(num, 1000)
+            return f"{_en(th)} thousand" + (f" {_en(rem)}" if rem else "")
+
+        return _en(n)
+
+    if l == "fr":
+        ones = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf",
+                "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"]
+        tens = ["", "", "vingt", "trente", "quarante", "cinquante", "soixante", "soixante", "quatre-vingt", "quatre-vingt"]
+
+        def _fr(num: int, plural_80: bool = True) -> str:
+            if num < 20:
+                return ones[num]
+            if num < 100:
+                t, u = divmod(num, 10)
+                if t in (7, 9):
+                    u += 10
+                if t == 8 and u == 0:
+                    return "quatre-vingts" if plural_80 else "quatre-vingt"
+                if u == 0:
+                    return tens[t]
+                if u in (1, 11) and t in (2, 3, 4, 5, 6, 7):
+                    return f"{tens[t]} et {ones[u]}"
+                return f"{tens[t]}-{ones[u]}"
+            if num < 1000:
+                h, rem = divmod(num, 100)
+                if h == 1:
+                    base = "cent"
+                elif rem == 0 and plural_80:
+                    base = f"{ones[h]} cents"
+                else:
+                    base = f"{ones[h]} cent"
+                return base if rem == 0 else f"{base} {_fr(rem, plural_80)}"
+            th, rem = divmod(num, 1000)
+            base = "mille" if th == 1 else f"{_fr(th, plural_80=False)} mille"
+            return base if rem == 0 else f"{base} {_fr(rem, plural_80)}"
+
+        return _fr(n)
+
+    if l == "es":
+        ones = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve",
+                "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve"]
+        twenties = ["veinte", "veintiuno", "veintidós", "veintitrés", "veinticuatro",
+                    "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve"]
+        tens = ["", "", "", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"]
+        hundreds = ["", "ciento", "doscientos", "trescientos", "cuatrocientos",
+                    "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos"]
+
+        def _es(num: int) -> str:
+            if num < 20:
+                return ones[num]
+            if num < 30:
+                return twenties[num - 20]
+            if num < 100:
+                t, u = divmod(num, 10)
+                return tens[t] if u == 0 else f"{tens[t]} y {ones[u]}"
+            if num == 100:
+                return "cien"
+            if num < 1000:
+                h, rem = divmod(num, 100)
+                return hundreds[h] if rem == 0 else f"{hundreds[h]} {_es(rem)}"
+            th, rem = divmod(num, 1000)
+            base = "mil" if th == 1 else f"{_es(th)} mil"
+            return base if rem == 0 else f"{base} {_es(rem)}"
+
+        return _es(n)
+
+    return str(n)
+
+
+_GREETING_EXCLAIM_RE = re.compile(
+    r"(^|\n|[.!?]\s+)(Hallo|Guten Tag|Guten Morgen|Guten Abend|Seid gegrüßt|Grüße|Willkommen|"
+    r"Hello|Greetings|Good day|Good morning|Welcome|Well met|Hail|"
+    r"Bonjour|Salut|Bienvenue|Hola|Saludos|Bienvenidos)\s*!+(?=\s+\S)",
+    re.IGNORECASE,
+)
+
+
+def _strip_lotro_markup(text: str) -> str:
+    """Strips LOTRO UI color tags/escapes and normalizes inline typography while preserving paragraph breaks."""
+    s = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    s = re.sub(r"</?rgb(?:=[^>]*)?>", "", s, flags=re.IGNORECASE)
+    s = re.sub(r"<br\s*/?>", "\n", s, flags=re.IGNORECASE)
+    s = s.replace(r"\q", '"').replace("\u00a0", " ").replace("\u202f", " ")
+    s = s.replace("…", "...")
+    s = re.sub(r"[ \t]+", " ", s)
+    return re.sub(r"\n{3,}", "\n\n", s).strip()
+
+
+def _normalize_dialogue_for_tts(text: str, lang: str = "de") -> str:
+    """Applies natural cadence normalization (ellipsis pacing, greeting softening, number expansion)."""
+    s = _strip_lotro_markup(text)
+    if not s:
+        return ""
+    s = re.sub(r"\s*\.{3,}\s*", "... ", s)
+    s = _GREETING_EXCLAIM_RE.sub(r"\1\2,", s)
+    l = (lang or "de").lower().strip()
+    if l in ("de", "en", "fr", "es"):
+        s = re.sub(r"(?<![\d.,])(\d{1,6})(?![\d.,])", lambda m: _int_to_words(int(m.group(1)), l), s)
+    s = re.sub(r"[ \t]+", " ", s)
+    return re.sub(r" *\n *", "\n", s).strip()
 
 
 class WarmAudioPlayer:
@@ -707,8 +854,7 @@ class LotroSpeaker:
     def _get_voice_prompt_and_duration(self, voice_id, ref_lang, ref_audio_path, ref_text):
         """
         Builds and caches (RAM + persistent disk cache) the VoiceClonePrompt with
-        preprocess_prompt=False so OmniVoice's silence stripper does not shrink reference
-        duration or clip reference phonemes.
+        preprocess_prompt=True for clean voice timbre conditioning without clipping or trailing silence.
         """
         cache_key = (ref_lang, voice_id, str(ref_audio_path), ref_text)
         if cache_key not in self._prompt_cache:
@@ -732,7 +878,7 @@ class LotroSpeaker:
                 prompt = self.model.create_voice_clone_prompt(
                     ref_audio=str(ref_audio_path),
                     ref_text=ref_text,
-                    preprocess_prompt=False
+                    preprocess_prompt=True
                 )
                 try:
                     prompt_dir.mkdir(parents=True, exist_ok=True)
@@ -778,11 +924,10 @@ class LotroSpeaker:
         est_duration = (target_w / effective_rate) + 0.32
         return max(est_duration, 0.85 / max(speed_factor, 0.75))
 
-    def _clean_generated_chunk(self, audio_tensor, sample_rate=24000):
+    def _trim_raw_chunk(self, audio_tensor, sample_rate=24000):
         """
-        Gentle audio post-processor that replaces OmniVoice's aggressive remove_silence().
-        Preserves quiet word-final syllables ('-en' in 'sprechen') by only trimming
-        near-zero digital silence (< 0.0015) and keeping a 220ms trailing tail.
+        Trims leading/trailing digital silence above 0.0032 noise floor and strips isolated
+        <=90ms pre-speech onset artifacts followed by >=110ms silence before main speech.
         """
         if hasattr(audio_tensor, "detach"):
             wav = audio_tensor.squeeze().detach().cpu().numpy().astype(np.float32)
@@ -791,137 +936,233 @@ class LotroSpeaker:
         if wav.size == 0:
             return wav
 
-        # Find first and last sample above a very low noise floor (0.0015)
-        active = np.where(np.abs(wav) > 0.0015)[0]
+        active = np.where(np.abs(wav) > 0.0032)[0]
         if active.size > 0:
-            lead_keep = int(0.08 * sample_rate)   # 80ms lead room
-            trail_keep = int(0.24 * sample_rate)  # 240ms trail room so word endings never clip
-            start_idx = max(0, int(active[0]) - lead_keep)
-            end_idx = min(wav.size, int(active[-1]) + trail_keep)
-            wav = wav[start_idx:end_idx]
+            lead_keep = int(0.06 * sample_rate)
+            trail_keep = int(0.19 * sample_rate)
+            first_act = int(active[0])
+            last_act = int(active[-1])
 
-        # Apply gentle 15ms cosine fade-in / fade-out to prevent clicks
+            # Strip isolated micro-pop at utterance start (e.g. stray reference-boundary consonant before a >110ms pause)
+            hop = int(0.01 * sample_rate)
+            scan_end = min(wav.size, first_act + int(0.85 * sample_rate))
+            if (last_act - first_act) > int(0.40 * sample_rate) and scan_end - first_act >= int(0.22 * sample_rate):
+                sub = wav[first_act:scan_end]
+                n_bins = sub.size // hop
+                if n_bins >= 22:
+                    bin_rms = np.sqrt(np.mean(sub[: n_bins * hop].reshape(n_bins, hop) ** 2, axis=1))
+                    # Look for a quiet valley of >=11 consecutive 10ms bins (110ms) starting within first 90ms
+                    start_gap = None
+                    run = 0
+                    for b_i in range(n_bins):
+                        if bin_rms[b_i] < 0.0025:
+                            if run == 0:
+                                start_gap = b_i
+                            run += 1
+                            if run >= 11 and start_gap is not None and start_gap <= 9:
+                                pre_peak = float(np.max(np.abs(sub[: max(1, start_gap * hop)])))
+                                post_act = np.where(bin_rms[b_i:] >= 0.005)[0]
+                                if pre_peak < 0.25 and post_act.size > 0:
+                                    first_act = first_act + (b_i + int(post_act[0])) * hop
+                                break
+                        else:
+                            run = 0
+                            start_gap = None
+
+            start_idx = max(0, first_act - lead_keep)
+            end_idx = min(wav.size, last_act + trail_keep)
+            if end_idx > start_idx:
+                wav = wav[start_idx:end_idx]
+        return wav
+
+    @staticmethod
+    def _evaluate_chunk_envelope(wav_trimmed: np.ndarray, expected_text: str, sample_rate: int = 24000) -> tuple[bool, float]:
+        """
+        Sub-millisecond CPU envelope sanity check (0 extra VRAM, ~0.1ms runtime).
+        Detects empty/collapsed chunks, clipped tails, extreme speaking-rate rush (swallowed
+        openers/words), severe waveform clipping, and unnatural internal silence gaps.
+        Returns (passed, quality_score).
+        """
+        if wav_trimmed.size < int(0.14 * sample_rate):
+            return False, -100.0
+
+        act = np.where(np.abs(wav_trimmed) > 0.005)[0]
+        if act.size < int(0.10 * sample_rate):
+            return False, -100.0
+
+        a, b = int(act[0]), int(act[-1])
+        active_dur = max(0.12, float(b - a) / float(sample_rate))
+        tail_n = min(wav_trimmed.size, int(0.030 * sample_rate))
+        tail_rms = float(np.sqrt(np.mean(wav_trimmed[-tail_n:] ** 2))) if tail_n > 0 else 0.0
+        clip_frac = float(np.mean(np.abs(wav_trimmed[a : b + 1]) > 0.99))
+
+        max_gap_s = 0.0
+        hop = int(0.02 * sample_rate)
+        n_frames = wav_trimmed.size // hop
+        if n_frames >= 5:
+            rms_frames = np.sqrt(np.mean(wav_trimmed[: n_frames * hop].reshape(n_frames, hop) ** 2, axis=1))
+            act_f = np.where(rms_frames > 0.008)[0]
+            if act_f.size >= 3:
+                inner = rms_frames[int(act_f[0]) : int(act_f[-1]) + 1] < 0.006
+                max_run, cur = 0, 0
+                for is_sil in inner:
+                    cur = cur + 1 if is_sil else 0
+                    if cur > max_run:
+                        max_run = cur
+                max_gap_s = max_run * 0.02
+
+        body_inner = (expected_text or "").strip()[:-1]
+        has_pause_punct = ("..." in expected_text) or ("…" in expected_text) or ("?" in body_inner) or ("!" in body_inner)
+        max_allowed_gap = 1.15 if has_pause_punct else 0.90
+        tlen = len((expected_text or "").strip())
+        cps = float(tlen) / active_dur
+
+        ok = (tail_rms <= 0.048) and (clip_frac <= 0.03) and (max_gap_s <= max_allowed_gap)
+        if tlen >= 24 and not (3.5 <= cps <= 24.5):
+            ok = False
+
+        score = -tail_rms * 40.0 - clip_frac * 50.0 - max(0.0, max_gap_s - 0.6) * 5.0
+        if tlen >= 24:
+            score -= max(0.0, cps - 19.0) * 0.8 + max(0.0, 7.0 - cps) * 0.8
+        return ok, score
+
+    def _clean_generated_chunk(self, audio_tensor, sample_rate=24000, pretrimmed=False):
+        """
+        Gentle audio post-processor preserving natural word endings with 60ms lead / 190ms trail,
+        15ms cosine fade-in/out, and 80ms inter-sentence pause.
+        """
+        wav = np.asarray(audio_tensor, dtype=np.float32) if pretrimmed else self._trim_raw_chunk(audio_tensor, sample_rate)
+        if wav.size == 0:
+            return wav
+
         fade_len = min(int(0.015 * sample_rate), wav.size // 4)
         if fade_len > 1:
-            fade_in = np.linspace(0.0, 1.0, fade_len, dtype=np.float32)
-            fade_out = np.linspace(1.0, 0.0, fade_len, dtype=np.float32)
-            wav[:fade_len] *= fade_in
-            wav[-fade_len:] *= fade_out
+            wav = wav.copy()
+            wav[:fade_len] *= np.linspace(0.0, 1.0, fade_len, dtype=np.float32)
+            wav[-fade_len:] *= np.linspace(1.0, 0.0, fade_len, dtype=np.float32)
 
-        # Add 80ms inter-sentence pause at the end
         pad = np.zeros(int(0.08 * sample_rate), dtype=np.float32)
         return np.concatenate([wav, pad])
 
     @torch.inference_mode()
-    def _synthesize_chunk(self, text_chunk, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=24):
-        """Synthesizes a single sentence/chunk with calibrated duration, intact word endings, and tuned diffusion steps."""
-        prompt, ref_dur = self._get_voice_prompt_and_duration(voice_id, ref_lang, ref_audio, ref_text)
-        target_dur = self._estimate_natural_duration(text_chunk, ref_text, ref_dur, category=category)
-
-        res = self.model.generate(
-            text=text_chunk,
-            voice_clone_prompt=prompt,
-            language=lang,
-            duration=target_dur,
-            num_step=num_step,
-            postprocess_output=False
-        )
-        return self._clean_generated_chunk(res[0], sample_rate=24000)
-
-    def _split_dialogue_chunks(self, text: str, lang: str = "de") -> list[str]:
+    def _synthesize_chunk(self, text_chunk, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=20):
         """
-        Intelligently splits dialogue purely on complete, grammatical sentence boundaries:
-        1. Never splits inside sentences at commas or subclauses (preserves natural intonation & prosody).
-        2. Never breaks on ellipses ('...' or '…') which represent internal dramatic pauses/hesitations.
-        3. Protects honorifics & abbreviations (M., Mme., Dr., etc., z.B., etc.).
-        4. Preserves speech tags ("« Regardez ! » dit-il") with their preceding quote.
-        5. Merges tiny fragments (< 4 words or < 18 chars) so isolated words do not create audio buffer stalls.
+        Synthesizes a single sentence/chunk using OmniVoice natural speed prediction + t_shift=0.20
+        + guidance_scale=2.2, guarded by a sub-ms CPU acoustic envelope check with 1 fast fallback retry.
         """
-        import re
+        prompt, _ = self._get_voice_prompt_and_duration(voice_id, ref_lang, ref_audio, ref_text)
+        base_speed = 0.85 if category in ("ent", "dead") else 0.90
+        eff_speed = max(0.5, min(2.0, base_speed * self._get_speed_factor()))
 
-        text = text.strip()
+        best_trimmed = None
+        best_score = -1e9
+        for attempt, cur_steps in enumerate((num_step, max(num_step + 4, 24))):
+            if attempt > 0 and self._active_stop_event.is_set():
+                break
+            res = self.model.generate(
+                text=text_chunk,
+                voice_clone_prompt=prompt,
+                language=lang,
+                duration=None,
+                speed=eff_speed,
+                num_step=cur_steps,
+                t_shift=0.20,
+                guidance_scale=2.2,
+                fade_duration=0.0,
+                pad_duration=0.0,
+                postprocess_output=False,
+            )
+            trimmed = self._trim_raw_chunk(res[0], sample_rate=24000)
+            ok, sc = self._evaluate_chunk_envelope(trimmed, text_chunk, sample_rate=24000)
+            if sc > best_score:
+                best_score = sc
+                best_trimmed = trimmed
+            if ok:
+                break
+
+        return self._clean_generated_chunk(best_trimmed, sample_rate=24000, pretrimmed=True)
+
+    def _split_dialogue_chunks(self, text: str, lang: str = "de", max_chars: int = 155) -> list[str]:
+        """
+        Paragraph- and sentence-aware dialogue chunker:
+        1. Preserves paragraph breaks so distinct thoughts never slur together.
+        2. Never splits inside sentences on commas <= max_chars or ellipses ('...', '…').
+        3. Protects honorifics & abbreviations across DE, EN, FR, ES, IT, NL.
+        4. Merges only tiny micro-utterances (<= 14 chars, e.g. "Durell?", "Ja.") with adjacent sentences.
+        5. Breaks ultra-long sentences (> max_chars) at clause delimiters so time-to-first-sound stays low.
+        """
+        text = (text or "").strip()
         if not text:
             return []
 
-        # Normalize French non-breaking spaces and typography
         text = text.replace("\u00a0", " ").replace("\u202f", " ")
-
-        # Protect ellipses so they are never split as sentence boundaries
-        protected = text.replace("...", "___ELLIPSIS___").replace("…", "___ELLIPSIS___")
-
-        # Protect common abbreviations across DE, EN, FR, ES, IT, NL
         abbrs = [
             "M.", "Mme.", "Mlle.", "Dr.", "Prof.", "etc.", "cf.", "env.", "p.ex.",
             "z.B.", "d.h.", "u.a.", "bzw.", "ca.", "usw.",
             "Mr.", "Mrs.", "Ms.", "e.g.", "i.e.", "vs.",
             "Sr.", "Sra.", "bijv.", "d.w.z.", "t.a.v."
         ]
-        for ab in abbrs:
-            protected = protected.replace(ab, ab.replace(".", "___DOT___"))
 
-        # Normalize spaces before closing quotes in French typography (e.g. "Oui ! »" -> "Oui !»")
-        protected = re.sub(r'([.!?])\s+([»”"\x27])', r'\1\2', protected)
-
-        # Split on sentence boundaries (. ! ?) followed by whitespace and an uppercase letter / quote / end.
-        raw_splits = re.split(r'([.!?]+[\x27\x22\u00bb\u201d]*)\s+(?=[A-ZÀ-ÖØ-ß«“"\x27]|$)', protected)
-        parts = []
-        if len(raw_splits) == 1:
-            parts = [raw_splits[0]]
-        else:
-            for i in range(0, len(raw_splits) - 1, 2):
-                p = (raw_splits[i] + raw_splits[i + 1]).strip()
-                if p:
-                    parts.append(p)
-            if len(raw_splits) % 2 == 1 and raw_splits[-1].strip():
-                parts.append(raw_splits[-1].strip())
-
-        # Restore protected placeholders
-        restored = []
-        for p in parts:
-            p = p.replace("___ELLIPSIS___", "...").replace("___DOT___", ".").strip()
-            if p:
-                restored.append(p)
-
-        # Merge very short chunks into neighbors so isolated words don't create audio buffer underruns
-        merged = []
-        for p in restored:
-            w_count = len(p.split())
-            if merged and (w_count < 4 or len(p) < 18):
-                merged[-1] = merged[-1] + " " + p
-            else:
-                merged.append(p)
-
-        # If the very first sentence is tiny (< 4 words or < 18 chars) and more sentences follow,
-        # merge it with the second sentence for natural opening prosody and buffer safety
-        if len(merged) > 1 and (len(merged[0].split()) < 4 or len(merged[0]) < 18):
-            merged[1] = merged[0] + " " + merged[1]
-            merged.pop(0)
-
-        # Gently split extraordinarily long sentences (> 220 chars) at clause delimiters
-        # (; — – or balanced commas) so time-to-first-sound remains responsive without hurting prosody
         final_chunks = []
-        for chunk in merged:
-            if len(chunk) <= 220:
-                final_chunks.append(chunk)
-                continue
-            clauses = re.split(r'(?<=[;—–])\s+', chunk)
-            if len(clauses) == 1 and len(chunk) > 260:
-                clauses = re.split(r'(?<=,)\s+', chunk)
-            buf = ""
-            for cl in clauses:
-                cl = cl.strip()
-                if not cl:
+        for para in [p.strip() for p in re.split(r"\n\s*\n+", text) if p.strip()]:
+            protected = para.replace("...", "___ELLIPSIS___").replace("…", "___ELLIPSIS___")
+            for ab in abbrs:
+                protected = protected.replace(ab, ab.replace(".", "___DOT___"))
+            protected = re.sub(r'([.!?])\s+([»”"\x27])', r'\1\2', protected)
+
+            raw_splits = re.split(r'([.!?]+[\x27\x22\u00bb\u201d]*)\s+(?=[A-ZÀ-ÖØ-ß«“"\x27]|$)', protected)
+            parts = []
+            if len(raw_splits) == 1:
+                parts = [raw_splits[0]]
+            else:
+                for i in range(0, len(raw_splits) - 1, 2):
+                    p = (raw_splits[i] + raw_splits[i + 1]).strip()
+                    if p:
+                        parts.append(p)
+                if len(raw_splits) % 2 == 1 and raw_splits[-1].strip():
+                    parts.append(raw_splits[-1].strip())
+
+            restored = [p.replace("___ELLIPSIS___", "...").replace("___DOT___", ".").strip() for p in parts if p.strip()]
+
+            expanded = []
+            for sent in restored:
+                if len(sent) <= max_chars:
+                    expanded.append(sent)
                     continue
-                if buf and len(buf) >= 75 and (len(buf) + 1 + len(cl)) > 200:
-                    final_chunks.append(buf)
-                    buf = cl
+                clauses = re.split(r'(?<=[;—–])\s+', sent)
+                if len(clauses) == 1 and len(sent) > 200:
+                    clauses = re.split(r'(?<=,)\s+', sent)
+                buf = ""
+                for cl in clauses:
+                    cl = cl.strip()
+                    if not cl:
+                        continue
+                    if buf and len(buf) >= 65 and (len(buf) + 1 + len(cl)) > (max_chars + 10):
+                        expanded.append(buf)
+                        buf = cl
+                    else:
+                        buf = f"{buf} {cl}".strip() if buf else cl
+                if buf:
+                    expanded.append(buf)
+
+            merged = []
+            i = 0
+            while i < len(expanded):
+                s = expanded[i].strip()
+                if not s:
+                    i += 1
+                    continue
+                if len(s) <= 14 and (i + 1) < len(expanded) and (len(s) + 1 + len(expanded[i + 1])) <= (max_chars + 25):
+                    merged.append(f"{s} {expanded[i + 1].strip()}")
+                    i += 2
+                elif merged and len(s) <= 14 and (len(merged[-1]) + 1 + len(s)) <= (max_chars + 25):
+                    merged[-1] = f"{merged[-1]} {s}"
+                    i += 1
                 else:
-                    buf = f"{buf} {cl}".strip() if buf else cl
-            if buf:
-                if final_chunks and len(buf) < 55:
-                    final_chunks[-1] = f"{final_chunks[-1]} {buf}"
-                else:
-                    final_chunks.append(buf)
+                    merged.append(s)
+                    i += 1
+
+            final_chunks.extend(merged)
 
         return final_chunks
 
@@ -1076,7 +1317,9 @@ class LotroSpeaker:
         self._active_stop_event.clear()
         self._is_speaking_event.set()
 
-        text = self.apply_pronunciation(raw_text, lang=lang).strip() or raw_text
+        text = _strip_lotro_markup(raw_text) or raw_text
+        text = self.apply_pronunciation(text, lang=lang).strip() or text
+        text = _normalize_dialogue_for_tts(text, lang=lang) or text
 
         use_narrator_mode = self.narrator_mode if narrator_mode is None else bool(narrator_mode)
         active_narrator_voice = (narrator_voice or self.narrator_voice or "man_male_1").strip()
@@ -1154,8 +1397,9 @@ class LotroSpeaker:
 
                 # If short text (1 sentence and < 140 chars), generate directly and play from RAM immediately
                 if len(sentences) <= 1 and len(text) < 140:
+                    single_text = sentences[0] if sentences else text
                     audio_data = self._synthesize_chunk(
-                        text, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=18
+                        single_text, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=20
                     )
                     if self._active_stop_event.is_set():
                         return None
@@ -1303,8 +1547,8 @@ class LotroSpeaker:
                     print("  [LOTRO-TTS] Synthesis canceled.")
                     break
 
-                # First sentence uses num_step=18 for ultra-fast time-to-first-sound; subsequent use 24
-                step_count = 18 if i == 0 else 24
+                # First sentence uses num_step=20 for crisp fast time-to-first-sound; subsequent use 26
+                step_count = 20 if i == 0 else 26
                 chunk = self._synthesize_chunk(
                     sent, voice_id, ref_lang, ref_audio, ref_text, lang, category, num_step=step_count
                 )

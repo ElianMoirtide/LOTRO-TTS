@@ -78,17 +78,20 @@
     "category": "dead",
     "gender": "neutral",
     "race": "dead",
-    "npc_id": 1879061465,
-    "npc_name": "Black Rider",
-    "speaker_cluster_id": "actor_0214",
+    "npc_id": 1879390094,
+    "npc_name": "Shade of Isildur",
+    "speaker_cluster_id": "actor_1426",
     "verified_npc_ids": [
-      1879061465
+      1879390094,
+      1879390102,
+      1879390103
     ],
     "verified_npc_names": [
-      "Black Rider"
+      "Shade of Isildur",
+      "Vágari the Wanderer"
     ],
-    "original_file": "0A02CDD6.ogg",
-    "text": "Haha! Ihr werdet meinen Zorn spüren!",
+    "original_file": "0A023A2E.ogg",
+    "text": "Ich fühle meine Gebeine. Sie sind in der Nähe.",
     "audio_file": "de\\dead\\dead_5.ogg"
   },
   {
@@ -2170,8 +2173,8 @@
       "Melynis Bragreg",
       "Terna"
     ],
-    "original_file": "0A023D10.ogg",
-    "text": "Was sagt man dazu? Ihr habt mir meine Vögel wohlbehalten zurückgebracht.",
+    "original_file": "0A0151D2.ogg",
+    "text": "Ich bin seit dem Zeitpunkt kein Falke mehr, als Lou Brenin uns an den Zauberer verkauft hat.",
     "audio_file": "de\\hobbit_female\\hobbit_female_6.ogg"
   },
   {
@@ -2406,17 +2409,24 @@
     "category": "hobbit_male",
     "gender": "male",
     "race": "hobbit",
-    "npc_id": 1879048269,
-    "npc_name": "Old Mugwort",
-    "speaker_cluster_id": "actor_0608",
+    "npc_id": 1879196832,
+    "npc_name": "Bounder Boffin",
+    "speaker_cluster_id": "actor_0640",
     "verified_npc_ids": [
-      1879048269
+      1879196832,
+      1879346362,
+      1879531801,
+      1879531830,
+      1879531833,
+      1879531836
     ],
     "verified_npc_names": [
-      "Old Mugwort"
+      "Bounder Boffin",
+      "Peregrin Took",
+      "Haldo Rushbank"
     ],
-    "original_file": "0A02D8D2.ogg",
-    "text": "Ihr bringt Äste und Fleisch für Golburipan? Gut, aber das erst anfangen.",
+    "original_file": "0A0133A0.ogg",
+    "text": "Ein paar Grenzer haben sich zum Nordhüttinger Hof aufgemacht. Ihr solltet gehen und Nachforschungen anstellen.",
     "audio_file": "de\\hobbit_male\\hobbit_male_8.ogg"
   },
   {
@@ -3605,8 +3615,8 @@
     "verified_npc_names": [
       "Rusgwen"
     ],
-    "original_file": "0A02ACBA.ogg",
-    "text": "Hm, ihr habt viel mehr Holz gefunden, als ich erwartet hätte. Verzeiht, ich habe euch unterschätzt.",
+    "original_file": "0A02CA6E.ogg",
+    "text": "Passt auf, wo ihr hintretet und stürzt nirgends runter.",
     "audio_file": "de\\man_female\\man_female_30.ogg"
   },
   {
@@ -3793,8 +3803,8 @@
       "Therien",
       "Cadi"
     ],
-    "original_file": "0A02AEAA.ogg",
-    "text": "Danke. Legt die Eier dorthin. Wenn ihr mich nun entschuldigen würdet, ich muss ein paar Ziegen füttern. Sobald ich herausgefunden habe, wo sie abgeblieben sind. Oh je.",
+    "original_file": "0A01CF00.ogg",
+    "text": "Wir vier können zusammen mehr ausrichten als jeder von uns allein.",
     "audio_file": "de\\man_female\\man_female_36.ogg"
   },
   {
@@ -4411,17 +4421,26 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "npc_id": 1879465800,
-    "npc_name": "Maeron",
-    "speaker_cluster_id": "actor_1517",
+    "npc_id": 1879448121,
+    "npc_name": "Meneldir",
+    "speaker_cluster_id": "actor_0520",
     "verified_npc_ids": [
-      1879465800
+      1879309511,
+      1879448121,
+      1879464686,
+      1879487592,
+      1879487595,
+      1879503335
     ],
     "verified_npc_names": [
-      "Maeron"
+      "Meneldir",
+      "Halgúr",
+      "Sirgon",
+      "Inkanûsh",
+      "Bosa"
     ],
-    "original_file": "0A02AD12.ogg",
-    "text": "Schon fertig? Habt ihr schon mal in Erwägung gezogen, in einem Haus der Heilung zu arbeiten? Ihr seid begabt!",
+    "original_file": "0A02BC0F.ogg",
+    "text": "Schreiber und Gelehrte versammeln sich auf der Terrasse westlich der Arena in den Torgärten.",
     "audio_file": "de\\man_male\\man_male_20.ogg"
   },
   {

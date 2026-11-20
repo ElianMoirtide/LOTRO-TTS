@@ -78,17 +78,20 @@
     "category": "dead",
     "gender": "neutral",
     "race": "dead",
-    "npc_id": 1879061465,
-    "npc_name": "Black Rider",
-    "speaker_cluster_id": "actor_0214",
+    "npc_id": 1879390094,
+    "npc_name": "Shade of Isildur",
+    "speaker_cluster_id": "actor_1426",
     "verified_npc_ids": [
-      1879061465
+      1879390094,
+      1879390102,
+      1879390103
     ],
     "verified_npc_names": [
-      "Black Rider"
+      "Shade of Isildur",
+      "Vágari the Wanderer"
     ],
-    "original_file": "0A02ADBC.ogg",
-    "text": "You found it! You found some clever! Oh, thank you, thank you!",
+    "original_file": "0A023A5A.ogg",
+    "text": "My story begins long ago. So very long ago.",
     "audio_file": "en\\dead\\dead_5.ogg"
   },
   {
@@ -2118,8 +2121,8 @@
     "verified_npc_names": [
       "Drudwen"
     ],
-    "original_file": "0A0298FB.ogg",
-    "text": "Goodness you are soaked! But you did not drown! Good work!",
+    "original_file": "0A02D625.ogg",
+    "text": "Wait, my friends. Orthon's words bear the scent of an adventure had during my absence.",
     "audio_file": "en\\hobbit_female\\hobbit_female_5.ogg"
   },
   {
@@ -2142,8 +2145,8 @@
       "Melynis Bragreg",
       "Terna"
     ],
-    "original_file": "0A023D10.ogg",
-    "text": "Well look at that! You got my birds back to me all safe and sound!",
+    "original_file": "0A0236DC.ogg",
+    "text": "I have scouted the emined weir, and if we are to remain in secret, we must do something about the enemy forces nearby.",
     "audio_file": "en\\hobbit_female\\hobbit_female_6.ogg"
   },
   {
@@ -2362,17 +2365,24 @@
     "category": "hobbit_male",
     "gender": "male",
     "race": "hobbit",
-    "npc_id": 1879048269,
-    "npc_name": "Old Mugwort",
-    "speaker_cluster_id": "actor_0608",
+    "npc_id": 1879196832,
+    "npc_name": "Bounder Boffin",
+    "speaker_cluster_id": "actor_0640",
     "verified_npc_ids": [
-      1879048269
+      1879196832,
+      1879346362,
+      1879531801,
+      1879531830,
+      1879531833,
+      1879531836
     ],
     "verified_npc_names": [
-      "Old Mugwort"
+      "Bounder Boffin",
+      "Peregrin Took",
+      "Haldo Rushbank"
     ],
-    "original_file": "0A023220.ogg",
-    "text": "And here we thought the goblins were just getting creative with their rating.",
+    "original_file": "0A0133A0.ogg",
+    "text": "A couple of Bounders went off to the Northcotton Farm. You should go investigate.",
     "audio_file": "en\\hobbit_male\\hobbit_male_8.ogg"
   },
   {
@@ -3805,8 +3815,8 @@
       "Therien",
       "Cadi"
     ],
-    "original_file": "0A02AEAA.ogg",
-    "text": "Oh, thanks! It's a dex down over there. Now if you'll excuse me, I have some goats to feed. Once I find where they've gone... Oh dear!",
+    "original_file": "0A02D6A2.ogg",
+    "text": "This then is the story. We entrusted two of our friends among the Taita Keir with Mula Zah's message for Nubanath.",
     "audio_file": "en\\man_female\\man_female_36.ogg"
   },
   {
@@ -3992,8 +4002,8 @@
       "The Elder Orcs",
       "Faramir"
     ],
-    "original_file": "0A02DA7D.ogg",
-    "text": "Laga to her lives! I am glad that my warriors will return soon.",
+    "original_file": "0A023144.ogg",
+    "text": "I have been studying the black book, but it resists my attempts to dissolve its mysteries.",
     "audio_file": "en\\man_male\\man_male_2.ogg"
   },
   {
@@ -4423,17 +4433,26 @@
     "category": "man_male",
     "gender": "male",
     "race": "man",
-    "npc_id": 1879465800,
-    "npc_name": "Maeron",
-    "speaker_cluster_id": "actor_1517",
+    "npc_id": 1879448121,
+    "npc_name": "Meneldir",
+    "speaker_cluster_id": "actor_0520",
     "verified_npc_ids": [
-      1879465800
+      1879309511,
+      1879448121,
+      1879464686,
+      1879487592,
+      1879487595,
+      1879503335
     ],
     "verified_npc_names": [
-      "Maeron"
+      "Meneldir",
+      "Halgúr",
+      "Sirgon",
+      "Inkanûsh",
+      "Bosa"
     ],
-    "original_file": "0A02AD12.ogg",
-    "text": "Done already? Have you considered a position at a healing house? You seem to have the touch!",
+    "original_file": "0A02BC0F.ogg",
+    "text": "Scribes and scholars gather upon the terrace west of the arena in the Tûr Gardens.",
     "audio_file": "en\\man_male\\man_male_20.ogg"
   },
   {
@@ -4452,8 +4471,8 @@
       "Balakhad",
       "Numûru"
     ],
-    "original_file": "0A02BAEC.ogg",
-    "text": "Hey, let me out into the desert with a ragged cloth tied over my eyes!",
+    "original_file": "0A02D81F.ogg",
+    "text": "If you wish to help the Kemosail here in Kustjala, you should speak with Kruidburi Kesh.",
     "audio_file": "en\\man_male\\man_male_21.ogg"
   },
   {
