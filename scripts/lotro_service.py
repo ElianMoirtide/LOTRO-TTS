@@ -412,6 +412,21 @@ class LotroPipelineService:
         use_gpu_ocr = (device == "cuda") and (not low_vram)
 
         logger.info(f"Compute Profile: {profile_desc}")
+        try:
+            from generate_db import check_database_status
+            db_status = check_database_status(self.db_path, base_dir=base_dir)
+            db_ver_label = db_status.get("built_app_version") or "unknown"
+            if db_status.get("status") == "ready":
+                logger.info(
+                    f"Quest DB verified: {db_ver_label} (Schema v{db_status.get('schema_version')}, {db_status.get('size_mb')} MB)"
+                )
+            elif db_status.get("exists"):
+                logger.warning(
+                    f"Quest DB notice: {db_status.get('reason')} (Built: {db_ver_label}) -> Rebuild via 'Build Quest DB' / generate_db.py."
+                )
+        except Exception as e:
+            logger.debug(f"Database metadata check skipped: {e}")
+
         logger.info(f"Connecting to Database & Pre-warming OCR ({'CUDA' if use_gpu_ocr else 'CPU'}): {self.db_path}")
         self.screen_reader = LotroScreenReader(str(self.db_path), eager_init=True, use_gpu_ocr=use_gpu_ocr)
 
@@ -428,6 +443,7 @@ class LotroPipelineService:
             active_lang=self.tts_lang,
             low_vram=low_vram,
             emit_duck_events=self.emit_duck_events,
+            emit_voice_meta=self.gui_ipc,
         )
         self.translator = LotroTranslator(device="cpu" if low_vram else device)
         if self.tts_lang in ("it", "nl"):
@@ -463,6 +479,7 @@ class LotroPipelineService:
         self._last_trigger_ts = 0.0
         self._dialogue_queue: queue.Queue = queue.Queue(maxsize=10)
         self._last_dialogue: Optional[tuple[str, str, str]] = None
+        self._dialogue_meta_by_key: Dict[tuple[str, str, str], Dict[str, Any]] = {}
         cfg_file = base_dir / "config.json"
         try:
             self._live_cfg_mtime = cfg_file.stat().st_mtime if cfg_file.exists() else None
@@ -1072,6 +1089,20 @@ class LotroPipelineService:
         if self._is_canceled(expected_gen, expected_epoch, expected_item_id):
             return None
 
+        dialogue_ctx = {
+            "window_type": window_type,
+            "quest_title": title or None,
+            "quest_id": matched_qid,
+            "quest_text_id": matched_text_id,
+            "client_lang": active_client_lang,
+        }
+        meta_map = getattr(self, "_dialogue_meta_by_key", None)
+        if isinstance(meta_map, dict):
+            with self._lock:
+                if len(meta_map) >= 32:
+                    meta_map.clear()
+                meta_map[(final_text, speaker_target, active_tts_lang)] = dialogue_ctx
+
         return final_text, speaker_target, active_tts_lang
 
     def _speak_resolved_dialogue(
@@ -1087,6 +1118,11 @@ class LotroPipelineService:
         if self._is_canceled(expected_gen, expected_epoch, expected_item_id):
             logger.info("Dialogue trigger canceled before playback.")
             return
+        extra_meta = None
+        meta_map = getattr(self, "_dialogue_meta_by_key", None)
+        if isinstance(meta_map, dict):
+            with self._lock:
+                extra_meta = meta_map.get((final_text, speaker_target, active_tts_lang))
         with self._lock:
             self._is_speaking = True
         try:
@@ -1098,7 +1134,10 @@ class LotroPipelineService:
                 logger.info(
                     f"Speaking text ({len(final_text)} chars) for NPC '{speaker_target}' in '{active_tts_lang}'..."
                 )
-            self.speaker.speak(final_text, speaker_target, lang=active_tts_lang, wait=True)
+            speak_kwargs: Dict[str, Any] = {"lang": active_tts_lang, "wait": True}
+            if getattr(self, "gui_ipc", False) and extra_meta:
+                speak_kwargs["extra_meta"] = extra_meta
+            self.speaker.speak(final_text, speaker_target, **speak_kwargs)
         finally:
             with self._lock:
                 self._is_speaking = False

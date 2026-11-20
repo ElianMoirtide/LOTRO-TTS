@@ -1,0 +1,6 @@
+name = "lotro-tts-report-worker"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+GITHUB_REPO = "ElianMoirtide/LOTRO-TTS"

@@ -86,9 +86,33 @@ namespace LotroTtsGui
         private UpdateInfo? latestUpdateInfo = null;
         private bool isCheckingUpdates = false;
 
+        // Report & DB metadata state
+        private sealed class DatabaseStatusInfo
+        {
+            public bool Exists { get; set; }
+            public bool Ready { get; set; }
+            public string Status { get; set; } = "missing";
+            public bool NeedsRebuild { get; set; }
+            public bool UpdateRecommended { get; set; }
+            public int SizeMb { get; set; }
+            public int? SchemaVersion { get; set; }
+            public int RequiredSchemaVersion { get; set; } = 1;
+            public string BuiltAppVersion { get; set; } = "";
+            public string BuiltAtUtc { get; set; } = "";
+            public string Reason { get; set; } = "";
+        }
+
+        private DatabaseStatusInfo? latestDbStatus = null;
+        private VoiceReportContext? lastVoiceReportContext = null;
+        private string savedReportEndpoint = "";
+
         // Log Console
         private ScrollViewer logScrollViewer = null!;
         private SelectableTextBlock logTextBlock = null!;
+        private Button btnReportIssue = null!;
+        private TextBlock lblLastVoiceHint = null!;
+        private readonly List<string> recentLogLines = new();
+        private readonly object logHistoryLock = new();
 
         // Process state
         private Process? activeProcess = null;
@@ -141,7 +165,7 @@ namespace LotroTtsGui
                 InitializeUi();
                 PopulateNarratorVoices();
                 LoadConfig();
-                RefreshSystemStatus();
+                RefreshSystemStatus(checkDbAsync: false);
             }
             finally
             {
@@ -183,18 +207,14 @@ namespace LotroTtsGui
             string dbFile = Path.Combine(baseDir, "data", "lotro.db");
             _ = Task.Run(() =>
             {
-                bool dbOutdated = File.Exists(dbFile) && AreDatabaseSourcesNewer(dbFile);
+                var dbStatus = QueryDatabaseStatus(dbFile);
                 bool pluginOutdated = IsPluginUpdateAvailable();
-                if (dbOutdated || pluginOutdated)
+                Dispatcher.UIThread.Post(() =>
                 {
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        if (dbOutdated)
-                            AppendLog("[NOTICE] Updated quest/NPC source files detected. Click 'Build Quest DB' to update your quest database.", amberWarn);
-                        if (pluginOutdated)
-                            AppendLog("[NOTICE] Updated LOTRO Lua Plugin detected. Click 'Install LOTRO Plugin' to update your in-game plugin.", amberWarn);
-                    });
-                }
+                    ApplyDatabaseStatusToUi(dbStatus, logNotice: true);
+                    if (pluginOutdated)
+                        AppendLog("[NOTICE] Updated LOTRO Lua Plugin detected. Click 'Install LOTRO Plugin' to update your in-game plugin.", amberWarn);
+                });
             });
 
             // Background update check after UI is loaded
@@ -747,13 +767,51 @@ namespace LotroTtsGui
             Grid.SetRow(logBorder, 4);
             rootGrid.Children.Add(logBorder);
 
-            // 5. Console Bottom Actions (Copy Log / Clear)
+            // 5. Console Bottom Actions (Report Voice/Bug on left | Copy Log / Clear on right)
+            var logBottomGrid = new Grid
+            {
+                ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
+                Margin = new Thickness(0, 6, 0, 0)
+            };
+
+            var reportActions = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center,
+                Spacing = 8
+            };
+            btnReportIssue = new Button
+            {
+                Content = "Report Voice / Bug",
+                FontSize = 11,
+                Background = bgCard,
+                Foreground = goldAccent,
+                BorderBrush = borderBrush,
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(10, 2),
+                Cursor = new Cursor(StandardCursorType.Hand)
+            };
+            ToolTip.SetTip(btnReportIssue, "Report a bad reference voice, wrong NPC race/gender mapping, pronunciation issue, or general bug.");
+            btnReportIssue.Click += OnReportIssueClicked;
+
+            lblLastVoiceHint = new TextBlock
+            {
+                Text = "No dialogue spoken yet (general reports always available)",
+                FontSize = 11,
+                Foreground = textMuted,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            reportActions.Children.Add(btnReportIssue);
+            reportActions.Children.Add(lblLastVoiceHint);
+            Grid.SetColumn(reportActions, 0);
+            logBottomGrid.Children.Add(reportActions);
+
             var logActions = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 HorizontalAlignment = HorizontalAlignment.Right,
-                Spacing = 8,
-                Margin = new Thickness(0, 6, 0, 0)
+                Spacing = 8
             };
             var btnCopyLog = new Button
             {
@@ -798,12 +856,15 @@ namespace LotroTtsGui
             btnClearLog.Click += (s, e) =>
             {
                 logTextBlock.Inlines?.Clear();
+                lock (logHistoryLock) recentLogLines.Clear();
             };
 
             logActions.Children.Add(btnCopyLog);
             logActions.Children.Add(btnClearLog);
-            Grid.SetRow(logActions, 5);
-            rootGrid.Children.Add(logActions);
+            Grid.SetColumn(logActions, 2);
+            logBottomGrid.Children.Add(logActions);
+            Grid.SetRow(logBottomGrid, 5);
+            rootGrid.Children.Add(logBottomGrid);
 
             Content = rootGrid;
         }
@@ -965,6 +1026,12 @@ namespace LotroTtsGui
         private void AppendLog(string line, IBrush? color = null)
         {
             if (string.IsNullOrEmpty(line)) return;
+            lock (logHistoryLock)
+            {
+                recentLogLines.Add(line);
+                if (recentLogLines.Count > 60)
+                    recentLogLines.RemoveAt(0);
+            }
             Dispatcher.UIThread.Post(() =>
             {
                 var brush = color;
@@ -1146,6 +1213,11 @@ namespace LotroTtsGui
                         if (chkIncludePrereleases != null) chkIncludePrereleases.IsChecked = includePrereleases;
                     }
 
+                    if (root.TryGetProperty("report_endpoint", out var reProp) && reProp.ValueKind == JsonValueKind.String)
+                    {
+                        savedReportEndpoint = (reProp.GetString() ?? "").Trim();
+                    }
+
                     UpdateHotkeyTooltips();
                 }
                 else
@@ -1270,28 +1342,32 @@ namespace LotroTtsGui
                     else if (Height >= MinHeight) savedNormalHeight = Height;
                 }
 
-                var data = new
+                var data = new Dictionary<string, object?>
                 {
-                    version = AppVersion,
-                    game_lang = gameLang,
-                    tts_lang = ttsLang,
-                    compute_mode = computeMode,
-                    volume = volume,
-                    speech_speed = speechSpeed,
-                    stop_hotkey = stopHotkey,
-                    replay_hotkey = replayHotkey,
-                    skip_hotkey = skipHotkey,
-                    middle_mouse = middleMouse,
-                    queue_mode = queueMode,
-                    audio_ducking = audioDucking,
-                    duck_volume = duckVolume,
-                    narrator_mode = narratorMode,
-                    narrator_voice = narratorVoice,
-                    include_prereleases = includePrereleases,
-                    window_width = (int)Math.Round(savedNormalWidth),
-                    window_height = (int)Math.Round(savedNormalHeight),
-                    window_maximized = savedIsMaximized
+                    ["version"] = AppVersion,
+                    ["game_lang"] = gameLang,
+                    ["tts_lang"] = ttsLang,
+                    ["compute_mode"] = computeMode,
+                    ["volume"] = volume,
+                    ["speech_speed"] = speechSpeed,
+                    ["stop_hotkey"] = stopHotkey,
+                    ["replay_hotkey"] = replayHotkey,
+                    ["skip_hotkey"] = skipHotkey,
+                    ["middle_mouse"] = middleMouse,
+                    ["queue_mode"] = queueMode,
+                    ["audio_ducking"] = audioDucking,
+                    ["duck_volume"] = duckVolume,
+                    ["narrator_mode"] = narratorMode,
+                    ["narrator_voice"] = narratorVoice,
+                    ["include_prereleases"] = includePrereleases,
+                    ["window_width"] = (int)Math.Round(savedNormalWidth),
+                    ["window_height"] = (int)Math.Round(savedNormalHeight),
+                    ["window_maximized"] = savedIsMaximized
                 };
+                if (!string.IsNullOrWhiteSpace(savedReportEndpoint))
+                {
+                    data["report_endpoint"] = savedReportEndpoint;
+                }
                 string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(configPath, json, new UTF8Encoding(false));
             }
@@ -1422,7 +1498,167 @@ namespace LotroTtsGui
             return false;
         }
 
-        private void RefreshSystemStatus()
+        private static int ReadSqliteUserVersion(string dbFile)
+        {
+            try
+            {
+                using var fs = new FileStream(dbFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                byte[] hdr = new byte[64];
+                if (fs.Read(hdr, 0, 64) < 64) return -1;
+                string magic = Encoding.ASCII.GetString(hdr, 0, 16);
+                if (magic != "SQLite format 3\0") return -1;
+                return (hdr[60] << 24) | (hdr[61] << 16) | (hdr[62] << 8) | hdr[63];
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        private DatabaseStatusInfo QueryDatabaseStatus(string dbFile)
+        {
+            bool fileExists = File.Exists(dbFile);
+            bool ready = IsDatabaseReady();
+            int sizeMb = fileExists ? (int)(new FileInfo(dbFile).Length / (1024 * 1024)) : 0;
+            int headerUserVersion = ready ? ReadSqliteUserVersion(dbFile) : -1;
+            bool isLegacyHeader = ready && headerUserVersion == 0;
+            bool sourcesNewer = ready && AreDatabaseSourcesNewer(dbFile);
+
+            string fallbackStatus = !ready ? "missing" : (isLegacyHeader ? "legacy" : (sourcesNewer ? "sources_updated" : "ready"));
+            string fallbackBuilt = isLegacyHeader ? "Pre-v2.0-rc5" : "";
+            string fallbackReason = !ready
+                ? "Database file does not exist."
+                : (isLegacyHeader
+                    ? "Built before v2.0-rc5 (missing version metadata)."
+                    : (sourcesNewer ? "Updated quest/NPC source files detected." : ""));
+
+            var fallback = new DatabaseStatusInfo
+            {
+                Exists = fileExists,
+                Ready = ready,
+                SizeMb = sizeMb,
+                Status = fallbackStatus,
+                NeedsRebuild = !ready,
+                UpdateRecommended = !ready || isLegacyHeader || sourcesNewer,
+                SchemaVersion = headerUserVersion >= 0 ? headerUserVersion : null,
+                BuiltAppVersion = fallbackBuilt,
+                Reason = fallbackReason
+            };
+
+            string genScript = Path.Combine(baseDir, "scripts", "generate_db.py");
+            if (!File.Exists(pythonExe) || !File.Exists(genScript))
+            {
+                return fallback;
+            }
+
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = pythonExe,
+                    Arguments = $"-u \"scripts/generate_db.py\" --check-status --json --app-version \"{AppVersion}\" --output \"{Path.TrimEndingDirectorySeparator(dbFile)}\"",
+                    WorkingDirectory = baseDir,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    StandardErrorEncoding = Encoding.UTF8
+                };
+                psi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8";
+                psi.EnvironmentVariables["PYTHONUTF8"] = "1";
+
+                using var p = Process.Start(psi);
+                if (p == null) return fallback;
+
+                string stdout = p.StandardOutput.ReadToEnd();
+                if (!p.WaitForExit(5000))
+                {
+                    try { p.Kill(); } catch { }
+                    return fallback;
+                }
+                if (p.ExitCode != 0 || string.IsNullOrWhiteSpace(stdout))
+                {
+                    return fallback;
+                }
+
+                string jsonLine = stdout.Trim();
+                int lastNewline = jsonLine.LastIndexOf('\n');
+                if (lastNewline >= 0) jsonLine = jsonLine.Substring(lastNewline + 1).Trim();
+
+                using var doc = JsonDocument.Parse(jsonLine);
+                var r = doc.RootElement;
+                return new DatabaseStatusInfo
+                {
+                    Exists = r.TryGetProperty("exists", out var ex) && ex.ValueKind == JsonValueKind.True,
+                    Ready = r.TryGetProperty("ready", out var rd) && rd.ValueKind == JsonValueKind.True,
+                    Status = r.TryGetProperty("status", out var st) ? (st.GetString() ?? fallback.Status) : fallback.Status,
+                    NeedsRebuild = r.TryGetProperty("needs_rebuild", out var nr) && nr.ValueKind == JsonValueKind.True,
+                    UpdateRecommended = r.TryGetProperty("update_recommended", out var ur) && ur.ValueKind == JsonValueKind.True,
+                    SizeMb = r.TryGetProperty("size_mb", out var sz) && sz.TryGetInt32(out int mb) ? mb : fallback.SizeMb,
+                    SchemaVersion = r.TryGetProperty("schema_version", out var sv) && sv.TryGetInt32(out int sVer) ? sVer : null,
+                    RequiredSchemaVersion = r.TryGetProperty("required_schema_version", out var rsv) && rsv.TryGetInt32(out int rVer) ? rVer : 1,
+                    BuiltAppVersion = r.TryGetProperty("built_app_version", out var bv) ? (bv.GetString() ?? "") : "",
+                    BuiltAtUtc = r.TryGetProperty("built_at_utc", out var ba) ? (ba.GetString() ?? "") : "",
+                    Reason = r.TryGetProperty("reason", out var re) ? (re.GetString() ?? "") : ""
+                };
+            }
+            catch
+            {
+                return fallback;
+            }
+        }
+
+        private void ApplyDatabaseStatusToUi(DatabaseStatusInfo status, bool logNotice)
+        {
+            latestDbStatus = status;
+
+            if (!status.Ready)
+            {
+                lblDbStatus.Text = "Missing (Auto-builds on Start)";
+                lblDbStatus.Foreground = amberWarn;
+                ToolTip.SetTip(lblDbStatus, "No complete data/lotro.db found yet. It builds automatically on start (~4s).");
+                return;
+            }
+
+            string builtLabel = string.IsNullOrWhiteSpace(status.BuiltAppVersion) ? "unknown" : status.BuiltAppVersion;
+            string builtAtNote = string.IsNullOrWhiteSpace(status.BuiltAtUtc) ? "" : $"\nBuilt at: {status.BuiltAtUtc}";
+
+            if (status.Status == "schema_outdated")
+            {
+                lblDbStatus.Text = $"Rebuild Required ({builtLabel})";
+                lblDbStatus.Foreground = redStop;
+                ToolTip.SetTip(lblDbStatus, $"{status.Reason}\nDatabase schema mismatch — will auto-rebuild on Start or click 'Build Quest DB'.{builtAtNote}");
+                if (logNotice)
+                    AppendLog($"[WARNING] Quest database requires rebuild ({status.Reason}) -> Click 'Build Quest DB' or Start to rebuild for {AppVersion}.", redStop);
+            }
+            else if (status.Status == "legacy")
+            {
+                lblDbStatus.Text = $"Update Needed ({builtLabel})";
+                lblDbStatus.Foreground = amberWarn;
+                ToolTip.SetTip(lblDbStatus, $"{status.Reason}\nClick 'Build Quest DB' to rebuild with {AppVersion} version metadata (~4s).");
+                if (logNotice)
+                    AppendLog($"[NOTICE] Quest database has no version metadata ({builtLabel}). Click 'Build Quest DB' to update it to {AppVersion}.", amberWarn);
+            }
+            else if (status.Status == "sources_updated")
+            {
+                lblDbStatus.Text = $"Update Available ({builtLabel})";
+                lblDbStatus.Foreground = amberWarn;
+                ToolTip.SetTip(lblDbStatus, $"{status.Reason}\nBuilt with: {builtLabel} (Schema v{status.SchemaVersion ?? status.RequiredSchemaVersion}).{builtAtNote}\nClick 'Build Quest DB' to rebuild (~4s).");
+                if (logNotice)
+                    AppendLog($"[NOTICE] Quest database (built with {builtLabel}) is outdated: {status.Reason} Click 'Build Quest DB' to update.", amberWarn);
+            }
+            else
+            {
+                lblDbStatus.Text = $"Ready ({status.SizeMb} MB | {builtLabel})";
+                lblDbStatus.Foreground = greenOk;
+                ToolTip.SetTip(lblDbStatus, $"Built with: {builtLabel} (Schema v{status.SchemaVersion ?? status.RequiredSchemaVersion}){builtAtNote}\nAll source files match.");
+            }
+        }
+
+        private void RefreshSystemStatus() => RefreshSystemStatus(checkDbAsync: true);
+
+        private void RefreshSystemStatus(bool checkDbAsync)
         {
             Dispatcher.UIThread.Post(() =>
             {
@@ -1476,26 +1712,28 @@ namespace LotroTtsGui
                 if (IsDatabaseReady())
                 {
                     long mb = new FileInfo(dbFile).Length / (1024 * 1024);
-                    lblDbStatus.Text = $"Ready ({mb} MB / 190 Voices)";
-                    lblDbStatus.Foreground = greenOk;
-
-                    _ = Task.Run(() =>
+                    if (latestDbStatus != null && latestDbStatus.Ready)
                     {
-                        if (AreDatabaseSourcesNewer(dbFile))
+                        ApplyDatabaseStatusToUi(latestDbStatus, logNotice: false);
+                    }
+                    else
+                    {
+                        lblDbStatus.Text = $"Ready ({mb} MB | Checking...)";
+                        lblDbStatus.Foreground = greenOk;
+                    }
+
+                    if (checkDbAsync)
+                    {
+                        _ = Task.Run(() =>
                         {
-                            Dispatcher.UIThread.Post(() =>
-                            {
-                                if (IsDatabaseReady())
-                                {
-                                    lblDbStatus.Text = "Update Available (Click Build DB)";
-                                    lblDbStatus.Foreground = amberWarn;
-                                }
-                            });
-                        }
-                    });
+                            var dbStatus = QueryDatabaseStatus(dbFile);
+                            Dispatcher.UIThread.Post(() => ApplyDatabaseStatusToUi(dbStatus, logNotice: false));
+                        });
+                    }
                 }
                 else
                 {
+                    latestDbStatus = null;
                     lblDbStatus.Text = "Missing (Auto-builds on Start)";
                     lblDbStatus.Foreground = amberWarn;
                 }
@@ -1662,7 +1900,11 @@ namespace LotroTtsGui
                 return;
             }
 
-            if (!IsDatabaseReady())
+            string dbFile = Path.Combine(baseDir, "data", "lotro.db");
+            var currentDbStatus = await Task.Run(() => QueryDatabaseStatus(dbFile));
+            ApplyDatabaseStatusToUi(currentDbStatus, logNotice: false);
+
+            if (!IsDatabaseReady() || currentDbStatus.NeedsRebuild)
             {
                 RunSequentialTasksAndStartService(null, true);
                 return;
@@ -1711,7 +1953,7 @@ namespace LotroTtsGui
                     if (buildDb || !IsDatabaseReady())
                     {
                         AppendLog("\n>>> Building SQLite Quest Database (data/lotro.db)...", goldAccent);
-                        int code = RunPythonBlocking("-u \"scripts/generate_db.py\"");
+                        int code = RunPythonBlocking($"-u \"scripts/generate_db.py\" --app-version \"{AppVersion}\"");
                         RefreshSystemStatus();
                         if (code != 0)
                         {
@@ -1761,8 +2003,18 @@ namespace LotroTtsGui
                 psi.EnvironmentVariables["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1";
 
                 using var p = new Process { StartInfo = psi };
-                p.OutputDataReceived += (s, ev) => { if (ev.Data != null) AppendLog(ev.Data); };
-                p.ErrorDataReceived += (s, ev) => { if (ev.Data != null) AppendLog(ev.Data); };
+                p.OutputDataReceived += (s, ev) =>
+                {
+                    if (ev.Data == null) return;
+                    if (HandleServiceControlLine(ev.Data)) return;
+                    AppendLog(ev.Data);
+                };
+                p.ErrorDataReceived += (s, ev) =>
+                {
+                    if (ev.Data == null) return;
+                    if (HandleServiceControlLine(ev.Data)) return;
+                    AppendLog(ev.Data);
+                };
                 p.Start();
                 p.BeginOutputReadLine();
                 p.BeginErrorReadLine();
@@ -2017,7 +2269,64 @@ namespace LotroTtsGui
                 HandleAudioDuckSignal(false);
                 return true;
             }
+            const string voiceMetaPrefix = "[VOICE_META]";
+            if (trimmed.StartsWith(voiceMetaPrefix, StringComparison.Ordinal))
+            {
+                string payload = trimmed.Substring(voiceMetaPrefix.Length).Trim();
+                if (VoiceReportContext.TryParseJson(payload, out var ctx) && ctx != null)
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        lastVoiceReportContext = ctx;
+                        if (lblLastVoiceHint != null)
+                        {
+                            string langTag = string.IsNullOrWhiteSpace(ctx.TtsLang) ? "" : $"{ctx.TtsLang.ToUpperInvariant()} / ";
+                            string npcTag = string.IsNullOrWhiteSpace(ctx.NpcName) ? "" : $" ({ctx.NpcName})";
+                            lblLastVoiceHint.Text = $"Last voice: {langTag}{ctx.VoiceId}{npcTag}";
+                            lblLastVoiceHint.Foreground = textMuted;
+                        }
+                    });
+                }
+                return true;
+            }
             return false;
+        }
+
+        private async void OnReportIssueClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            string dbVerLabel = latestDbStatus != null && !string.IsNullOrWhiteSpace(latestDbStatus.BuiltAppVersion)
+                ? latestDbStatus.BuiltAppVersion
+                : (IsDatabaseReady() ? "unknown" : "missing");
+
+            string logExcerpt;
+            lock (logHistoryLock)
+            {
+                int skip = Math.Max(0, recentLogLines.Count - 40);
+                var slice = new List<string>();
+                for (int i = skip; i < recentLogLines.Count; i++)
+                    slice.Add(recentLogLines[i]);
+                logExcerpt = string.Join("\n", slice);
+            }
+
+            var hostMeta = new ReportHostMetadata
+            {
+                AppVersion = AppVersion,
+                DbVersion = dbVerLabel,
+                OsInfo = ReportHostMetadata.DetectOsSummary(),
+                ComputeMode = GetSelectedCode(cmbComputeMode, "auto"),
+                ClientLang = GetSelectedCode(cmbClientLang, "de"),
+                TtsLang = GetSelectedCode(cmbTtsLang, "de"),
+                NarratorMode = chkNarratorMode?.IsChecked ?? false,
+                ReportEndpointOverride = savedReportEndpoint,
+                RecentLogExcerpt = logExcerpt
+            };
+
+            var dlg = new ReportDialog(lastVoiceReportContext, hostMeta);
+            await dlg.ShowDialog(this);
+            if (!string.IsNullOrWhiteSpace(dlg.SubmittedIssueUrl))
+            {
+                AppendLog($"[REPORT] GitHub Issue #{dlg.SubmittedIssueNumber} submitted: {dlg.SubmittedIssueUrl}", greenOk);
+            }
         }
 
         private void SendServiceIpcCommand(string command)
@@ -2284,7 +2593,7 @@ namespace LotroTtsGui
                 if (code == 0 && !IsDatabaseReady())
                 {
                     AppendLog("\n>>> Building SQLite Quest Database (data/lotro.db)...", goldAccent);
-                    code = RunPythonBlocking("-u \"scripts/generate_db.py\"");
+                    code = RunPythonBlocking($"-u \"scripts/generate_db.py\" --app-version \"{AppVersion}\"");
                 }
                 Dispatcher.UIThread.Post(() =>
                 {
@@ -2303,7 +2612,7 @@ namespace LotroTtsGui
 
         private void OnRebuildDbClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            RunBackgroundToolTask("Generating SQLite Quest Database (data/lotro.db)", "-u \"scripts/generate_db.py\"");
+            RunBackgroundToolTask("Generating SQLite Quest Database (data/lotro.db)", $"-u \"scripts/generate_db.py\" --app-version \"{AppVersion}\"");
         }
 
         private void OnUpdateSourcesClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -2336,7 +2645,7 @@ namespace LotroTtsGui
             else if (ttsLang == "it") sampleText = "Il mondo è cambiato. Lo sento nell'acqua, lo sento nella terra.";
             else if (ttsLang == "nl") sampleText = "De wereld is veranderd. Ik voel het in het water, ik voel het in de aarde.";
 
-            string args = $"-u \"scripts/tts_speaker.py\" --npc \"Galadriel\" --lang {ttsLang} --device {mode} --volume {volume} --speed {speed} --text \"{sampleText}\"";
+            string args = $"-u \"scripts/tts_speaker.py\" --npc \"Galadriel\" --lang {ttsLang} --device {mode} --volume {volume} --speed {speed} --emit-voice-meta --text \"{sampleText}\"";
             RunBackgroundToolTask($"Testing TTS Voice Output (Galadriel / {ttsLang.ToUpperInvariant()} / Mode: {mode.ToUpperInvariant()} / Vol: {volume}% / Speed: {speed}%)", args);
         }
 

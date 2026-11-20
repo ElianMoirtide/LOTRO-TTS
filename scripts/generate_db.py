@@ -7,9 +7,12 @@ from the game's extracted XML data files.
 """
 
 import argparse
+from datetime import datetime, timezone
+import hashlib
 import json
 import logging
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -17,13 +20,14 @@ import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+# Bump whenever database schema or voice assignment semantics break compatibility with older DB builds
+DB_SCHEMA_VERSION = 1
+DEFAULT_APP_VERSION = "v2.0-rc5"
+
 # Add scripts directory to sys.path for embedded Python
 scripts_dir = Path(__file__).resolve().parent
 if str(scripts_dir) not in sys.path:
     sys.path.insert(0, str(scripts_dir))
-
-from assign_voices import load_voice_pools, get_deterministic_voice_id
-from pack_catalog import PACK_DEFINITIONS, load_lotro_metadata, classify_quest_pack
 
 # Configure logging
 logging.basicConfig(
@@ -111,10 +115,18 @@ def create_schema(conn: sqlite3.Connection):
     cur = conn.cursor()
     cur.execute("PRAGMA foreign_keys = OFF;")
 
+    cur.execute("DROP TABLE IF EXISTS Meta;")
     cur.execute("DROP TABLE IF EXISTS Quest_Texts;")
     cur.execute("DROP TABLE IF EXISTS Quests;")
     cur.execute("DROP TABLE IF EXISTS NPCs;")
     cur.execute("DROP TABLE IF EXISTS Packs;")
+
+    cur.execute("""
+    CREATE TABLE Meta (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+    );
+    """)
 
     cur.execute("""
     CREATE TABLE Packs (
@@ -210,8 +222,241 @@ def create_indexes(conn: sqlite3.Connection):
     conn.commit()
 
 
-def generate_database(src_dir: Path, output_db: Path):
+def resolve_app_version(base_dir: Path, explicit_version: str | None = None) -> str:
+    """Resolves the current application version string from CLI arg or MainWindow.cs."""
+    if explicit_version and explicit_version.strip():
+        return explicit_version.strip()
+    main_window = base_dir / "src" / "LotroTtsGui" / "MainWindow.cs"
+    if main_window.exists():
+        try:
+            text = main_window.read_text(encoding="utf-8", errors="ignore")
+            m = re.search(r'AppVersion\s*=\s*"([^"]+)"', text)
+            if m and m.group(1).strip():
+                return m.group(1).strip()
+        except OSError:
+            pass
+    return DEFAULT_APP_VERSION
+
+
+def _sha256_file_full(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        while True:
+            chunk = f.read(65536)
+            if not chunk:
+                break
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _sha256_file_edges(path: Path, sample_bytes: int = 65536) -> str:
+    """Fast deterministic fingerprint (size + first/last 64KB) for large XMLs."""
+    size = path.stat().st_size
+    h = hashlib.sha256()
+    h.update(f"{size}:".encode("utf-8"))
+    with path.open("rb") as f:
+        h.update(f.read(sample_bytes))
+        if size > sample_bytes:
+            f.seek(max(0, size - sample_bytes))
+            h.update(f.read(sample_bytes))
+    return h.hexdigest()
+
+
+def compute_db_sources_info(src_dir: Path, voices_dir: Path, base_dir: Path) -> dict[str, str]:
+    """
+    Computes deterministic SHA256 fingerprints over DB generator scripts, voice indexes,
+    NPC race/custom data, metadata XMLs, and (if present locally) quest XMLs.
+    """
+    core_hasher = hashlib.sha256()
+
+    core_candidates: list[Path] = [
+        base_dir / "scripts" / "generate_db.py",
+        base_dir / "scripts" / "assign_voices.py",
+        base_dir / "scripts" / "pack_catalog.py",
+    ]
+    if voices_dir.exists():
+        core_candidates.extend(sorted(voices_dir.glob("*/voice_index.json")))
+
+    npc_dir = find_dir_case_insensitive(src_dir, "npc")
+    if npc_dir.exists():
+        core_candidates.extend(sorted(npc_dir.glob("*.xml")))
+        for json_name in ("npc_races.json", "npc_races_custom.json"):
+            jf = find_file_case_insensitive(npc_dir, json_name)
+            if jf.exists():
+                core_candidates.append(jf)
+
+    meta_dir = find_dir_case_insensitive(src_dir, "meta")
+    if meta_dir.exists():
+        core_candidates.extend(sorted(meta_dir.glob("*.xml")))
+
+    seen_core: set[Path] = set()
+    for p in sorted(core_candidates, key=lambda x: x.as_posix().lower()):
+        if not p.is_file():
+            continue
+        rp = p.resolve()
+        if rp in seen_core:
+            continue
+        seen_core.add(rp)
+        rel = p.relative_to(base_dir).as_posix() if p.is_relative_to(base_dir) else p.name
+        try:
+            digest = _sha256_file_full(p)
+            core_hasher.update(f"{rel}={digest}\n".encode("utf-8"))
+        except OSError:
+            continue
+
+    quests_dir = find_dir_case_insensitive(src_dir, "quests")
+    quests_fp = ""
+    if quests_dir.exists():
+        quest_xmls = sorted(quests_dir.glob("*.xml"), key=lambda x: x.name.lower())
+        if quest_xmls:
+            qh = hashlib.sha256()
+            for qf in quest_xmls:
+                if not qf.is_file():
+                    continue
+                rel = qf.relative_to(base_dir).as_posix() if qf.is_relative_to(base_dir) else qf.name
+                try:
+                    qh.update(f"{rel}={_sha256_file_edges(qf)}\n".encode("utf-8"))
+                except OSError:
+                    continue
+            quests_fp = qh.hexdigest()
+
+    return {
+        "core_fingerprint": core_hasher.hexdigest(),
+        "quests_fingerprint": quests_fp,
+    }
+
+
+def check_database_status(
+    db_path: Path,
+    src_dir: Path | None = None,
+    base_dir: Path | None = None,
+    app_version: str | None = None,
+) -> dict:
+    """
+    Inspects data/lotro.db version metadata and source fingerprints to determine
+    whether the database is missing, legacy (pre-v2.0-rc5), schema-incompatible,
+    outdated compared to source files, or ready.
+    """
+    base_dir = base_dir or Path(__file__).resolve().parent.parent
+    src_dir = src_dir or (base_dir / "src")
+    voices_dir = base_dir / "data" / "voices"
+    current_app_version = resolve_app_version(base_dir, app_version)
+
+    result = {
+        "exists": False,
+        "ready": False,
+        "status": "missing",
+        "needs_rebuild": True,
+        "update_recommended": True,
+        "size_mb": 0,
+        "schema_version": None,
+        "required_schema_version": DB_SCHEMA_VERSION,
+        "built_app_version": "",
+        "current_app_version": current_app_version,
+        "built_at_utc": "",
+        "reason": "Database file does not exist.",
+    }
+
+    if not db_path.exists():
+        return result
+
+    try:
+        size_bytes = db_path.stat().st_size
+    except OSError:
+        return result
+
+    result["exists"] = True
+    result["size_mb"] = int(size_bytes // (1024 * 1024))
+    if size_bytes <= 5 * 1024 * 1024:
+        result["reason"] = "Database file is incomplete or too small."
+        return result
+
+    result["ready"] = True
+    conn = None
+    user_version = 0
+    meta: dict[str, str] = {}
+    has_meta_table = False
+
+    try:
+        try:
+            conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=1.0)
+        except sqlite3.Error:
+            conn = sqlite3.connect(str(db_path), timeout=1.0)
+        cur = conn.cursor()
+        row = cur.execute("PRAGMA user_version;").fetchone()
+        if row and row[0] is not None:
+            user_version = int(row[0])
+        tbl = cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Meta';").fetchone()
+        if tbl:
+            has_meta_table = True
+            for k, v in cur.execute("SELECT key, value FROM Meta;").fetchall():
+                meta[str(k)] = str(v)
+    except Exception as e:
+        result["status"] = "schema_outdated"
+        result["needs_rebuild"] = True
+        result["update_recommended"] = True
+        result["reason"] = f"Could not read database metadata: {e}"
+        return result
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+    if not has_meta_table or user_version == 0:
+        result["status"] = "legacy"
+        result["needs_rebuild"] = False
+        result["update_recommended"] = True
+        result["schema_version"] = user_version
+        result["built_app_version"] = "Pre-v2.0-rc5"
+        result["reason"] = "Built before v2.0-rc5 (missing version metadata)."
+        return result
+
+    try:
+        db_schema = int(meta.get("schema_version") or user_version)
+    except ValueError:
+        db_schema = user_version
+
+    built_app = meta.get("built_app_version", "") or "unknown"
+    result["schema_version"] = db_schema
+    result["built_app_version"] = built_app
+    result["built_at_utc"] = meta.get("built_at_utc", "")
+
+    if db_schema != DB_SCHEMA_VERSION or user_version != DB_SCHEMA_VERSION:
+        result["status"] = "schema_outdated"
+        result["needs_rebuild"] = True
+        result["update_recommended"] = True
+        result["reason"] = f"Database schema v{db_schema} differs from required v{DB_SCHEMA_VERSION}."
+        return result
+
+    cur_fp = compute_db_sources_info(src_dir, voices_dir, base_dir)
+    if meta.get("core_fingerprint") != cur_fp["core_fingerprint"]:
+        result["status"] = "sources_updated"
+        result["needs_rebuild"] = False
+        result["update_recommended"] = True
+        result["reason"] = "Updated voice index, NPC race metadata, custom overrides, or DB generator detected."
+        return result
+
+    if cur_fp["quests_fingerprint"] and meta.get("quests_fingerprint") and meta["quests_fingerprint"] != cur_fp["quests_fingerprint"]:
+        result["status"] = "sources_updated"
+        result["needs_rebuild"] = False
+        result["update_recommended"] = True
+        result["reason"] = "Updated Quest XML files detected."
+        return result
+
+    result["status"] = "ready"
+    result["needs_rebuild"] = False
+    result["update_recommended"] = False
+    result["reason"] = f"Up to date (built with {built_app}, schema v{db_schema})."
+    return result
+
+
+def generate_database(src_dir: Path, output_db: Path, app_version: str | None = None):
     """Main generation logic."""
+    from assign_voices import load_voice_pools, get_deterministic_voice_id
+    from pack_catalog import PACK_DEFINITIONS, load_lotro_metadata, classify_quest_pack
+
     start_time = time.time()
     logger.info("Starting LOTRO-TTS SQLite database generation...")
     logger.info(f"Source directory: {src_dir}")
@@ -685,8 +930,24 @@ def generate_database(src_dir: Path, output_db: Path):
         logger.info("Foreign key check passed: 0 violations.")
 
     # -------------------------------------------------------------
-    # 7. Create indexes & finalize SQLite settings
+    # 7. Store version metadata, create indexes & finalize SQLite settings
     # -------------------------------------------------------------
+    base_dir = Path(__file__).resolve().parent.parent
+    resolved_app_version = resolve_app_version(base_dir, app_version)
+    fp_info = compute_db_sources_info(src_dir, voices_base_dir, base_dir)
+    built_at_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    meta_rows = [
+        ("schema_version", str(DB_SCHEMA_VERSION)),
+        ("built_app_version", resolved_app_version),
+        ("built_at_utc", built_at_utc),
+        ("core_fingerprint", fp_info["core_fingerprint"]),
+        ("quests_fingerprint", fp_info["quests_fingerprint"]),
+        ("npc_count", str(len(npcs_dict))),
+        ("quest_count", str(len(quests_rows))),
+    ]
+    cur.executemany("INSERT OR REPLACE INTO Meta (key, value) VALUES (?, ?)", meta_rows)
+    conn.execute(f"PRAGMA user_version = {DB_SCHEMA_VERSION};")
+
     logger.info("Creating database indexes...")
     t0 = time.time()
     create_indexes(conn)
@@ -700,7 +961,10 @@ def generate_database(src_dir: Path, output_db: Path):
 
     db_size_mb = output_db.stat().st_size / (1024 * 1024)
     total_time = time.time() - start_time
-    logger.info(f"Database generated successfully: {output_db} ({db_size_mb:.2f} MB)")
+    logger.info(
+        f"Database generated successfully: {output_db} ({db_size_mb:.2f} MB | "
+        f"Version: {resolved_app_version} | Schema: v{DB_SCHEMA_VERSION})"
+    )
     logger.info(f"Completed in {total_time:.2f} seconds.")
 
 
@@ -724,6 +988,22 @@ def main():
         help="Path to the target SQLite database file (default: data/lotro.db)."
     )
     parser.add_argument(
+        "--app-version",
+        type=str,
+        default=None,
+        help="Application version tag recorded in the Meta table."
+    )
+    parser.add_argument(
+        "--check-status",
+        action="store_true",
+        help="Check database metadata & source freshness without modifying the database."
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output --check-status results as JSON."
+    )
+    parser.add_argument(
         "--quiet",
         "-q",
         action="store_true",
@@ -732,10 +1012,21 @@ def main():
 
     args = parser.parse_args()
 
+    if args.check_status:
+        status = check_database_status(args.output, src_dir=args.src, base_dir=default_root, app_version=args.app_version)
+        if args.json:
+            print(json.dumps(status, ensure_ascii=False))
+        else:
+            print(
+                f"Status: {status['status']} | Built: {status['built_app_version'] or 'n/a'} | "
+                f"Schema: {status['schema_version']} | {status['reason']}"
+            )
+        return
+
     if args.quiet:
         logger.setLevel(logging.WARNING)
 
-    generate_database(args.src, args.output)
+    generate_database(args.src, args.output, app_version=args.app_version)
 
 
 if __name__ == "__main__":
